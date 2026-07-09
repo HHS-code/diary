@@ -6,10 +6,12 @@ import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
 
 /**
  * Fabric.js 캔버스와 스티커 팔레트를 렌더링하는 컴포넌트.
+ * canvasJSON이 있으면 마운트 시 해당 상태를 복원한다.
+ * @param {{ canvasJSON: object | null }} props
  */
-export function DiaryCanvas() {
+export function DiaryCanvas({ canvasJSON }) {
   const canvasElRef = useRef(null)
-  const fabricCanvasRef = useFabricCanvas(canvasElRef)
+  const fabricCanvasRef = useFabricCanvas(canvasElRef, canvasJSON)
 
   return (
     <div style={{ padding: '16px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>

@@ -1,7 +1,46 @@
+import { useState } from 'react'
+import { Calendar } from './components/Calendar/Calendar'
+import { Tabs } from './components/Tabs/Tabs'
 import { DiaryCanvas } from './components/DiaryCanvas/DiaryCanvas'
+import { loadAllDiaryData, getDatePageData } from './storage/diaryStorage'
+
+function formatToday() {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 function App() {
-  return <DiaryCanvas />
+  const [selectedDate, setSelectedDate] = useState(formatToday())
+  const [activeTab, setActiveTab] = useState('diary')
+
+  const allData = loadAllDiaryData()
+  const { canvasJSON } = getDatePageData(allData, selectedDate, activeTab)
+
+  function handleSelectDate(dateKey) {
+    setSelectedDate(dateKey)
+    setActiveTab('diary')
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
+      <Calendar selectedDate={selectedDate} onSelectDate={handleSelectDate} />
+      <div style={{ flex: 1 }}>
+        <h2 style={{ margin: '0 0 12px 0', fontSize: '18px' }}>{selectedDate}</h2>
+        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+        {activeTab === 'diary' && (
+          <DiaryCanvas key={`${selectedDate}-diary`} canvasJSON={canvasJSON} />
+        )}
+        {activeTab === 'movie' && (
+          <div style={{ padding: '32px', color: '#888', fontSize: '16px' }}>
+            영화 리뷰는 곧 추가됩니다.
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default App

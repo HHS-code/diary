@@ -7,10 +7,12 @@ const CANVAS_HEIGHT = 600
 /**
  * Fabric.js 캔버스 생명주기를 React에 연결하는 커스텀 훅.
  * 마운트 시 fabric.Canvas를 생성하고, 언마운트 시 dispose()로 정리한다.
+ * initialCanvasJSON이 있으면 캔버스 생성 직후 loadFromJSON으로 복원한다.
  * @param {React.RefObject<HTMLCanvasElement>} canvasElementRef
+ * @param {object | null} [initialCanvasJSON]
  * @returns {React.RefObject<import('fabric').Canvas | null>}
  */
-export function useFabricCanvas(canvasElementRef) {
+export function useFabricCanvas(canvasElementRef, initialCanvasJSON) {
   const fabricCanvasRef = useRef(null)
 
   useEffect(() => {
@@ -22,6 +24,10 @@ export function useFabricCanvas(canvasElementRef) {
       height: CANVAS_HEIGHT,
     })
     fabricCanvasRef.current = fabricCanvas
+
+    if (initialCanvasJSON) {
+      fabricCanvas.loadFromJSON(initialCanvasJSON)
+    }
 
     return () => {
       fabricCanvas.dispose()

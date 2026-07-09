@@ -45,7 +45,10 @@
     {
       "step": 5,
       "name": "calendar-tabs",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-10T07:44:05+0900",
+      "completed_at": "2026-07-10T08:30:00+0900",
+      "summary": "src/components/Calendar/Calendar.jsx 생성 — 라이브러리 없이 순수 구현, 월 그리드, 이전/다음 달 이동, 날짜 클릭 시 YYYY-MM-DD 문자열을 onSelectDate로 전달. src/components/Tabs/Tabs.jsx 생성 — '다이어리'/'영화리뷰' 탭 전환 UI, 영화리뷰 탭은 placeholder. useFabricCanvas(canvasElementRef, initialCanvasJSON) — 두 번째 인자 추가, 생성 직후 loadFromJSON() 호출. DiaryCanvas({ canvasJSON }) — canvasJSON prop 받아 훅에 전달. App.jsx — Calendar+Tabs+DiaryCanvas 조립, loadAllDiaryData/getDatePageData로 날짜·탭별 canvasJSON 조회, key={selectedDate-diary}로 날짜 전환 시 캔버스 remount·복원. 저장은 연결 안 함(step 6). npm run build 통과(478 kB)."
     },
     {
       "step": 6,
