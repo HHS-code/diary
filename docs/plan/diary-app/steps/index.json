@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "text-memo-fonts",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-09T16:59:38+0900",
+      "completed_at": "2026-07-10T00:00:00+0900",
+      "summary": "src/components/TextMemoButton/TextMemoButton.jsx 생성. props: { fabricCanvasRef }. FONTS 상수(8종 손글씨 구글 폰트)를 드롭다운으로 렌더링. '텍스트 추가' 버튼 클릭 시 select+input+추가 버튼 UI 표시, Enter/버튼 클릭으로 IText(fontFamily, fontSize:32)를 캔버스 중앙에 추가. IText로 더블클릭 편집 가능. DiaryCanvas.jsx에서 ImageUploadButton 아래에 배치. Fabric.js import: { IText } from 'fabric'. npm run build 통과(475 kB). 다음 step(calendar-tabs)은 날짜별 페이지 관리와 다이어리/영화리뷰 탭 전환 UI를 만들고 fabricCanvasRef를 탭별로 독립 관리한다."
     },
     {
       "step": 5,
