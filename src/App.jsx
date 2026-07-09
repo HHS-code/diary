@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Calendar } from './components/Calendar/Calendar'
 import { Tabs } from './components/Tabs/Tabs'
 import { DiaryCanvas } from './components/DiaryCanvas/DiaryCanvas'
-import { loadAllDiaryData, getDatePageData } from './storage/diaryStorage'
+import { loadAllDiaryData, getDatePageData, saveAllDiaryData, setDatePageData } from './storage/diaryStorage'
 
 function formatToday() {
   const d = new Date()
@@ -24,6 +24,12 @@ function App() {
     setActiveTab('diary')
   }
 
+  function handleSaveCanvas(newCanvasJSON) {
+    const current = loadAllDiaryData()
+    const updated = setDatePageData(current, selectedDate, activeTab, newCanvasJSON)
+    saveAllDiaryData(updated)
+  }
+
   return (
     <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
       <Calendar selectedDate={selectedDate} onSelectDate={handleSelectDate} />
@@ -31,7 +37,7 @@ function App() {
         <h2 style={{ margin: '0 0 12px 0', fontSize: '18px' }}>{selectedDate}</h2>
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === 'diary' && (
-          <DiaryCanvas key={`${selectedDate}-diary`} canvasJSON={canvasJSON} />
+          <DiaryCanvas key={`${selectedDate}-diary`} canvasJSON={canvasJSON} onSave={handleSaveCanvas} />
         )}
         {activeTab === 'movie' && (
           <div style={{ padding: '32px', color: '#888', fontSize: '16px' }}>

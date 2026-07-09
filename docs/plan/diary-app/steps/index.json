@@ -53,7 +53,10 @@
     {
       "step": 6,
       "name": "autosave",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-10T07:48:49+0900",
+      "completed_at": "2026-07-10T08:10:00+0900",
+      "summary": "useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) — 세 번째 인자 onSave 추가. object:added/modified/removed 이벤트를 구독하고 500ms 디바운스 후 onSave(canvas.toJSON()) 호출. loadFromJSON 중 발생하는 이벤트는 isLoading 플래그로 무시(재저장 방지). DiaryCanvas({ canvasJSON, onSave }) — onSave prop 받아 훅에 전달. App.jsx — handleSaveCanvas(canvasJSON): loadAllDiaryData → setDatePageData → saveAllDiaryData 흐름으로 현재 selectedDate·activeTab에 저장. DiaryCanvas에 onSave 전달. npm run build 통과(479 kB). 다음 step(json-png-io)은 saveAllDiaryData로 쌓인 데이터를 JSON 파일로 내보내고, canvas.toDataURL()로 PNG 추출하면 된다."
     },
     {
       "step": 7,
