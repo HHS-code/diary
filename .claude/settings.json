@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "개인 도구이자 팀 공유용이라 안전망 훅을 레포에 자체 포함한다(팀원이 pull만 해도 작동). 동일 훅이 전역 ~/.claude에도 있는 개인 머신에선 이 레포에서 두 번 실행될 수 있으나 결과는 동일(무해)하다. verify_gate는 capstone 레이아웃에 결합돼 여기에만 둔다.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/tdd_gate.py\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect_safety.py\"",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/deny_dangerous.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify_gate.sh\"",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
