@@ -63,7 +63,7 @@
       "name": "json-png-io",
       "status": "completed",
       "started_at": "2026-07-10T07:52:00+0900",
-      "completed_at": "2026-07-10T09:00:00+0900",
+      "completed_at": "2026-07-10T07:55:27+0900",
       "summary": "src/components/ExportImportControls/ExportImportControls.jsx 생성. props: { fabricCanvasRef, selectedDate, onImportSuccess }. JSON 내보내기: loadAllDiaryData() → Blob → URL.createObjectURL 다운로드(파일명 diary-backup-YYYY-MM-DD.json). JSON 불러오기: 숨김 file input → FileReader → JSON.parse → saveAllDiaryData → onImportSuccess() 호출. PNG 내보내기: fabricCanvasRef.current.toDataURL({ format: 'png' }) → anchor 다운로드(파일명 diary-YYYY-MM-DD.png). DiaryCanvas.jsx: selectedDate, onImportSuccess props 추가, ExportImportControls 캔버스 아래 배치. App.jsx: refreshKey state 추가, handleImportSuccess로 refreshKey increment → DiaryCanvas key에 포함해 불러오기 후 캔버스 remount·복원. npm run build 통과(480 kB)."
     }
   ],
