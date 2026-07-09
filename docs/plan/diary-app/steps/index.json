@@ -15,7 +15,7 @@
       "name": "fabric-canvas-shell",
       "status": "completed",
       "started_at": "2026-07-09T16:50:17+0900",
-      "completed_at": "2026-07-09T17:10:00+0900",
+      "completed_at": "2026-07-09T16:53:43+0900",
       "summary": "src/hooks/useFabricCanvas.js 생성. 공개 API: useFabricCanvas(canvasElementRef) → fabricCanvasRef. 마운트 시 new Canvas(el, { width:800, height:600 }) 생성, 언마운트 시 dispose(). src/components/DiaryCanvas/DiaryCanvas.jsx 생성 — <canvas> 렌더링 + 임시 '테스트용 네모 추가' 버튼(step 2~4에서 교체 예정). App.jsx를 Vite 보일러플레이트에서 DiaryCanvas 렌더링으로 교체. Fabric.js import: { Canvas, Rect } from 'fabric' (v7 named export). storage/diaryStorage.js 미연결(step 6에서 연결). npm run build 통과(471 kB)."
     },
     {
