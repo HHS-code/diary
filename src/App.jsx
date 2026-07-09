@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Calendar } from './components/Calendar/Calendar'
 import { Tabs } from './components/Tabs/Tabs'
 import { DiaryCanvas } from './components/DiaryCanvas/DiaryCanvas'
@@ -15,6 +15,7 @@ function formatToday() {
 function App() {
   const [selectedDate, setSelectedDate] = useState(formatToday())
   const [activeTab, setActiveTab] = useState('diary')
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const allData = loadAllDiaryData()
   const { canvasJSON } = getDatePageData(allData, selectedDate, activeTab)
@@ -30,6 +31,10 @@ function App() {
     saveAllDiaryData(updated)
   }
 
+  const handleImportSuccess = useCallback(() => {
+    setRefreshKey((k) => k + 1)
+  }, [])
+
   return (
     <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
       <Calendar selectedDate={selectedDate} onSelectDate={handleSelectDate} />
@@ -37,7 +42,13 @@ function App() {
         <h2 style={{ margin: '0 0 12px 0', fontSize: '18px' }}>{selectedDate}</h2>
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === 'diary' && (
-          <DiaryCanvas key={`${selectedDate}-diary`} canvasJSON={canvasJSON} onSave={handleSaveCanvas} />
+          <DiaryCanvas
+            key={`${selectedDate}-diary-${refreshKey}`}
+            canvasJSON={canvasJSON}
+            onSave={handleSaveCanvas}
+            selectedDate={selectedDate}
+            onImportSuccess={handleImportSuccess}
+          />
         )}
         {activeTab === 'movie' && (
           <div style={{ padding: '32px', color: '#888', fontSize: '16px' }}>
