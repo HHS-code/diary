@@ -22,7 +22,7 @@ const iconButtonStyle = {
 
 const iconLabelStyle = {
   color: '#fff',
-  fontSize: '13px',
+  fontSize: '19.5px',
   textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
 }
 
@@ -33,7 +33,7 @@ export function Desktop({ onOpenDiary }) {
   return (
     <div style={screenStyle}>
       <button type="button" style={iconButtonStyle} onClick={onOpenDiary}>
-        <img src={diaryIcon} alt="" style={{ height: '56px', width: 'auto' }} />
+        <img src={diaryIcon} alt="" style={{ height: '84px', width: 'auto' }} />
         <span style={iconLabelStyle}>diary</span>
       </button>
     </div>
