@@ -53,6 +53,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
     if (initialCanvasJSON) {
       isLoading = true
       fabricCanvas.loadFromJSON(initialCanvasJSON).then(() => {
+        fabricCanvas.renderAll()
         isLoading = false
       })
     }
