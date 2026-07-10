@@ -1,0 +1,72 @@
+{
+  "project": "diary",
+  "phase": "diary-app",
+  "steps": [
+    {
+      "step": 0,
+      "name": "storage-layer",
+      "status": "completed",
+      "started_at": "2026-07-09T16:48:11+0900",
+      "completed_at": "2026-07-09T16:50:17+0900",
+      "summary": "src/storage/diaryStorage.js 생성. 공개 API: loadAllDiaryData(), saveAllDiaryData(data), getDatePageData(data, dateKey, tab), setDatePageData(data, dateKey, tab, canvasJSON). localStorage 키 'diary-app-data' 하나에 전체를 JSON 직렬화. setDatePageData는 spread로 새 객체 반환(in-place 변경 없음). Fabric.js·React 의존 없음. 다음 step(fabric-canvas-shell)은 이 네 함수를 import해 캔버스 load/save에 사용한다."
+    },
+    {
+      "step": 1,
+      "name": "fabric-canvas-shell",
+      "status": "completed",
+      "started_at": "2026-07-09T16:50:17+0900",
+      "completed_at": "2026-07-09T16:53:43+0900",
+      "summary": "src/hooks/useFabricCanvas.js 생성. 공개 API: useFabricCanvas(canvasElementRef) → fabricCanvasRef. 마운트 시 new Canvas(el, { width:800, height:600 }) 생성, 언마운트 시 dispose(). src/components/DiaryCanvas/DiaryCanvas.jsx 생성 — <canvas> 렌더링 + 임시 '테스트용 네모 추가' 버튼(step 2~4에서 교체 예정). App.jsx를 Vite 보일러플레이트에서 DiaryCanvas 렌더링으로 교체. Fabric.js import: { Canvas, Rect } from 'fabric' (v7 named export). storage/diaryStorage.js 미연결(step 6에서 연결). npm run build 통과(471 kB)."
+    },
+    {
+      "step": 2,
+      "name": "sticker-palette",
+      "status": "completed",
+      "started_at": "2026-07-09T16:53:43+0900",
+      "completed_at": "2026-07-09T16:56:02+0900",
+      "summary": "src/components/StickerPalette/StickerPalette.jsx 생성. props: { fabricCanvasRef }. STICKERS 상수(30개 이모지)를 그리드 버튼으로 렌더링, 클릭 시 FabricText(emoji, fontSize:48)를 캔버스 중앙(400,300) ±100px 랜덤 오프셋 위치에 추가. Fabric.js import: { FabricText } from 'fabric'. DiaryCanvas.jsx에서 Rect import 및 테스트용 네모 추가 버튼 제거, StickerPalette를 좌측에 배치. npm run build 통과(472 kB). 다음 step(image-upload)은 fabricCanvasRef를 동일 방식으로 받아 이미지 오브젝트를 추가하면 된다."
+    },
+    {
+      "step": 3,
+      "name": "image-upload",
+      "status": "completed",
+      "started_at": "2026-07-09T16:56:03+0900",
+      "completed_at": "2026-07-09T16:59:38+0900",
+      "summary": "src/components/ImageUploadButton/ImageUploadButton.jsx 생성. props: { fabricCanvasRef }. <input type='file' accept='image/*'>를 숨김 처리하고 버튼 클릭 시 트리거. FileReader로 Data URL 읽은 뒤 FabricImage.fromURL()로 캔버스에 추가. 스케일: Math.min(800/img.width, 600/img.height, 1) — 큰 이미지만 축소, 작은 이미지는 원본 유지. 추가 위치는 스케일 적용 후 캔버스 중앙. DiaryCanvas.jsx에서 StickerPalette 아래에 배치(같은 왼쪽 패널, flexDirection:'column'). Fabric.js import: { FabricImage } from 'fabric'. npm run build 통과(473 kB). 다음 step(text-memo-fonts)은 fabricCanvasRef를 동일 방식으로 받아 IText 오브젝트를 추가하면 된다."
+    },
+    {
+      "step": 4,
+      "name": "text-memo-fonts",
+      "status": "completed",
+      "started_at": "2026-07-09T16:59:38+0900",
+      "completed_at": "2026-07-10T07:44:05+0900",
+      "summary": "src/components/TextMemoButton/TextMemoButton.jsx 생성. props: { fabricCanvasRef }. FONTS 상수(8종 손글씨 구글 폰트)를 드롭다운으로 렌더링. '텍스트 추가' 버튼 클릭 시 select+input+추가 버튼 UI 표시, Enter/버튼 클릭으로 IText(fontFamily, fontSize:32)를 캔버스 중앙에 추가. IText로 더블클릭 편집 가능. DiaryCanvas.jsx에서 ImageUploadButton 아래에 배치. Fabric.js import: { IText } from 'fabric'. npm run build 통과(475 kB). 다음 step(calendar-tabs)은 날짜별 페이지 관리와 다이어리/영화리뷰 탭 전환 UI를 만들고 fabricCanvasRef를 탭별로 독립 관리한다."
+    },
+    {
+      "step": 5,
+      "name": "calendar-tabs",
+      "status": "completed",
+      "started_at": "2026-07-10T07:44:05+0900",
+      "completed_at": "2026-07-10T07:48:48+0900",
+      "summary": "src/components/Calendar/Calendar.jsx 생성 — 라이브러리 없이 순수 구현, 월 그리드, 이전/다음 달 이동, 날짜 클릭 시 YYYY-MM-DD 문자열을 onSelectDate로 전달. src/components/Tabs/Tabs.jsx 생성 — '다이어리'/'영화리뷰' 탭 전환 UI, 영화리뷰 탭은 placeholder. useFabricCanvas(canvasElementRef, initialCanvasJSON) — 두 번째 인자 추가, 생성 직후 loadFromJSON() 호출. DiaryCanvas({ canvasJSON }) — canvasJSON prop 받아 훅에 전달. App.jsx — Calendar+Tabs+DiaryCanvas 조립, loadAllDiaryData/getDatePageData로 날짜·탭별 canvasJSON 조회, key={selectedDate-diary}로 날짜 전환 시 캔버스 remount·복원. 저장은 연결 안 함(step 6). npm run build 통과(478 kB)."
+    },
+    {
+      "step": 6,
+      "name": "autosave",
+      "status": "completed",
+      "started_at": "2026-07-10T07:48:49+0900",
+      "completed_at": "2026-07-10T07:52:00+0900",
+      "summary": "useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) — 세 번째 인자 onSave 추가. object:added/modified/removed 이벤트를 구독하고 500ms 디바운스 후 onSave(canvas.toJSON()) 호출. loadFromJSON 중 발생하는 이벤트는 isLoading 플래그로 무시(재저장 방지). DiaryCanvas({ canvasJSON, onSave }) — onSave prop 받아 훅에 전달. App.jsx — handleSaveCanvas(canvasJSON): loadAllDiaryData → setDatePageData → saveAllDiaryData 흐름으로 현재 selectedDate·activeTab에 저장. DiaryCanvas에 onSave 전달. npm run build 통과(479 kB). 다음 step(json-png-io)은 saveAllDiaryData로 쌓인 데이터를 JSON 파일로 내보내고, canvas.toDataURL()로 PNG 추출하면 된다."
+    },
+    {
+      "step": 7,
+      "name": "json-png-io",
+      "status": "completed",
+      "started_at": "2026-07-10T07:52:00+0900",
+      "completed_at": "2026-07-10T07:55:27+0900",
+      "summary": "src/components/ExportImportControls/ExportImportControls.jsx 생성. props: { fabricCanvasRef, selectedDate, onImportSuccess }. JSON 내보내기: loadAllDiaryData() → Blob → URL.createObjectURL 다운로드(파일명 diary-backup-YYYY-MM-DD.json). JSON 불러오기: 숨김 file input → FileReader → JSON.parse → saveAllDiaryData → onImportSuccess() 호출. PNG 내보내기: fabricCanvasRef.current.toDataURL({ format: 'png' }) → anchor 다운로드(파일명 diary-YYYY-MM-DD.png). DiaryCanvas.jsx: selectedDate, onImportSuccess props 추가, ExportImportControls 캔버스 아래 배치. App.jsx: refreshKey state 추가, handleImportSuccess로 refreshKey increment → DiaryCanvas key에 포함해 불러오기 후 캔버스 remount·복원. npm run build 통과(480 kB)."
+    }
+  ],
+  "created_at": "2026-07-09T16:48:11+0900",
+  "completed_at": "2026-07-10T07:55:27+0900"
+}

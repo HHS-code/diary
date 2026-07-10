@@ -1,121 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useCallback } from 'react'
+import { Calendar } from './components/Calendar/Calendar'
+import { Tabs } from './components/Tabs/Tabs'
+import { DiaryCanvas } from './components/DiaryCanvas/DiaryCanvas'
+import { loadAllDiaryData, getDatePageData, saveAllDiaryData, setDatePageData } from './storage/diaryStorage'
+
+function formatToday() {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedDate, setSelectedDate] = useState(formatToday())
+  const [activeTab, setActiveTab] = useState('diary')
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const allData = loadAllDiaryData()
+  const { canvasJSON } = getDatePageData(allData, selectedDate, activeTab)
+
+  function handleSelectDate(dateKey) {
+    setSelectedDate(dateKey)
+    setActiveTab('diary')
+  }
+
+  function handleSaveCanvas(newCanvasJSON) {
+    const current = loadAllDiaryData()
+    const updated = setDatePageData(current, selectedDate, activeTab, newCanvasJSON)
+    saveAllDiaryData(updated)
+  }
+
+  const handleImportSuccess = useCallback(() => {
+    setRefreshKey((k) => k + 1)
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
+      <Calendar selectedDate={selectedDate} onSelectDate={handleSelectDate} />
+      <div style={{ flex: 1 }}>
+        <h2 style={{ margin: '0 0 12px 0', fontSize: '18px' }}>{selectedDate}</h2>
+        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+        {activeTab === 'diary' && (
+          <DiaryCanvas
+            key={`${selectedDate}-diary-${refreshKey}`}
+            canvasJSON={canvasJSON}
+            onSave={handleSaveCanvas}
+            selectedDate={selectedDate}
+            onImportSuccess={handleImportSuccess}
+          />
+        )}
+        {activeTab === 'movie' && (
+          <div style={{ padding: '32px', color: '#888', fontSize: '16px' }}>
+            영화 리뷰는 곧 추가됩니다.
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
