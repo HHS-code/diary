@@ -37,13 +37,13 @@ const menuWrapperStyle = {
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  alignSelf: 'stretch',
+  height: '48px',
 }
 
 const flyoutStyle = {
   position: 'absolute',
   bottom: '100%',
-  left: 0,
+  left: '-8px',
   margin: 0,
   display: 'flex',
   flexDirection: 'column',
