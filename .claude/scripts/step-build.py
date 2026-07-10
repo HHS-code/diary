@@ -20,11 +20,18 @@ import argparse
 import contextlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
 import time
 import types
+
+if sys.platform == "win32":
+    # Windows 콘솔/리다이렉트 기본 인코딩(cp949 등)은 em dash 같은 유니코드 문자를
+    # 못 찍고 죽는다(UnicodeEncodeError). stdout/stderr를 UTF-8로 강제한다.
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
@@ -230,6 +237,55 @@ class StepBuilder:
 
     # --- Claude 호출 ---
 
+    @staticmethod
+    def _fresh_path_env() -> dict:
+        """subprocess에 넘길 환경변수를 만든다.
+
+        Windows에서는 이 파이썬 프로세스를 띄운 부모(터미널/에디터)가 시작된 뒤에
+        node/claude 등이 새로 설치되면, 레지스트리 PATH는 갱신돼도 이미 떠 있는
+        프로세스의 os.environ은 그대로라 자식 프로세스가 새 실행파일을 못 찾는다.
+        그래서 Windows에서는 subprocess를 띄우기 직전에 레지스트리에서 최신
+        Machine/User PATH를 다시 읽어 os.environ의 PATH 앞에 붙인다.
+        """
+        env = {**os.environ}
+        if sys.platform != "win32":
+            return env
+        try:
+            import winreg
+
+            def read_path(root, subkey: str) -> str:
+                with winreg.OpenKey(root, subkey) as key:
+                    value, _ = winreg.QueryValueEx(key, "Path")
+                    return value
+
+            machine_path = read_path(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment",
+            )
+            try:
+                user_path = read_path(winreg.HKEY_CURRENT_USER, "Environment")
+            except OSError:
+                user_path = ""
+            fresh = ";".join(p for p in (machine_path, user_path) if p)
+            if fresh:
+                env["PATH"] = fresh + ";" + env.get("PATH", "")
+        except OSError:
+            pass
+        return env
+
+    @staticmethod
+    def _resolve_claude_bin(env: dict) -> str:
+        """실행 가능한 claude 경로를 찾는다.
+
+        subprocess는 shell=False라 PATHEXT를 못 읽는다. macOS/Linux는 실행파일이
+        확장자 없는 'claude' 그대로라 문제없지만, Windows npm 글로벌 설치본은
+        'claude.cmd'/'claude.ps1'이라 바로 이름 'claude'로는 CreateProcess가 못 찾는다.
+        shutil.which로 PATHEXT까지 반영해 실제 경로를 확인하고, 못 찾으면 원래
+        이름을 그대로 반환해 기존 동작(및 에러 메시지)을 유지한다.
+        """
+        found = shutil.which("claude", path=env.get("PATH"))
+        return found if found else "claude"
+
     def _invoke_claude(self, step: dict, preamble: str) -> None:
         step_num = step["step"]
         step_file = self._steps_dir / f"step{step_num}.md"
@@ -238,10 +294,12 @@ class StepBuilder:
             sys.exit(1)
 
         prompt = preamble + step_file.read_text(encoding="utf-8")
-        env = {**os.environ, "STEP_BUILD_RUN": "1"}
+        env = {**self._fresh_path_env(), "STEP_BUILD_RUN": "1"}
+        claude_bin = self._resolve_claude_bin(env)
         result = subprocess.run(
-            ["claude", "-p", "--dangerously-skip-permissions", "--output-format", "json", prompt],
-            cwd=self._root, capture_output=True, text=True, timeout=self.STEP_TIMEOUT, env=env,
+            [claude_bin, "-p", "--dangerously-skip-permissions", "--output-format", "json"],
+            input=prompt, cwd=self._root, capture_output=True, text=True,
+            encoding="utf-8", timeout=self.STEP_TIMEOUT, env=env,
         )
         if result.returncode != 0:
             print(f"\n  WARN: Claude 비정상 종료 (code {result.returncode})")

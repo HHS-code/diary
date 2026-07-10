@@ -18,6 +18,7 @@ const DEBOUNCE_MS = 500
 export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
   const fabricCanvasRef = useRef(null)
   const onSaveRef = useRef(onSave)
+  const disposePromiseRef = useRef(null)
 
   useEffect(() => {
     onSaveRef.current = onSave
@@ -27,41 +28,56 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
     const el = canvasElementRef.current
     if (!el) return
 
-    const fabricCanvas = new Canvas(el, {
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-    })
-    fabricCanvasRef.current = fabricCanvas
-
-    let isLoading = false
+    let cancelled = false
     let debounceTimer = null
+    let fabricCanvas = null
+    // fabric Canvas#dispose()는 pending requestAnimationFrame이 있으면 그걸
+    // 기다리는 비동기 작업(Promise 반환)이다. StrictMode 개발 모드는 같은
+    // effect를 mount→unmount→mount로 두 번 실행하는데, dispose 완료 전에
+    // 같은 <canvas> DOM 엘리먼트로 new Canvas()를 또 호출하면 fabric 내부
+    // 상태가 겹쳐 "Cannot read properties of undefined (reading 'clearRect')"가
+    // 난다. 그래서 이전 dispose Promise가 끝난 뒤에만 생성한다.
+    const setupPromise = Promise.resolve(disposePromiseRef.current).then(() => {
+      if (cancelled) return
 
-    function scheduleSave() {
-      if (isLoading) return
-      clearTimeout(debounceTimer)
-      debounceTimer = setTimeout(() => {
-        if (onSaveRef.current) {
-          onSaveRef.current(fabricCanvas.toJSON())
-        }
-      }, DEBOUNCE_MS)
-    }
-
-    fabricCanvas.on('object:added', scheduleSave)
-    fabricCanvas.on('object:modified', scheduleSave)
-    fabricCanvas.on('object:removed', scheduleSave)
-
-    if (initialCanvasJSON) {
-      isLoading = true
-      fabricCanvas.loadFromJSON(initialCanvasJSON).then(() => {
-        fabricCanvas.renderAll()
-        isLoading = false
+      fabricCanvas = new Canvas(el, {
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
       })
-    }
+
+      let isLoading = false
+
+      function scheduleSave() {
+        if (isLoading) return
+        clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          if (onSaveRef.current) {
+            onSaveRef.current(fabricCanvas.toJSON())
+          }
+        }, DEBOUNCE_MS)
+      }
+
+      fabricCanvas.on('object:added', scheduleSave)
+      fabricCanvas.on('object:modified', scheduleSave)
+      fabricCanvas.on('object:removed', scheduleSave)
+
+      if (initialCanvasJSON) {
+        isLoading = true
+        fabricCanvas.loadFromJSON(initialCanvasJSON).then(() => {
+          if (cancelled) return
+          fabricCanvas.renderAll()
+          isLoading = false
+        })
+      }
+
+      fabricCanvasRef.current = fabricCanvas
+    })
 
     return () => {
+      cancelled = true
       clearTimeout(debounceTimer)
-      fabricCanvas.dispose()
       fabricCanvasRef.current = null
+      disposePromiseRef.current = setupPromise.then(() => fabricCanvas?.dispose())
     }
     // canvasElementRef는 useRef 반환값으로 렌더링 간 동일 참조 — 의존 배열 생략
     // eslint-disable-next-line react-hooks/exhaustive-deps
