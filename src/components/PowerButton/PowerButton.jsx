@@ -37,6 +37,7 @@ const menuWrapperStyle = {
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
+  alignSelf: 'stretch',
 }
 
 const flyoutStyle = {
