@@ -22,8 +22,11 @@ function downloadAllDataAsJSON() {
 }
 
 const buttonStyle = {
-  width: '36px',
-  height: '36px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '32px',
+  height: '32px',
   border: 'none',
   background: 'transparent',
   cursor: 'pointer',
@@ -32,6 +35,8 @@ const buttonStyle = {
 
 const menuWrapperStyle = {
   position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
 }
 
 const flyoutStyle = {
@@ -89,7 +94,7 @@ export function PowerButton() {
         onClick={() => setIsMenuOpen((open) => !open)}
         aria-label="전원"
       >
-        <img src={powerButtonIcon} alt="" style={{ width: '100%', height: '100%' }} />
+        <img src={powerButtonIcon} alt="" style={{ display: 'block', width: '100%', height: '100%' }} />
       </button>
     </div>
   )

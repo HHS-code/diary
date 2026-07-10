@@ -33,7 +33,7 @@ export function Desktop({ onOpenDiary }) {
   return (
     <div style={screenStyle}>
       <button type="button" style={iconButtonStyle} onClick={onOpenDiary}>
-        <img src={diaryIcon} alt="" style={{ width: '48px', height: '48px' }} />
+        <img src={diaryIcon} alt="" style={{ height: '56px', width: 'auto' }} />
         <span style={iconLabelStyle}>diary</span>
       </button>
     </div>

@@ -1,6 +1,11 @@
+const TASKBAR_HEIGHT = '48px'
+
 const overlayStyle = {
   position: 'fixed',
-  inset: 0,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: TASKBAR_HEIGHT,
   backgroundColor: 'rgba(0, 0, 0, 0.35)',
   display: 'flex',
   alignItems: 'center',
@@ -9,8 +14,8 @@ const overlayStyle = {
 }
 
 const windowBoxStyle = {
-  width: '90vw',
-  height: '90vh',
+  width: '90%',
+  height: '88%',
   backgroundColor: '#fff',
   borderRadius: '6px',
   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',

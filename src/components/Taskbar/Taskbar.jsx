@@ -11,7 +11,7 @@ const barStyle = {
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: '0 12px',
-  background: 'linear-gradient(to bottom, #3a6ea5, #1b3f8a)',
+  background: '#3f48cc',
   zIndex: 200,
 }
 

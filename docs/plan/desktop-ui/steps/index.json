@@ -1,0 +1,14 @@
+{
+  "project": "diary",
+  "phase": "desktop-ui",
+  "steps": [
+    { "step": 0, "name": "desktop-assets", "status": "pending" },
+    { "step": 1, "name": "diary-app-extraction", "status": "pending" },
+    { "step": 2, "name": "window-component", "status": "pending" },
+    { "step": 3, "name": "clock-component", "status": "pending" },
+    { "step": 4, "name": "power-button", "status": "pending" },
+    { "step": 5, "name": "taskbar", "status": "pending" },
+    { "step": 6, "name": "desktop-screen", "status": "pending" },
+    { "step": 7, "name": "app-composition", "status": "pending" }
+  ]
+}
