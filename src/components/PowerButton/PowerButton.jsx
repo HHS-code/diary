@@ -43,16 +43,21 @@ const flyoutStyle = {
   position: 'absolute',
   bottom: '100%',
   left: 0,
-  marginBottom: '4px',
+  margin: 0,
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  padding: '8px 16px 8px 8px',
-  backgroundColor: '#eee',
-  border: '1px solid #999',
-  borderRadius: '3px',
+  gap: '10px',
+  padding: '10px 24px 10px 10px',
+  backgroundColor: '#c3c3c3',
   cursor: 'pointer',
   whiteSpace: 'nowrap',
+}
+
+const flyoutLabelStyle = {
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: '15px',
+  textShadow: '1px 1px 1px rgba(0, 0, 0, 0.3)',
 }
 
 /**
@@ -84,8 +89,8 @@ export function PowerButton() {
     <div ref={wrapperRef} style={menuWrapperStyle}>
       {isMenuOpen && (
         <div style={flyoutStyle} onClick={handleDownloadClick}>
-          <img src={downloadIcon} alt="" style={{ width: '20px', height: '20px' }} />
-          <span>DOWNLOAD</span>
+          <img src={downloadIcon} alt="" style={{ display: 'block', width: '28px', height: '28px' }} />
+          <span style={flyoutLabelStyle}>DOWNLOAD</span>
         </div>
       )}
       <button
