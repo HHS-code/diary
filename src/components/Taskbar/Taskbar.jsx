@@ -17,9 +17,9 @@ const barStyle = {
 const startSegmentStyle = {
   display: 'flex',
   alignItems: 'center',
-  padding: '0 10px 0 6px',
-  margin: '3px 0 3px 3px',
-  borderRadius: '0 14px 14px 0',
+  height: '100%',
+  padding: '0 14px 0 8px',
+  borderRadius: '0 20px 20px 0',
   background: 'linear-gradient(to bottom, #1f9c1f 0%, #33c433 35%, #1c9c1c 70%, #0f6e0f 100%)',
   boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.25)',
 }
@@ -27,9 +27,10 @@ const startSegmentStyle = {
 const traySegmentStyle = {
   display: 'flex',
   alignItems: 'center',
+  height: '100%',
   padding: '0 12px',
-  margin: '4px 4px 4px auto',
-  borderRadius: '10px',
+  marginLeft: 'auto',
+  borderRadius: '10px 0 0 10px',
   background: 'linear-gradient(to bottom, #4fc3f7 0%, #1596e6 40%, #0d78c9 100%)',
   boxShadow: 'inset 1px 0 0 rgba(0, 0, 0, 0.25)',
 }
