@@ -9,8 +9,7 @@ const barStyle = {
   height: '48px',
   display: 'flex',
   alignItems: 'stretch',
-  background: 'linear-gradient(to bottom, #4a86e8 0%, #225dda 15%, #1c4fc0 100%)',
-  borderTop: '1px solid #0a2a7a',
+  background: 'linear-gradient(to bottom, #478ff1 0%, #2059d7 33%, #2662df 100%)',
   zIndex: 200,
 }
 
@@ -20,8 +19,7 @@ const startSegmentStyle = {
   height: '100%',
   padding: '0 14px 0 8px',
   borderRadius: '0 20px 20px 0',
-  background: 'linear-gradient(to bottom, #1f9c1f 0%, #33c433 35%, #1c9c1c 70%, #0f6e0f 100%)',
-  boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.25)',
+  background: 'linear-gradient(to bottom, #356d2f 0%, #209420 47%, #259025 100%)',
 }
 
 const traySegmentStyle = {
@@ -31,8 +29,7 @@ const traySegmentStyle = {
   padding: '0 12px',
   marginLeft: 'auto',
   borderRadius: '10px 0 0 10px',
-  background: 'linear-gradient(to bottom, #4fc3f7 0%, #1596e6 40%, #0d78c9 100%)',
-  boxShadow: 'inset 1px 0 0 rgba(0, 0, 0, 0.25)',
+  background: 'linear-gradient(to bottom, #478ff1 0%, #2059d7 33%, #2662df 100%)',
 }
 
 /**
