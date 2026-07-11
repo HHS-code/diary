@@ -57,7 +57,7 @@
       "status": "completed",
       "started_at": "2026-07-11T23:20:05+0900",
       "summary": "UI만 수정, 위젯 데이터 로직 무수정. DiaryApp.jsx main 화면 gap/padding 4px→10px(4곳, grid 셀 구성 불변). TodoWidget 헤더 12→14px·항목 13→16px. WeatherWidget 아이콘 32→48px·온도 20→28px, renderWeatherContent loading 분기를 <div className=\"weather-spinner\" role=\"status\">로 교체 — src/index.css에 @keyframes spin + .weather-spinner(32px, #1657d6 보더 링, 0.9s) 추가. AnalogClockWidget SVG의 maxWidth/maxHeight 160px 제거로 영역 꽉 채움. 신규 WeatherWidget.test.jsx 3개(fetch stub으로 loading 스피너 표시/ready·error 시 소멸 검증). 전체 40개·lint·build 통과.",
-      "completed_at": "2026-07-11T23:23:30+0900"
+      "completed_at": "2026-07-11T23:24:21+0900"
     }
   ],
   "created_at": "2026-07-11T19:46:05+0900"
