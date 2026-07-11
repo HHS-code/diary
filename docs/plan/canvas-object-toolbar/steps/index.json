@@ -24,7 +24,7 @@
       "status": "completed",
       "started_at": "2026-07-11T18:07:51+0900",
       "summary": "useAlignment(fabricCanvasRef) -> { alignLeft, alignRight, alignTop, alignBottom, alignCenterH, alignCenterV, distributeHorizontal, distributeVertical } 생성 (src/hooks/useAlignment.js), 각 함수는 (selection: ActiveSelection) => void. 공통 헬퍼 getObjectsAndRects(selection)로 objects/getBoundingRect() 배열을 얻고, align 계열은 min/max/center 델타를 object.left|top에 더해 재배치. distribute 계열은 중심좌표로 정렬 후 양 끝 고정, 중간만 균등 재배치하며 objects.length < 3이면(MIN_OBJECTS_TO_DISTRIBUTE) 조기 return으로 안전 무동작. AlignmentToolbar.jsx(src/components/ObjectToolbar/) 신규: props { activeSelection, actions }, fabric 런타임 import 없음(JSDoc 타입 주석만), activeSelection.getBoundingRect() 기준 선택 영역 바로 아래에 배치(ObjectToolbar와 달리 항상 아래 — 둘은 activeObject/activeSelection이 상호 배타적이라 동시 렌더 안 됨). DiaryCanvas.jsx에서 useActiveSelection의 activeSelection 구조분해 복원, useAlignment 호출 및 activeSelection 존재 시 AlignmentToolbar 조건부 렌더링 추가. lint/build 통과 확인.",
-      "completed_at": "2026-07-11T18:12:00+0900"
+      "completed_at": "2026-07-11T18:11:15+0900"
     },
     {
       "step": 3,
