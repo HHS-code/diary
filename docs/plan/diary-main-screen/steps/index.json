@@ -1,0 +1,39 @@
+{
+  "project": "diary",
+  "phase": "diary-main-screen",
+  "steps": [
+    {
+      "step": 0,
+      "name": "storage-todos",
+      "status": "completed",
+      "started_at": "2026-07-11T11:08:48+0900",
+      "summary": "src/storage/diaryStorage.js에 getDateTodos(data, dateKey) -> Todo[] (없으면 []), setDateTodos(data, dateKey, todos) -> DiaryData (data 비변경, diary/movie 필드 보존, spread 병합) 추가. Todo = { id, text, done } — id 생성은 호출자(TodoWidget, step4) 책임. loadAllDiaryData/saveAllDiaryData는 미수정, 그대로 재사용. 프로젝트에 테스트 러너 없음 — Node 스크립트로 수동 검증(AC 그대로). 다음 step이 import할 산출 파일: src/storage/diaryStorage.js."
+    },
+    {
+      "step": 1,
+      "name": "xp-calendar",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "analog-clock-widget",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "weather-widget",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "todo-widget",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "main-screen-wiring",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-07-11T11:08:48+0900"
+}

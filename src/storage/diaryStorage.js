@@ -1,7 +1,8 @@
 const STORAGE_KEY = 'diary-app-data'
 
 /**
- * @typedef {{ diary: { canvasJSON: object | null }, movie: { canvasJSON: object | null } }} DatePageData
+ * @typedef {{ id: string, text: string, done: boolean }} Todo
+ * @typedef {{ diary: { canvasJSON: object | null }, movie: { canvasJSON: object | null }, todos?: Todo[] }} DatePageData
  * @typedef {{ [dateKey: string]: DatePageData }} DiaryData
  */
 
@@ -65,6 +66,41 @@ export function setDatePageData(data, dateKey, tab, canvasJSON) {
   const updatedPage = {
     ...existingPage,
     [tab]: { canvasJSON },
+  }
+  return {
+    ...data,
+    [dateKey]: updatedPage,
+  }
+}
+
+/**
+ * 특정 날짜의 할 일 목록을 꺼낸다.
+ * 해당 날짜에 todos가 없으면 빈 배열을 반환한다.
+ * @param {DiaryData} data
+ * @param {string} dateKey - 'YYYY-MM-DD' 형식
+ * @returns {Todo[]}
+ */
+export function getDateTodos(data, dateKey) {
+  const page = data[dateKey]
+  if (!page) {
+    return []
+  }
+  return page.todos ?? []
+}
+
+/**
+ * 특정 날짜의 todos를 갱신한 새 객체를 반환한다.
+ * 인자 data를 직접 변경하지 않는다. 같은 날짜의 기존 diary/movie 필드는 보존한다.
+ * @param {DiaryData} data
+ * @param {string} dateKey - 'YYYY-MM-DD' 형식
+ * @param {Todo[]} todos
+ * @returns {DiaryData}
+ */
+export function setDateTodos(data, dateKey, todos) {
+  const existingPage = data[dateKey] ?? {}
+  const updatedPage = {
+    ...existingPage,
+    todos,
   }
   return {
     ...data,
