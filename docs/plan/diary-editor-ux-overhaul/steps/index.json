@@ -33,7 +33,7 @@
       "status": "completed",
       "started_at": "2026-07-11T23:03:03+0900",
       "summary": "react-icons/md 세트로 통일해 5개 컴포넌트 라벨만 교체(onClick·로직 무수정, diff로 확인). ObjectToolbar: 아이콘만+title/aria-label(MdContentCopy/MdDelete/MdFlipToFront/MdFlipToBack/MdKeyboardArrowUp/Down, 18px), 테스트가 textContent 대신 aria-label로 버튼을 찾도록 수정+아이콘 검증 1개 추가. ImageUploadButton(MdAddPhotoAlternate)·TextMemoButton(MdTextFields)·ExportImportControls(MdFileDownload/MdFileUpload/MdPhotoCamera, 16px)·CanvasBackgroundControl(MdPalette는 컬러피커 옆 장식 아이콘 aria-hidden, MdWallpaper)은 아이콘+텍스트 병기. 버튼에 display:inline-flex+gap만 추가(색상/보더 불변). 신규 src/components/buttonIcons.test.jsx 4개, 전체 27개 통과. lint/build 통과.",
-      "completed_at": "2026-07-11T23:07:30+0900"
+      "completed_at": "2026-07-11T23:08:03+0900"
     },
     {
       "step": 4,
