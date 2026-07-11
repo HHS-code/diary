@@ -2,11 +2,13 @@ import { useRef } from 'react'
 import { useFabricCanvas } from '../../hooks/useFabricCanvas'
 import { useActiveSelection } from '../../hooks/useActiveSelection'
 import { useObjectActions } from '../../hooks/useObjectActions'
+import { useAlignment } from '../../hooks/useAlignment'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
 import { ExportImportControls } from '../ExportImportControls/ExportImportControls'
 import { ObjectToolbar } from '../ObjectToolbar/ObjectToolbar'
+import { AlignmentToolbar } from '../ObjectToolbar/AlignmentToolbar'
 
 /**
  * Fabric.js 캔버스와 스티커 팔레트를 렌더링하는 컴포넌트.
@@ -22,8 +24,9 @@ import { ObjectToolbar } from '../ObjectToolbar/ObjectToolbar'
 export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess }) {
   const canvasElRef = useRef(null)
   const fabricCanvasRef = useFabricCanvas(canvasElRef, canvasJSON, onSave)
-  const { activeObject } = useActiveSelection(fabricCanvasRef)
+  const { activeObject, activeSelection } = useActiveSelection(fabricCanvasRef)
   const objectActions = useObjectActions(fabricCanvasRef)
+  const alignActions = useAlignment(fabricCanvasRef)
 
   return (
     <div style={{ padding: '16px' }}>
@@ -36,6 +39,9 @@ export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess 
         <div style={{ position: 'relative', border: '2px inset #9a9a9a', display: 'inline-block' }}>
           <canvas ref={canvasElRef} />
           {activeObject && <ObjectToolbar activeObject={activeObject} actions={objectActions} />}
+          {activeSelection && (
+            <AlignmentToolbar activeSelection={activeSelection} actions={alignActions} />
+          )}
         </div>
       </div>
       <ExportImportControls
