@@ -48,7 +48,7 @@
       "status": "completed",
       "started_at": "2026-07-11T11:32:50+0900",
       "summary": "src/components/DiaryApp/DiaryApp.jsx 수정: screen('main'|'edit', 초기값 'main'), currentYear/currentMonth(오늘 기준 초기화) state 추가. screen==='main'이면 XPCalendar(좌측)+TodoWidget/WeatherWidget/AnalogClockWidget(우측, flex-column)를 렌더링, onSelectDate가 selectedDate 갱신+screen을 'edit'으로 전환. screen==='edit'이면 기존 h2 제목 왼쪽에 ◀ 버튼(클릭 시 screen만 'main'으로, selectedDate/currentYear/currentMonth는 유지)+Tabs+DiaryCanvas 그대로 렌더링. DiaryCanvas/Tabs/diaryStorage.js 로직은 무변경. src/components/Calendar/Calendar.jsx 및 폴더 삭제(참조하던 곳은 DiaryApp.jsx 한 곳뿐이었음, 이제 XPCalendar로 완전 대체). npm run lint 통과, Playwright로 메인 화면 렌더/월 이동/날짜 클릭→편집 전환/스티커 추가(회귀 없음)/◀ 복귀 시 이동했던 월(2026년 8월) 유지까지 직접 확인. 이 phase의 마지막 step — 다음 step 없음.",
-      "completed_at": "2026-07-11T11:45:00+0900"
+      "completed_at": "2026-07-11T11:36:07+0900"
     }
   ],
   "created_at": "2026-07-11T11:08:48+0900"
