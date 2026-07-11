@@ -3,8 +3,10 @@ import { useFabricCanvas } from '../../hooks/useFabricCanvas'
 import { useActiveSelection } from '../../hooks/useActiveSelection'
 import { useObjectActions } from '../../hooks/useObjectActions'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
+import { useCanvasBackground } from '../../hooks/useCanvasBackground'
 import { scaleCanvasObjects } from '../../hooks/canvasMigration'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
+import { CanvasBackgroundControl } from '../CanvasBackgroundControl/CanvasBackgroundControl'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
 import { ExportImportControls } from '../ExportImportControls/ExportImportControls'
@@ -44,6 +46,7 @@ export function DiaryCanvas({ canvasJSON, canvasSize, onSave, selectedDate, onIm
   })
   const { activeObject } = useActiveSelection(fabricCanvasRef)
   const objectActions = useObjectActions(fabricCanvasRef)
+  const backgroundActions = useCanvasBackground(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
 
   return (
@@ -51,6 +54,7 @@ export function DiaryCanvas({ canvasJSON, canvasSize, onSave, selectedDate, onIm
       <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <StickerPalette fabricCanvasRef={fabricCanvasRef} />
+          <CanvasBackgroundControl actions={backgroundActions} />
           <ImageUploadButton fabricCanvasRef={fabricCanvasRef} />
           <TextMemoButton fabricCanvasRef={fabricCanvasRef} />
         </div>

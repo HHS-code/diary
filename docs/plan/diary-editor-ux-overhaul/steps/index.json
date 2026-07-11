@@ -14,7 +14,10 @@
     {
       "step": 1,
       "name": "canvas-background-custom",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T22:53:58+0900",
+      "summary": "신규 src/hooks/useCanvasBackground.js: useCanvasBackground(fabricCanvasRef) -> { setColor(hex), setImage(file) }. setColor는 canvas.backgroundColor 설정, setImage는 FileReader→FabricImage.fromURL로 캔버스 크기에 맞춰 scaleX/scaleY 조정 후 backgroundImage 설정. 두 함수 모두 변경 직후 canvas.fire('object:modified')로 useFabricCanvas의 기존 오토세이브 파이프라인을 태움(useFabricCanvas.js 자체는 무수정). 신규 src/components/CanvasBackgroundControl/CanvasBackgroundControl.jsx: props { actions }, 컬러피커+이미지 버튼 패널(StickerPalette 프레임 스타일, 폭 240px, fabric 미import). DiaryCanvas.jsx 좌측 사이드바 StickerPalette 아래에 배치. vitest 4개 신규(useCanvasBackground.test.js), 전체 16개 통과.",
+      "completed_at": "2026-07-11T22:57:30+0900"
     },
     {
       "step": 2,
