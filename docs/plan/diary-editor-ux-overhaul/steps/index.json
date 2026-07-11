@@ -46,7 +46,10 @@
     {
       "step": 5,
       "name": "calendar-hover-button",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T23:15:37+0900",
+      "summary": "XPCalendar.jsx 날짜 셀을 position:relative div로 감싸고(button 중첩 회피) wrapper의 onMouseEnter/Leave로 hoveredDateKey(useState) 관리. hover 셀 하단 중앙에 absolute '작성' 버튼(헤더바 그라디언트 #3d84ec→#1657d6→#0e46bc, 11px) 오버레이, onClick은 e.stopPropagation() 후 onSelectDate(dateKey) — 셀 자체 클릭 동작·날짜 계산/월 이동 로직 무수정. 신규 XPCalendar.test.jsx 5개(hover 표시/숨김, 작성 클릭 시 onSelectDate 1회 호출, 셀 클릭 유지 — mouseover/mouseout dispatch 패턴). 전체 37개·lint·build 통과.",
+      "completed_at": "2026-07-11T23:19:00+0900"
     },
     {
       "step": 6,

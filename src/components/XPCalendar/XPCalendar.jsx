@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 function buildCalendarDays(year, month) {
@@ -27,6 +29,7 @@ function formatDateKey(year, month, day) {
 export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMonth, onChangeMonth }) {
   const today = new Date()
   const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate())
+  const [hoveredDateKey, setHoveredDateKey] = useState(null)
 
   function moveToPrevMonth() {
     if (currentMonth === 0) {
@@ -134,25 +137,58 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
             border = '2px solid #1657d6'
           }
 
+          const isHovered = dateKey === hoveredDateKey
+
           return (
-            <button
+            <div
               key={dateKey}
-              onClick={() => onSelectDate(dateKey)}
-              style={{
-                width: '100%',
-                height: '100%',
-                boxSizing: 'border-box',
-                padding: '4px',
-                fontSize: '15px',
-                textAlign: 'right',
-                cursor: 'pointer',
-                background,
-                border,
-                borderRadius: '2px',
-              }}
+              onMouseEnter={() => setHoveredDateKey(dateKey)}
+              onMouseLeave={() => setHoveredDateKey(null)}
+              style={{ position: 'relative' }}
             >
-              {day}
-            </button>
+              <button
+                onClick={() => onSelectDate(dateKey)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  boxSizing: 'border-box',
+                  padding: '4px',
+                  fontSize: '15px',
+                  textAlign: 'right',
+                  cursor: 'pointer',
+                  background,
+                  border,
+                  borderRadius: '2px',
+                }}
+              >
+                {day}
+              </button>
+              {isHovered && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSelectDate(dateKey)
+                  }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '3px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    background: 'linear-gradient(180deg,#3d84ec 0%,#1657d6 55%,#0e46bc 100%)',
+                    border: '1px solid #04266b',
+                    borderRadius: '3px',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  작성
+                </button>
+              )}
+            </div>
           )
         })}
       </div>
