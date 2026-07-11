@@ -1,0 +1,11 @@
+# 빌드 리포트 — diary (diary-editor-ux-overhaul)
+
+각 step이 무엇을 했는지 위에서 아래로 읽으면 프로젝트가 자라는 과정이 보인다.
+
+- [완료] **Step 0: canvas-resize-layout** — Window 97%/95% 확대. useFabricCanvas가 options={width,height}를 받도록 확장(기본 800x600 하위호환), backgroundColor #ffffff 기본 적용, onSave 두번째 인자로 canvasSize 전달. diaryStorage의 get/setDatePageData에 canvasSize 필드 추가(옵셔널, 기존 데이터 호환). 신규 src/hooks/canvasMigration.js: scaleCanvasObjects(canvas, fromSize, toSize)가 비율 계산해 오브젝트 left/top/scaleX/scaleY 변환 후 setCoords, vitest 테스트 3개 통과. DiaryCanvas가 1400x900으로 생성하고 로드 시 저장된 canvasSize와 다르면 1회 마이그레이션(구버전 데이터는 800x600 간주), 바깥 컨테이너 justifyContent:center. DiaryApp edit 화면 padding 축소+height 100%. 세션 한도(429)로 status 갱신만 실패했었음 — 작업은 커밋 0de6d69에 완료, AC(lint/build/test 12개) 수동 검증 통과.
+- [완료] **Step 1: canvas-background-custom** — 신규 src/hooks/useCanvasBackground.js: useCanvasBackground(fabricCanvasRef) -> { setColor(hex), setImage(file) }. setColor는 canvas.backgroundColor 설정, setImage는 FileReader→FabricImage.fromURL로 캔버스 크기에 맞춰 scaleX/scaleY 조정 후 backgroundImage 설정. 두 함수 모두 변경 직후 canvas.fire('object:modified')로 useFabricCanvas의 기존 오토세이브 파이프라인을 태움(useFabricCanvas.js 자체는 무수정). 신규 src/components/CanvasBackgroundControl/CanvasBackgroundControl.jsx: props { actions }, 컬러피커+이미지 버튼 패널(StickerPalette 프레임 스타일, 폭 240px, fabric 미import). DiaryCanvas.jsx 좌측 사이드바 StickerPalette 아래에 배치. vitest 4개 신규(useCanvasBackground.test.js), 전체 16개 통과. ([리포트](step1-canvas-background-custom.md))
+- [대기] **Step 2: object-toolbar-fixed** — 
+- [대기] **Step 3: button-icons** — 
+- [대기] **Step 4: diary-gallery** — 
+- [대기] **Step 5: calendar-hover-button** — 
+- [대기] **Step 6: main-screen-polish** — 
