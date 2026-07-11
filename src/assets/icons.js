@@ -1,4 +1,4 @@
-import wallpaper from './wallpaper.png'
+import wallpaper from './wallpaper.webp'
 import diaryIcon from './diary-icon.png'
 import powerButtonIcon from './power-button.png'
 import downloadIcon from './download-icon.png'

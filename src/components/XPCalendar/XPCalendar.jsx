@@ -55,9 +55,10 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
         height: '100%',
         minHeight: 0,
         boxSizing: 'border-box',
-        border: '2px solid #0a246a',
+        border: '1px solid #7d7d64',
         borderRadius: '4px',
         background: '#ece9d8',
+        boxShadow: '1px 1px 0 rgba(255,255,255,.7) inset, 2px 2px 5px rgba(0,0,0,.25)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -68,8 +69,9 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(to bottom, #3d95ff, #0058e6)',
-          padding: '10px 14px',
+          background: 'linear-gradient(180deg,#3d84ec 0%,#1657d6 55%,#0e46bc 100%)',
+          borderBottom: '1px solid #04266b',
+          padding: '7px 10px',
           flexShrink: 0,
         }}
       >
@@ -87,9 +89,19 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
           ▶
         </button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', padding: '6px 8px 2px', flexShrink: 0 }}>
-        {WEEKDAYS.map(w => (
-          <div key={w} style={{ fontWeight: 'bold', fontSize: '14px', color: '#333', padding: '4px 0' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          textAlign: 'center',
+          background: '#f4f2e8',
+          borderBottom: '1px solid #d8d5c2',
+          padding: '6px 8px 2px',
+          flexShrink: 0,
+        }}
+      >
+        {WEEKDAYS.map((w, idx) => (
+          <div key={w} style={{ fontWeight: 'bold', fontSize: '14px', color: idx === 0 ? '#a33' : '#333', padding: '4px 0' }}>
             {w}
           </div>
         ))}
@@ -115,11 +127,11 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
 
           let background = '#fff'
           if (isToday) {
-            background = '#ffff00'
+            background = '#ffff66'
           }
-          let border = '1px solid #b5b0a1'
+          let border = '1px solid #cfcbb4'
           if (isSelected) {
-            border = '2px solid #0058e6'
+            border = '2px solid #1657d6'
           }
 
           return (

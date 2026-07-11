@@ -1,4 +1,5 @@
 :root {
+  --xp-font: Tahoma, 'Malgun Gothic', 'Segoe UI', sans-serif;
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -52,6 +53,7 @@
 
 body {
   margin: 0;
+  font-family: var(--xp-font);
 }
 
 #root {

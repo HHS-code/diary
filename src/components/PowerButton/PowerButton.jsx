@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { powerButtonIcon } from '../../assets/icons'
 import { loadAllDiaryData } from '../../storage/diaryStorage'
 import { StartMenu } from '../StartMenu/StartMenu'
 
@@ -22,27 +21,46 @@ function downloadAllDataAsJSON() {
   URL.revokeObjectURL(url)
 }
 
-const buttonStyle = {
+const startButtonStyle = {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
-  width: '32px',
-  height: '32px',
+  gap: 6,
+  height: '100%',
+  padding: '0 16px 0 6px',
+  borderRadius: '0 14px 14px 0',
   border: 'none',
-  background: 'transparent',
+  background: 'linear-gradient(180deg,#8ee060 0%,#4ec42a 15%,#2a9e12 45%,#1c7d0d 85%,#278f16 100%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,.5), 1px 0 3px rgba(0,0,0,.3)',
   cursor: 'pointer',
-  padding: 0,
+}
+
+const flagGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: '9px 9px',
+  gridTemplateRows: '9px 9px',
+  width: '18px',
+  height: '18px',
+  transform: 'rotate(-6deg)',
+  flexShrink: 0,
+}
+
+const startTextStyle = {
+  color: '#fff',
+  fontStyle: 'italic',
+  fontWeight: 'bold',
+  fontSize: '15px',
+  textShadow: '1px 1px 1px rgba(0,0,0,.5)',
 }
 
 const menuWrapperStyle = {
   position: 'relative',
   display: 'flex',
-  alignItems: 'center',
-  height: '48px',
+  alignItems: 'stretch',
+  height: '100%',
 }
 
 /**
- * 전원 버튼. 클릭 시 StartMenu를 flyout으로 띄운다. props 없음.
+ * XP start 버튼. 클릭 시 StartMenu를 flyout으로 띄운다. props 없음.
  */
 export function PowerButton() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -71,15 +89,17 @@ export function PowerButton() {
       {isMenuOpen && <StartMenu onDownloadClick={handleDownloadClick} />}
       <button
         type="button"
-        style={buttonStyle}
+        style={startButtonStyle}
         onClick={() => setIsMenuOpen((open) => !open)}
-        aria-label="전원"
+        aria-label="시작"
       >
-        <img
-          src={powerButtonIcon}
-          alt=""
-          style={{ display: 'block', width: '100%', height: '100%' }}
-        />
+        <div style={flagGridStyle}>
+          <div style={{ background: '#ff5b4d' }} />
+          <div style={{ background: '#7ed321' }} />
+          <div style={{ background: '#4a90e2' }} />
+          <div style={{ background: '#ffd23f' }} />
+        </div>
+        <span style={startTextStyle}>start</span>
       </button>
     </div>
   )

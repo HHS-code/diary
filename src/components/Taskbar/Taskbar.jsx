@@ -9,17 +9,9 @@ const barStyle = {
   height: '48px',
   display: 'flex',
   alignItems: 'stretch',
-  background: 'linear-gradient(to bottom, #478ff1 0%, #2059d7 33%, #2662df 100%)',
+  background: 'linear-gradient(180deg,#2c88f0 0%,#1560e0 6%,#1055d8 45%,#0f4cc9 88%,#1a5ddc 100%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,.35)',
   zIndex: 200,
-}
-
-const startSegmentStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  height: '100%',
-  padding: '0 14px 0 8px',
-  borderRadius: '0 20px 20px 0',
-  background: 'linear-gradient(to bottom, #356d2f 0%, #209420 47%, #259025 100%)',
 }
 
 const traySegmentStyle = {
@@ -29,7 +21,8 @@ const traySegmentStyle = {
   padding: '0 12px',
   marginLeft: 'auto',
   borderRadius: '10px 0 0 10px',
-  background: 'linear-gradient(to bottom, #478ff1 0%, #2059d7 33%, #2662df 100%)',
+  background: 'linear-gradient(180deg,#2c88f0 0%,#1560e0 6%,#1055d8 45%,#0f4cc9 88%,#1a5ddc 100%)',
+  boxShadow: 'inset 1px 0 0 rgba(255,255,255,.3)',
 }
 
 /**
@@ -40,9 +33,7 @@ const traySegmentStyle = {
 export function Taskbar() {
   return (
     <div style={barStyle}>
-      <div style={startSegmentStyle}>
-        <PowerButton />
-      </div>
+      <PowerButton />
       <div style={traySegmentStyle}>
         <Clock />
       </div>

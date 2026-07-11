@@ -55,9 +55,9 @@ export function ImageUploadButton({ fabricCanvasRef }) {
         onClick={() => inputRef.current?.click()}
         style={{
           padding: '8px 16px',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          background: '#fff',
+          border: '1px solid #7d7d64',
+          borderRadius: 3,
+          background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
           cursor: 'pointer',
           fontSize: '14px',
           width: '100%',

@@ -15,24 +15,40 @@ const iconButtonStyle = {
   gap: '4px',
   width: '80px',
   margin: '16px',
-  border: 'none',
+  border: '1px dotted transparent',
   background: 'transparent',
   cursor: 'pointer',
 }
 
 const iconLabelStyle = {
   color: '#fff',
-  fontSize: '19.5px',
-  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+  fontSize: '12px',
+  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.9)',
 }
 
 /**
  * @param {{ onOpenDiary: () => void }} props
  */
 export function Desktop({ onOpenDiary }) {
+  function handleMouseEnter(event) {
+    event.currentTarget.style.border = '1px dotted rgba(255,255,255,.6)'
+    event.currentTarget.style.background = 'rgba(30,70,160,.25)'
+  }
+
+  function handleMouseLeave(event) {
+    event.currentTarget.style.border = iconButtonStyle.border
+    event.currentTarget.style.background = iconButtonStyle.background
+  }
+
   return (
     <div style={screenStyle}>
-      <button type="button" style={iconButtonStyle} onClick={onOpenDiary}>
+      <button
+        type="button"
+        style={iconButtonStyle}
+        onClick={onOpenDiary}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <img src={diaryIcon} alt="" style={{ height: '84px', width: 'auto' }} />
         <span style={iconLabelStyle}>diary</span>
       </button>

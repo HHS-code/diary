@@ -28,7 +28,7 @@ export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess 
           <ImageUploadButton fabricCanvasRef={fabricCanvasRef} />
           <TextMemoButton fabricCanvasRef={fabricCanvasRef} />
         </div>
-        <div style={{ border: '1px solid #ccc', display: 'inline-block' }}>
+        <div style={{ border: '2px inset #9a9a9a', display: 'inline-block' }}>
           <canvas ref={canvasElRef} />
         </div>
       </div>

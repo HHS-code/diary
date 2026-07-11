@@ -23,9 +23,9 @@ function renderTodoItem(todo, onToggleDone, onDelete) {
       <button
         onClick={() => onDelete(todo.id)}
         style={{
-          border: '1px solid #0a246a',
-          background: '#ece9d8',
-          borderRadius: '2px',
+          border: '1px solid #7d7d64',
+          borderRadius: 3,
+          background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
           fontSize: '11px',
           cursor: 'pointer',
         }}
@@ -78,33 +78,45 @@ export function TodoWidget({ selectedDate }) {
         height: '100%',
         minHeight: 0,
         boxSizing: 'border-box',
-        border: '2px solid #0a246a',
-        borderRadius: '4px',
+        border: '1px solid #7d7d64',
+        borderRadius: 3,
         background: '#ece9d8',
-        boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        padding: '10px',
+        boxShadow: '1px 1px 0 rgba(255,255,255,.7) inset, 2px 2px 5px rgba(0,0,0,.25)',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0a246a', marginBottom: '8px', flexShrink: 0 }}>할 일</div>
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px 0', flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <div
+        style={{
+          background: 'linear-gradient(180deg,#3d84ec,#1657d6)',
+          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: 12,
+          padding: '5px 10px',
+          textShadow: '1px 1px 1px rgba(0,0,0,.5)',
+          flexShrink: 0,
+        }}
+      >
+        할 일
+      </div>
+      <ul style={{ listStyle: 'none', padding: '10px', margin: 0, flex: 1, minHeight: 0, overflow: 'auto' }}>
         {todos.map(todo => renderTodoItem(todo, todoId => saveTodos(toggleTodoDone(todos, todoId)), todoId => saveTodos(removeTodo(todos, todoId))))}
       </ul>
-      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '4px', flexShrink: 0, padding: '0 10px 10px' }}>
         <input
           type="text"
           value={newTodoText}
           onChange={event => setNewTodoText(event.target.value)}
           onKeyDown={handleAddTodoOnEnter}
-          style={{ flex: 1, fontSize: '13px', border: '1px solid #0a246a', borderRadius: '2px' }}
+          style={{ flex: 1, fontSize: '13px', border: '1px solid #7d7d64', borderRadius: 3 }}
         />
         <button
           onClick={handleAddTodo}
           style={{
-            border: '1px solid #0a246a',
-            background: '#ece9d8',
-            borderRadius: '2px',
+            border: '1px solid #7d7d64',
+            borderRadius: 3,
+            background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
             fontSize: '13px',
             cursor: 'pointer',
           }}

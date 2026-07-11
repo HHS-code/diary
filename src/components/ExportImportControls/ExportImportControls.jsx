@@ -55,10 +55,19 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
     a.click()
   }
 
+  const buttonStyle = {
+    padding: '6px 12px',
+    border: '1px solid #7d7d64',
+    borderRadius: 3,
+    background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
+    cursor: 'pointer',
+    fontSize: '13px',
+  }
+
   return (
     <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-      <button onClick={handleExportJSON}>JSON 내보내기</button>
-      <button onClick={() => fileInputRef.current.click()}>JSON 불러오기</button>
+      <button style={buttonStyle} onClick={handleExportJSON}>JSON 내보내기</button>
+      <button style={buttonStyle} onClick={() => fileInputRef.current.click()}>JSON 불러오기</button>
       <input
         ref={fileInputRef}
         type="file"
@@ -66,7 +75,7 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
         style={{ display: 'none' }}
         onChange={handleImportJSON}
       />
-      <button onClick={handleExportPNG}>PNG 내보내기</button>
+      <button style={buttonStyle} onClick={handleExportPNG}>PNG 내보내기</button>
     </div>
   )
 }

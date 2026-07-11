@@ -66,8 +66,8 @@ export function TextMemoButton({ fabricCanvasRef }) {
             onChange={(e) => setSelectedFont(e.target.value)}
             style={{
               padding: '6px 8px',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
+              border: '1px solid #7d7d64',
+              borderRadius: 3,
               fontSize: '13px',
               width: '100%',
             }}
@@ -87,8 +87,8 @@ export function TextMemoButton({ fabricCanvasRef }) {
             placeholder="텍스트 입력 후 Enter"
             style={{
               padding: '6px 8px',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
+              border: '1px solid #7d7d64',
+              borderRadius: 3,
               fontSize: '14px',
               fontFamily: selectedFont,
               width: '100%',
@@ -100,10 +100,9 @@ export function TextMemoButton({ fabricCanvasRef }) {
             onClick={addTextToCanvas}
             style={{
               padding: '8px 16px',
-              border: '1px solid #6c63ff',
-              borderRadius: '8px',
-              background: '#6c63ff',
-              color: '#fff',
+              border: '1px solid #7d7d64',
+              borderRadius: 3,
+              background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
               cursor: 'pointer',
               fontSize: '14px',
               width: '100%',
@@ -119,9 +118,9 @@ export function TextMemoButton({ fabricCanvasRef }) {
           onClick={showInput}
           style={{
             padding: '8px 16px',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            background: '#fff',
+            border: '1px solid #7d7d64',
+            borderRadius: 3,
+            background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
             cursor: 'pointer',
             fontSize: '14px',
             width: '100%',

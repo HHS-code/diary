@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { diaryIcon, downloadIcon } from '../../assets/icons'
 
 const menuStyle = {
@@ -9,7 +10,8 @@ const menuStyle = {
   display: 'flex',
   flexDirection: 'column',
   cursor: 'default',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+  border: '1px solid #0a3fae',
+  boxShadow: '2px -2px 12px rgba(0, 0, 0, 0.45)',
   borderRadius: '8px 8px 4px 4px',
   overflow: 'hidden',
 }
@@ -61,13 +63,13 @@ const menuItemLabelStyle = {
 }
 
 const allProgramsBarStyle = {
-  height: '22px',
-  background: '#373737',
+  height: '18px',
+  background: 'linear-gradient(180deg,#3d3d3d,#2a2a2a)',
 }
 
 const bottomBarStyle = {
-  height: '34px',
-  background: 'linear-gradient(to bottom, #4489dc 0%, #1e66c9 45%, #0e3f8b 100%)',
+  height: '28px',
+  background: 'linear-gradient(180deg,#4489dc 0%,#1e66c9 45%,#0e3f8b 100%)',
 }
 
 /**
@@ -77,6 +79,17 @@ const bottomBarStyle = {
  * 실제 기능 항목은 DOWNLOAD 하나뿐이라 좌측 패널에만 배치하고 우측은 빈 패널로 둔다.
  */
 export function StartMenu({ onDownloadClick }) {
+  const [isItemHovered, setIsItemHovered] = useState(false)
+
+  const menuItemHoverableStyle = {
+    ...menuItemStyle,
+    background: isItemHovered ? '#2a63d6' : 'transparent',
+  }
+  const menuItemLabelHoverableStyle = {
+    ...menuItemLabelStyle,
+    color: isItemHovered ? '#fff' : menuItemLabelStyle.color,
+  }
+
   return (
     <div style={menuStyle}>
       <div style={headerStyle}>
@@ -85,9 +98,14 @@ export function StartMenu({ onDownloadClick }) {
       </div>
       <div style={bodyStyle}>
         <div style={leftPanelStyle}>
-          <div style={menuItemStyle} onClick={onDownloadClick}>
+          <div
+            style={menuItemHoverableStyle}
+            onClick={onDownloadClick}
+            onMouseEnter={() => setIsItemHovered(true)}
+            onMouseLeave={() => setIsItemHovered(false)}
+          >
             <img src={downloadIcon} alt="" style={{ display: 'block', width: '24px', height: '24px' }} />
-            <span style={menuItemLabelStyle}>DOWNLOAD</span>
+            <span style={menuItemLabelHoverableStyle}>DOWNLOAD</span>
           </div>
         </div>
         <div style={rightPanelStyle} />
