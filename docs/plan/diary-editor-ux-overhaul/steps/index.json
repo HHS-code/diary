@@ -1,0 +1,13 @@
+{
+  "project": "diary",
+  "phase": "diary-editor-ux-overhaul",
+  "steps": [
+    { "step": 0, "name": "canvas-resize-layout", "status": "pending" },
+    { "step": 1, "name": "canvas-background-custom", "status": "pending" },
+    { "step": 2, "name": "object-toolbar-fixed", "status": "pending" },
+    { "step": 3, "name": "button-icons", "status": "pending" },
+    { "step": 4, "name": "diary-gallery", "status": "pending" },
+    { "step": 5, "name": "calendar-hover-button", "status": "pending" },
+    { "step": 6, "name": "main-screen-polish", "status": "pending" }
+  ]
+}
