@@ -1,10 +1,12 @@
 import { useRef } from 'react'
 import { useFabricCanvas } from '../../hooks/useFabricCanvas'
 import { useActiveSelection } from '../../hooks/useActiveSelection'
+import { useObjectActions } from '../../hooks/useObjectActions'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
 import { ExportImportControls } from '../ExportImportControls/ExportImportControls'
+import { ObjectToolbar } from '../ObjectToolbar/ObjectToolbar'
 
 /**
  * Fabric.js 캔버스와 스티커 팔레트를 렌더링하는 컴포넌트.
@@ -20,7 +22,8 @@ import { ExportImportControls } from '../ExportImportControls/ExportImportContro
 export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess }) {
   const canvasElRef = useRef(null)
   const fabricCanvasRef = useFabricCanvas(canvasElRef, canvasJSON, onSave)
-  const { activeObject, activeSelection } = useActiveSelection(fabricCanvasRef)
+  const { activeObject } = useActiveSelection(fabricCanvasRef)
+  const objectActions = useObjectActions(fabricCanvasRef)
 
   return (
     <div style={{ padding: '16px' }}>
@@ -32,8 +35,7 @@ export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess 
         </div>
         <div style={{ position: 'relative', border: '2px inset #9a9a9a', display: 'inline-block' }}>
           <canvas ref={canvasElRef} />
-          {activeObject && <div>선택됨: {activeObject.type}</div>}
-          {activeSelection && <div>다중 선택: {activeSelection.getObjects().length}개</div>}
+          {activeObject && <ObjectToolbar activeObject={activeObject} actions={objectActions} />}
         </div>
       </div>
       <ExportImportControls
