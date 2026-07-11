@@ -1,31 +1,47 @@
-const TOP_SPACE_THRESHOLD = 40
-const TOOLBAR_GAP = 8
-const TOOLBAR_HEIGHT = 36
-
 const panelStyle = {
+  width: '240px',
+  boxSizing: 'border-box',
   border: '1px solid #7d7d64',
   borderRadius: 3,
   background: '#ece9d8',
   boxShadow: '1px 1px 0 rgba(255,255,255,.7) inset, 2px 2px 5px rgba(0,0,0,.25)',
-  display: 'flex',
-  gap: '4px',
-  padding: '4px',
+  overflow: 'hidden',
 }
 
-const buttonStyle = {
-  border: '1px solid #7d7d64',
-  borderRadius: 3,
-  background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
-  cursor: 'pointer',
-  padding: '4px 8px',
+const headerStyle = {
+  background: 'linear-gradient(180deg,#3d84ec,#1657d6)',
+  color: '#fff',
+  fontWeight: 'bold',
   fontSize: 12,
+  padding: '5px 10px',
+  textShadow: '1px 1px 1px rgba(0,0,0,.5)',
+}
+
+const buttonRowStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '4px',
+  padding: '8px',
+}
+
+function buildButtonStyle(isEnabled) {
+  return {
+    border: '1px solid #7d7d64',
+    borderRadius: 3,
+    background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
+    cursor: isEnabled ? 'pointer' : 'default',
+    opacity: isEnabled ? 1 : 0.45,
+    padding: '4px 8px',
+    fontSize: 12,
+  }
 }
 
 /**
- * 선택된 캔버스 오브젝트 근처에 뜨는 플로팅 미니 툴바.
+ * 캔버스 사이드바에 항상 표시되는 오브젝트 조작 고정 패널.
+ * activeObject가 없으면 모든 버튼이 비활성화(disabled)된다.
  * Fabric.js를 직접 다루지 않고, actions에 담긴 함수를 호출만 한다.
  * @param {{
- *   activeObject: import('fabric').FabricObject,
+ *   activeObject: import('fabric').FabricObject | null,
  *   actions: {
  *     copy: (target: import('fabric').FabricObject) => void,
  *     remove: (target: import('fabric').FabricObject) => void,
@@ -37,21 +53,28 @@ const buttonStyle = {
  * }} props
  */
 export function ObjectToolbar({ activeObject, actions }) {
-  const boundingRect = activeObject.getBoundingRect()
-  const hasSpaceAbove = boundingRect.top >= TOP_SPACE_THRESHOLD
+  const isEnabled = activeObject !== null
+  const buttonStyle = buildButtonStyle(isEnabled)
 
-  const positionStyle = hasSpaceAbove
-    ? { left: boundingRect.left, top: boundingRect.top - TOOLBAR_HEIGHT - TOOLBAR_GAP }
-    : { left: boundingRect.left, top: boundingRect.top + boundingRect.height + TOOLBAR_GAP }
+  const buttons = [
+    { label: '복사', onClick: () => actions.copy(activeObject) },
+    { label: '삭제', onClick: () => actions.remove(activeObject) },
+    { label: '맨 앞으로', onClick: () => actions.bringToFront(activeObject) },
+    { label: '맨 뒤로', onClick: () => actions.sendToBack(activeObject) },
+    { label: '한 단계 앞으로', onClick: () => actions.bringForward(activeObject) },
+    { label: '한 단계 뒤로', onClick: () => actions.sendBackward(activeObject) },
+  ]
 
   return (
-    <div style={{ position: 'absolute', ...positionStyle, ...panelStyle }}>
-      <button type="button" style={buttonStyle} onClick={() => actions.copy(activeObject)}>복사</button>
-      <button type="button" style={buttonStyle} onClick={() => actions.remove(activeObject)}>삭제</button>
-      <button type="button" style={buttonStyle} onClick={() => actions.bringToFront(activeObject)}>맨 앞으로</button>
-      <button type="button" style={buttonStyle} onClick={() => actions.sendToBack(activeObject)}>맨 뒤로</button>
-      <button type="button" style={buttonStyle} onClick={() => actions.bringForward(activeObject)}>한 단계 앞으로</button>
-      <button type="button" style={buttonStyle} onClick={() => actions.sendBackward(activeObject)}>한 단계 뒤로</button>
+    <div style={panelStyle}>
+      <div style={headerStyle}>오브젝트</div>
+      <div style={buttonRowStyle}>
+        {buttons.map(({ label, onClick }) => (
+          <button key={label} type="button" style={buttonStyle} disabled={!isEnabled} onClick={onClick}>
+            {label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

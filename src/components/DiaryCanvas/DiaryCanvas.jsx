@@ -55,12 +55,12 @@ export function DiaryCanvas({ canvasJSON, canvasSize, onSave, selectedDate, onIm
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <StickerPalette fabricCanvasRef={fabricCanvasRef} />
           <CanvasBackgroundControl actions={backgroundActions} />
+          <ObjectToolbar activeObject={activeObject} actions={objectActions} />
           <ImageUploadButton fabricCanvasRef={fabricCanvasRef} />
           <TextMemoButton fabricCanvasRef={fabricCanvasRef} />
         </div>
-        <div style={{ position: 'relative', border: '2px inset #9a9a9a', display: 'inline-block' }}>
+        <div style={{ border: '2px inset #9a9a9a', display: 'inline-block' }}>
           <canvas ref={canvasElRef} />
-          {activeObject && <ObjectToolbar activeObject={activeObject} actions={objectActions} />}
         </div>
       </div>
       <ExportImportControls
