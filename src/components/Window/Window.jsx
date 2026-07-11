@@ -48,6 +48,7 @@ const closeButtonStyle = {
 
 const bodyStyle = {
   flex: 1,
+  minHeight: 0,
   overflow: 'auto',
 }
 

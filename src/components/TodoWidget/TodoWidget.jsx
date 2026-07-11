@@ -74,25 +74,30 @@ export function TodoWidget({ selectedDate }) {
   return (
     <div
       style={{
-        width: '160px',
+        width: '100%',
+        height: '100%',
+        minHeight: 0,
+        boxSizing: 'border-box',
         border: '2px solid #0a246a',
         borderRadius: '4px',
         background: '#ece9d8',
         boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        padding: '8px',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0a246a', marginBottom: '6px' }}>할 일</div>
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px 0' }}>
+      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0a246a', marginBottom: '8px', flexShrink: 0 }}>할 일</div>
+      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px 0', flex: 1, minHeight: 0, overflow: 'auto' }}>
         {todos.map(todo => renderTodoItem(todo, todoId => saveTodos(toggleTodoDone(todos, todoId)), todoId => saveTodos(removeTodo(todos, todoId))))}
       </ul>
-      <div style={{ display: 'flex', gap: '4px' }}>
+      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
         <input
           type="text"
           value={newTodoText}
           onChange={event => setNewTodoText(event.target.value)}
           onKeyDown={handleAddTodoOnEnter}
-          style={{ flex: 1, fontSize: '12px', border: '1px solid #0a246a', borderRadius: '2px' }}
+          style={{ flex: 1, fontSize: '13px', border: '1px solid #0a246a', borderRadius: '2px' }}
         />
         <button
           onClick={handleAddTodo}
@@ -100,7 +105,7 @@ export function TodoWidget({ selectedDate }) {
             border: '1px solid #0a246a',
             background: '#ece9d8',
             borderRadius: '2px',
-            fontSize: '12px',
+            fontSize: '13px',
             cursor: 'pointer',
           }}
         >

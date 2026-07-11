@@ -46,40 +46,65 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
 
   const days = buildCalendarDays(currentYear, currentMonth)
   const monthLabel = `${currentYear}년 ${currentMonth + 1}월`
+  const weekRowCount = Math.ceil(days.length / 7)
 
   return (
-    <div style={{ width: '420px', border: '2px solid #0a246a', borderRadius: '4px', background: '#ece9d8', flexShrink: 0 }}>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        minHeight: 0,
+        boxSizing: 'border-box',
+        border: '2px solid #0a246a',
+        borderRadius: '4px',
+        background: '#ece9d8',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           background: 'linear-gradient(to bottom, #3d95ff, #0058e6)',
-          padding: '6px 10px',
+          padding: '10px 14px',
+          flexShrink: 0,
         }}
       >
         <button
           onClick={moveToPrevMonth}
-          style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#fff', fontSize: '16px' }}
+          style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#fff', fontSize: '20px' }}
         >
           ◀
         </button>
-        <strong style={{ color: '#fff', fontSize: '16px' }}>{monthLabel}</strong>
+        <strong style={{ color: '#fff', fontSize: '20px' }}>{monthLabel}</strong>
         <button
           onClick={moveToNextMonth}
-          style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#fff', fontSize: '16px' }}
+          style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#fff', fontSize: '20px' }}
         >
           ▶
         </button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', padding: '4px 6px 2px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', padding: '6px 8px 2px', flexShrink: 0 }}>
         {WEEKDAYS.map(w => (
-          <div key={w} style={{ fontWeight: 'bold', fontSize: '12px', color: '#333', padding: '4px 0' }}>
+          <div key={w} style={{ fontWeight: 'bold', fontSize: '14px', color: '#333', padding: '4px 0' }}>
             {w}
           </div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', padding: '2px 6px 6px' }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gridTemplateRows: `repeat(${weekRowCount}, 1fr)`,
+          gap: '3px',
+          padding: '2px 8px 8px',
+        }}
+      >
         {days.map((day, idx) => {
           if (day === null) {
             return <div key={`empty-${idx}`} />
@@ -102,9 +127,11 @@ export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMon
               key={dateKey}
               onClick={() => onSelectDate(dateKey)}
               style={{
-                height: '48px',
+                width: '100%',
+                height: '100%',
+                boxSizing: 'border-box',
                 padding: '4px',
-                fontSize: '13px',
+                fontSize: '15px',
                 textAlign: 'right',
                 cursor: 'pointer',
                 background,

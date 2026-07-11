@@ -102,12 +102,18 @@ export function WeatherWidget() {
   return (
     <div
       style={{
-        width: '160px',
+        width: '100%',
+        height: '100%',
+        minHeight: 0,
+        boxSizing: 'border-box',
         border: '2px solid #0a246a',
         borderRadius: '4px',
         background: '#ece9d8',
         boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
         padding: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       {renderWeatherContent(status, weather)}

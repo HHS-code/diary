@@ -40,17 +40,21 @@ export function AnalogClockWidget() {
   return (
     <div
       style={{
-        width: '160px',
+        width: '100%',
+        height: '100%',
+        minHeight: 0,
+        boxSizing: 'border-box',
         border: '2px solid #0a246a',
         borderRadius: '4px',
         background: '#ece9d8',
         boxShadow: '2px 2px 4px rgba(0,0,0,0.3)',
         padding: '8px',
         display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <svg width="130" height="130" viewBox="0 0 100 100">
+      <svg width="100%" height="100%" style={{ maxWidth: '160px', maxHeight: '160px' }} viewBox="0 0 100 100">
         <circle cx={CENTER} cy={CENTER} r={FACE_RADIUS} fill="#fff" stroke="#0a246a" strokeWidth="2" />
         {Array.from({ length: 12 }, (_, i) => {
           const tickPoint = calculateHandPoint(i * 30, FACE_RADIUS - 4)

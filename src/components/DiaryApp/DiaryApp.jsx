@@ -54,7 +54,17 @@ export function DiaryApp() {
 
   if (screen === 'main') {
     return (
-      <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '4px',
+          padding: '4px',
+          height: '100%',
+          minHeight: '520px',
+          boxSizing: 'border-box',
+        }}
+      >
         <XPCalendar
           selectedDate={selectedDate}
           onSelectDate={handleSelectDate}
@@ -62,10 +72,12 @@ export function DiaryApp() {
           currentMonth={currentMonth}
           onChangeMonth={handleChangeMonth}
         />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '4px', minHeight: 0 }}>
           <TodoWidget selectedDate={selectedDate} />
-          <WeatherWidget />
-          <AnalogClockWidget />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', minHeight: 0 }}>
+            <WeatherWidget />
+            <AnalogClockWidget />
+          </div>
         </div>
       </div>
     )
