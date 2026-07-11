@@ -2,9 +2,28 @@
   "project": "diary",
   "phase": "canvas-object-toolbar",
   "steps": [
-    { "step": 0, "name": "active-selection-tracking", "status": "pending" },
-    { "step": 1, "name": "object-actions-toolbar", "status": "pending" },
-    { "step": 2, "name": "alignment-toolbar", "status": "pending" },
-    { "step": 3, "name": "keyboard-shortcuts", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "active-selection-tracking",
+      "status": "completed",
+      "started_at": "2026-07-11T18:01:41+0900",
+      "summary": "useActiveSelection(fabricCanvasRef) -> { activeObject, activeSelection } 생성 (src/hooks/useActiveSelection.js). Fabric.js selection:created/updated/cleared 3개 이벤트 구독, getObjects().length >= 2면 activeSelection, 아니면 activeObject. 제약: fabricCanvasRef.current는 useFabricCanvas 내부에서 Promise.then()으로 비동기 세팅되므로 마운트 시점 effect에서 즉시 null일 수 있음 — 50ms setInterval로 폴링 후 준비되면 구독, 언마운트/재구독 시 정리(off) 보장. DiaryCanvas.jsx에서 이 훅을 호출해 임시 텍스트(선택됨:/다중 선택:)로 노출 중이며, 다음 step(object-actions-toolbar)에서 이 임시 표시를 ObjectToolbar.jsx로 교체하고 useObjectActions.js를 추가해야 함. 캔버스 래퍼 div에 position:relative 이미 추가됨."
+    },
+    {
+      "step": 1,
+      "name": "object-actions-toolbar",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "alignment-toolbar",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "keyboard-shortcuts",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-07-11T18:01:41+0900"
 }
