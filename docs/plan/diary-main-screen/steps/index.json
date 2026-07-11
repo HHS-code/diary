@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "weather-widget",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T11:21:50+0900",
+      "summary": "src/components/WeatherWidget/WeatherWidget.jsx 신규 생성: export function WeatherWidget() — props 없음. requestCurrentCoordinates()가 navigator.geolocation.getCurrentPosition을 Promise로 감싸고, 미지원/실패 시 서울(37.5665, 126.978)로 resolve(에러 throw 없음). fetchCurrentWeather(lat, lon)가 Open-Meteo current_weather를 호출, describeWeatherCode(weathercode)가 0/1~3/45,48/51~67/71~86/그외로 대략 그룹핑해 이모지+한글 라벨 반환. status state는 'loading'|'ready'|'error' 세 값, renderWeatherContent(status, weather)가 순수 함수로 분기 렌더(삼항 미사용). Playwright로 위치 허용(부산 좌표, 31°C 표시)·거부(getCurrentPosition을 error 콜백으로 오버라이드, 서울 fallback, 30°C 표시) 두 경로 모두 api.open-meteo.com 200 응답과 함께 수 초 내 렌더 확인. DiaryApp.jsx는 임시 연결 후 원복(git diff 없음), 실제 연결은 step 5. 다음 step이 import할 산출 파일: src/components/WeatherWidget/WeatherWidget.jsx.",
+      "completed_at": "2026-07-11T11:32:00+0900"
     },
     {
       "step": 4,
