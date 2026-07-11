@@ -5,6 +5,7 @@ import { WeatherWidget } from '../WeatherWidget/WeatherWidget'
 import { AnalogClockWidget } from '../AnalogClockWidget/AnalogClockWidget'
 import { Tabs } from '../Tabs/Tabs'
 import { DiaryCanvas } from '../DiaryCanvas/DiaryCanvas'
+import { DiaryGallery } from '../DiaryGallery/DiaryGallery'
 import { loadAllDiaryData, getDatePageData, saveAllDiaryData, setDatePageData } from '../../storage/diaryStorage'
 
 function formatToday() {
@@ -56,8 +57,8 @@ export function DiaryApp() {
     return (
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          display: 'flex',
+          flexDirection: 'column',
           gap: '4px',
           padding: '4px',
           height: '100%',
@@ -65,19 +66,72 @@ export function DiaryApp() {
           boxSizing: 'border-box',
         }}
       >
-        <XPCalendar
-          selectedDate={selectedDate}
-          onSelectDate={handleSelectDate}
-          currentYear={currentYear}
-          currentMonth={currentMonth}
-          onChangeMonth={handleChangeMonth}
-        />
-        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '4px', minHeight: 0 }}>
-          <TodoWidget selectedDate={selectedDate} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', minHeight: 0 }}>
-            <WeatherWidget />
-            <AnalogClockWidget />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
+          <button
+            onClick={() => setScreen('gallery')}
+            style={{
+              padding: '6px 12px',
+              border: '1px solid #7d7d64',
+              borderRadius: 3,
+              background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
+              cursor: 'pointer',
+              fontSize: '13px',
+            }}
+          >
+            모아보기
+          </button>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '4px',
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
+          <XPCalendar
+            selectedDate={selectedDate}
+            onSelectDate={handleSelectDate}
+            currentYear={currentYear}
+            currentMonth={currentMonth}
+            onChangeMonth={handleChangeMonth}
+          />
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '4px', minHeight: 0 }}>
+            <TodoWidget selectedDate={selectedDate} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', minHeight: 0 }}>
+              <WeatherWidget />
+              <AnalogClockWidget />
+            </div>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'gallery') {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '8px',
+          height: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <button
+            onClick={handleReturnToMain}
+            style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}
+          >
+            ◀
+          </button>
+          모아보기
+        </h2>
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <DiaryGallery onSelectDate={handleSelectDate} />
         </div>
       </div>
     )

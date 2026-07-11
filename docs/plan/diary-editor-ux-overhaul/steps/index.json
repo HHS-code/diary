@@ -38,7 +38,10 @@
     {
       "step": 4,
       "name": "diary-gallery",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T23:08:03+0900",
+      "summary": "신규 src/hooks/useDiaryThumbnails.js: 공개 시그니처 3개 — listDiaryEntries(allData)->{dateKey,canvasJSON,canvasSize}[] (diary 탭 canvasJSON 있는 날짜만, 내림차순, 순수), buildThumbnail(canvasJSON, size)->Promise<dataUrl> (오프스크린 StaticCanvas, multiplier 0.2, finally dispose), useDiaryThumbnails()->{thumbnails:{dateKey,dataUrl}[], isLoading} (useEffect 순차 처리, cancelled 플래그, 읽기 전용). canvasSize 없으면 800×600 간주. 신규 src/components/DiaryGallery/DiaryGallery.jsx: props {onSelectDate}, XPCalendar 프레임 재사용, auto-fill minmax(200px,1fr) 그리드, 빈 상태 안내문. DiaryApp.jsx: screen에 'gallery' 추가, main 상단 우측 XP 버튼 '모아보기'(main을 flex column으로 감쌈), gallery 화면에 ◀ 뒤로가기, 썸네일 클릭은 기존 handleSelectDate 그대로. vitest 5개 신규(useDiaryThumbnails.test.js — PNG IHDR 파싱으로 썸네일 픽셀 크기 검증), 전체 32개·lint·build 통과.",
+      "completed_at": "2026-07-11T23:14:30+0900"
     },
     {
       "step": 5,
