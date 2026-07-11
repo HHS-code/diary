@@ -1,0 +1,7 @@
+- generic [ref=f3e2]:
+  - button "diary" [ref=f3e4] [cursor=pointer]
+  - generic [ref=f3e6]:
+    - button "전원" [ref=f3e9] [cursor=pointer]
+    - generic [ref=f3e11]:
+      - generic [ref=f3e12]: 11:30 a.m.
+      - generic [ref=f3e13]: 2026-07-11

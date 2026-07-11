@@ -1,0 +1,110 @@
+- generic [ref=f1e2]:
+  - button "diary" [active] [ref=f1e4] [cursor=pointer]
+  - generic [ref=f1e6]:
+    - button "전원" [ref=f1e9] [cursor=pointer]
+    - generic [ref=f1e11]:
+      - generic [ref=f1e12]: 11:30 a.m.
+      - generic [ref=f1e13]: 2026-07-11
+  - generic [ref=f1e15]:
+    - generic [ref=f1e16]:
+      - generic [ref=f1e17]: diary
+      - button "닫기" [ref=f1e18] [cursor=pointer]: ×
+    - generic [ref=f1e20]:
+      - generic [ref=f1e21]:
+        - generic [ref=f1e22]:
+          - button "◀" [ref=f1e23] [cursor=pointer]
+          - strong [ref=f1e24]: 2026년 7월
+          - button "▶" [ref=f1e25] [cursor=pointer]
+        - generic [ref=f1e26]:
+          - generic [ref=f1e27]: 일
+          - generic [ref=f1e28]: 월
+          - generic [ref=f1e29]: 화
+          - generic [ref=f1e30]: 수
+          - generic [ref=f1e31]: 목
+          - generic [ref=f1e32]: 금
+          - generic [ref=f1e33]: 토
+          - button "1" [ref=f1e37] [cursor=pointer]
+          - button "2" [ref=f1e38] [cursor=pointer]
+          - button "3" [ref=f1e39] [cursor=pointer]
+          - button "4" [ref=f1e40] [cursor=pointer]
+          - button "5" [ref=f1e41] [cursor=pointer]
+          - button "6" [ref=f1e42] [cursor=pointer]
+          - button "7" [ref=f1e43] [cursor=pointer]
+          - button "8" [ref=f1e44] [cursor=pointer]
+          - button "9" [ref=f1e45] [cursor=pointer]
+          - button "10" [ref=f1e46] [cursor=pointer]
+          - button "11" [ref=f1e47] [cursor=pointer]
+          - button "12" [ref=f1e48] [cursor=pointer]
+          - button "13" [ref=f1e49] [cursor=pointer]
+          - button "14" [ref=f1e50] [cursor=pointer]
+          - button "15" [ref=f1e51] [cursor=pointer]
+          - button "16" [ref=f1e52] [cursor=pointer]
+          - button "17" [ref=f1e53] [cursor=pointer]
+          - button "18" [ref=f1e54] [cursor=pointer]
+          - button "19" [ref=f1e55] [cursor=pointer]
+          - button "20" [ref=f1e56] [cursor=pointer]
+          - button "21" [ref=f1e57] [cursor=pointer]
+          - button "22" [ref=f1e58] [cursor=pointer]
+          - button "23" [ref=f1e59] [cursor=pointer]
+          - button "24" [ref=f1e60] [cursor=pointer]
+          - button "25" [ref=f1e61] [cursor=pointer]
+          - button "26" [ref=f1e62] [cursor=pointer]
+          - button "27" [ref=f1e63] [cursor=pointer]
+          - button "28" [ref=f1e64] [cursor=pointer]
+          - button "29" [ref=f1e65] [cursor=pointer]
+          - button "30" [ref=f1e66] [cursor=pointer]
+          - button "31" [ref=f1e67] [cursor=pointer]
+      - generic [ref=f1e68]:
+        - generic [ref=f1e69]: 할 일
+        - list [ref=f1e70]:
+          - listitem [ref=f1e71]:
+            - checkbox [checked] [ref=f1e72]
+            - generic [ref=f1e73]: 빨래하기
+            - button "삭제" [ref=f1e74] [cursor=pointer]
+        - generic [ref=f1e75]:
+          - textbox [ref=f1e76]
+          - button "추가" [ref=f1e77] [cursor=pointer]
+      - generic [ref=f1e78]:
+        - heading "2026-07-11" [level=2] [ref=f1e79]
+        - generic [ref=f1e80]:
+          - button "다이어리" [ref=f1e81] [cursor=pointer]
+          - button "영화리뷰" [ref=f1e82] [cursor=pointer]
+        - generic [ref=f1e83]:
+          - generic [ref=f1e85]:
+            - generic [ref=f1e86]:
+              - button "❤️" [ref=f1e87] [cursor=pointer]
+              - button "🧡" [ref=f1e88] [cursor=pointer]
+              - button "💛" [ref=f1e89] [cursor=pointer]
+              - button "💚" [ref=f1e90] [cursor=pointer]
+              - button "💙" [ref=f1e91] [cursor=pointer]
+              - button "💜" [ref=f1e92] [cursor=pointer]
+              - button "⭐" [ref=f1e93] [cursor=pointer]
+              - button "🌟" [ref=f1e94] [cursor=pointer]
+              - button "✨" [ref=f1e95] [cursor=pointer]
+              - button "💫" [ref=f1e96] [cursor=pointer]
+              - button "🌙" [ref=f1e97] [cursor=pointer]
+              - button "☀️" [ref=f1e98] [cursor=pointer]
+              - button "🌸" [ref=f1e99] [cursor=pointer]
+              - button "🌺" [ref=f1e100] [cursor=pointer]
+              - button "🌻" [ref=f1e101] [cursor=pointer]
+              - button "🌹" [ref=f1e102] [cursor=pointer]
+              - button "🍀" [ref=f1e103] [cursor=pointer]
+              - button "🌈" [ref=f1e104] [cursor=pointer]
+              - button "🐱" [ref=f1e105] [cursor=pointer]
+              - button "🐶" [ref=f1e106] [cursor=pointer]
+              - button "🦋" [ref=f1e107] [cursor=pointer]
+              - button "🐰" [ref=f1e108] [cursor=pointer]
+              - button "🐸" [ref=f1e109] [cursor=pointer]
+              - button "🦄" [ref=f1e110] [cursor=pointer]
+              - button "🍓" [ref=f1e111] [cursor=pointer]
+              - button "🧁" [ref=f1e112] [cursor=pointer]
+              - button "☕" [ref=f1e113] [cursor=pointer]
+              - button "🍒" [ref=f1e114] [cursor=pointer]
+              - button "🍰" [ref=f1e115] [cursor=pointer]
+              - button "🎀" [ref=f1e116] [cursor=pointer]
+            - button "이미지 추가" [ref=f1e117] [cursor=pointer]
+            - button "텍스트 추가" [ref=f1e119] [cursor=pointer]
+          - generic [ref=f1e124]:
+            - button "JSON 내보내기" [ref=f1e125]
+            - button "JSON 불러오기" [ref=f1e126]
+            - button "PNG 내보내기" [ref=f1e127]
