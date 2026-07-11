@@ -108,6 +108,8 @@ def build_block_reason(stem: str) -> str:
 
 def find_block_reason(file_path: str, project_root: Path) -> str | None:
     path = Path(file_path)
+    # diary는 JS/JSX 프로젝트이며 테스트 러너가 없다 — .py 이외 파일에는
+    # TDD 게이트를 적용하지 않는다(강제할 도구 자체가 없으므로 항상 통과).
     if path.suffix != ".py":
         return None
     relative = relativize(path, project_root)
