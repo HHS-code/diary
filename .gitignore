@@ -32,3 +32,4 @@ dist-ssr
 
 # Session lock files
 .claude/scheduled_tasks.lock
+.playwright-mcp
