@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "analog-clock-widget",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T11:14:03+0900",
+      "summary": "src/components/AnalogClockWidget/AnalogClockWidget.jsx 신규 생성: export function AnalogClockWidget() — props 없음. Clock.jsx의 useEffect+setInterval(1000) 패턴을 독립적으로 재구현(import/참조 없음). 시/분/초 각도는 calculateHandPoint(angleDegrees, length)로 SVG 좌표(viewBox 0 0 100 100, 중심 50,50) 계산, 시침은 분 값 반영(hourAngle = hours*30 + minutes*0.5)해 부드럽게 움직임. XP 톤(#0a246a 테두리, #ece9d8 배경) 카드로 감쌈. DiaryApp.jsx는 미수정(연결은 step 5). 다음 step이 import할 산출 파일: src/components/AnalogClockWidget/AnalogClockWidget.jsx.",
+      "completed_at": "2026-07-11T11:23:00+0900"
     },
     {
       "step": 3,
