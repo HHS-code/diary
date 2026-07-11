@@ -54,7 +54,7 @@ export function AnalogClockWidget() {
         justifyContent: 'center',
       }}
     >
-      <svg width="100%" height="100%" style={{ maxWidth: '160px', maxHeight: '160px' }} viewBox="0 0 100 100">
+      <svg width="100%" height="100%" viewBox="0 0 100 100">
         <circle cx={CENTER} cy={CENTER} r={FACE_RADIUS} fill="#fff" stroke="#0a246a" strokeWidth="2" />
         {Array.from({ length: 12 }, (_, i) => {
           const tickPoint = calculateHandPoint(i * 30, FACE_RADIUS - 4)

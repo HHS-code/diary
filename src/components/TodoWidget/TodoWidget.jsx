@@ -12,7 +12,7 @@ function removeTodo(todos, todoId) {
 function renderTodoItem(todo, onToggleDone, onDelete) {
   const textStyle = {
     flex: 1,
-    fontSize: '13px',
+    fontSize: '16px',
     color: todo.done ? '#888' : '#333',
     textDecoration: todo.done ? 'line-through' : 'none',
   }
@@ -92,7 +92,7 @@ export function TodoWidget({ selectedDate }) {
           background: 'linear-gradient(180deg,#3d84ec,#1657d6)',
           color: '#fff',
           fontWeight: 'bold',
-          fontSize: 12,
+          fontSize: 14,
           padding: '5px 10px',
           textShadow: '1px 1px 1px rgba(0,0,0,.5)',
           flexShrink: 0,

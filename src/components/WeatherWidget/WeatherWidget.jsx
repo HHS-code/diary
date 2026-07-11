@@ -48,7 +48,7 @@ async function fetchCurrentWeather(latitude, longitude) {
 
 function renderWeatherContent(status, weather) {
   if (status === 'loading') {
-    return <p style={{ margin: 0, fontSize: '13px', color: '#333' }}>날씨 정보를 불러오는 중...</p>
+    return <div className="weather-spinner" role="status" aria-label="날씨 정보를 불러오는 중" />
   }
   if (status === 'error' || weather === null) {
     return <p style={{ margin: 0, fontSize: '13px', color: '#333' }}>날씨 정보를 불러올 수 없습니다.</p>
@@ -56,8 +56,8 @@ function renderWeatherContent(status, weather) {
   const { icon, label } = describeWeatherCode(weather.weathercode)
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: '32px' }}>{icon}</div>
-      <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#0a246a' }}>
+      <div style={{ fontSize: '48px' }}>{icon}</div>
+      <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#0a246a' }}>
         {Math.round(weather.temperature)}°C
       </div>
       <div style={{ fontSize: '13px', color: '#333' }}>{label}</div>

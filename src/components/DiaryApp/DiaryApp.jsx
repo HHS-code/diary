@@ -59,8 +59,8 @@ export function DiaryApp() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px',
-          padding: '4px',
+          gap: '10px',
+          padding: '10px',
           height: '100%',
           minHeight: '520px',
           boxSizing: 'border-box',
@@ -85,7 +85,7 @@ export function DiaryApp() {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '4px',
+            gap: '10px',
             flex: 1,
             minHeight: 0,
           }}
@@ -97,9 +97,9 @@ export function DiaryApp() {
             currentMonth={currentMonth}
             onChangeMonth={handleChangeMonth}
           />
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '4px', minHeight: 0 }}>
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '10px', minHeight: 0 }}>
             <TodoWidget selectedDate={selectedDate} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', minHeight: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minHeight: 0 }}>
               <WeatherWidget />
               <AnalogClockWidget />
             </div>
