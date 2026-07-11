@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "keyboard-shortcuts",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T18:11:16+0900",
+      "summary": "useCanvasKeyboardShortcuts(fabricCanvasRef) 생성 (src/hooks/useCanvasKeyboardShortcuts.js), 반환값 없음 — window keydown 리스너 등록/해제만 수행. Delete는 getActiveObject()가 ActiveSelection이면 getObjects() 순회하며 개별 remove, 아니면 단일 remove 후 discardActiveObject. Ctrl/Cmd+C는 활성 오브젝트를 clone()해 useRef(clipboardRef)에 보관(모듈 스코프 금지 — architecture 명시). Ctrl/Cmd+V는 매번 clipboardRef.current를 다시 clone()해 +10/+10 오프셋 후 add — 원본 clone 기준이라 반복 붙여넣기해도 오프셋 누적 안 됨(useObjectActions의 copy와 동일 오프셋 상수 CLONE_OFFSET=10, 단 이 훅 안에서 독립 정의). 모든 핸들러 진입부에서 getActiveObject()?.isEditing이면 즉시 return. DiaryCanvas.jsx에 훅 호출 1줄 추가. lint/build 통과 확인.",
+      "completed_at": "2026-07-11T18:15:00+0900"
     }
   ],
   "created_at": "2026-07-11T18:01:41+0900"

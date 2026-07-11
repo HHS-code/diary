@@ -3,6 +3,7 @@ import { useFabricCanvas } from '../../hooks/useFabricCanvas'
 import { useActiveSelection } from '../../hooks/useActiveSelection'
 import { useObjectActions } from '../../hooks/useObjectActions'
 import { useAlignment } from '../../hooks/useAlignment'
+import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
@@ -27,6 +28,7 @@ export function DiaryCanvas({ canvasJSON, onSave, selectedDate, onImportSuccess 
   const { activeObject, activeSelection } = useActiveSelection(fabricCanvasRef)
   const objectActions = useObjectActions(fabricCanvasRef)
   const alignActions = useAlignment(fabricCanvasRef)
+  useCanvasKeyboardShortcuts(fabricCanvasRef)
 
   return (
     <div style={{ padding: '16px' }}>
