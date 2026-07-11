@@ -78,7 +78,7 @@ export function PowerButton() {
         <img
           src={powerButtonIcon}
           alt=""
-          style={{ display: 'block', width: '100%', height: '100%', filter: 'saturate(1.6)' }}
+          style={{ display: 'block', width: '100%', height: '100%' }}
         />
       </button>
     </div>
