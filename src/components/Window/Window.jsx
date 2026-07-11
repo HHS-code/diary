@@ -16,8 +16,8 @@ const overlayStyle = {
 }
 
 const windowBoxStyle = {
-  width: '90%',
-  height: '88%',
+  width: '97%',
+  height: '95%',
   background: '#ece9d8',
   border: '1px solid #003ea6',
   borderRadius: '8px 8px 3px 3px',

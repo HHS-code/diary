@@ -9,13 +9,18 @@ const DEBOUNCE_MS = 500
  * Fabric.js 캔버스 생명주기를 React에 연결하는 커스텀 훅.
  * 마운트 시 fabric.Canvas를 생성하고, 언마운트 시 dispose()로 정리한다.
  * initialCanvasJSON이 있으면 캔버스 생성 직후 loadFromJSON으로 복원한다.
- * onSave가 있으면 캔버스 변경(추가·수정·삭제) 이벤트마다 500ms 디바운스 후 호출한다.
+ * onSave가 있으면 캔버스 변경(추가·수정·삭제) 이벤트마다 500ms 디바운스 후
+ * (canvasJSON, 현재 캔버스 크기 { width, height }) 인자로 호출한다.
+ * options.width/height로 캔버스 크기를 지정할 수 있고, 생략 시 800×600.
+ * options.onLoaded는 loadFromJSON 복원 완료 직후 fabric Canvas를 인자로 1회 호출된다.
+ * options는 마운트 시점 값만 사용한다 (이후 변경 무시).
  * @param {React.RefObject<HTMLCanvasElement>} canvasElementRef
  * @param {object | null} [initialCanvasJSON]
- * @param {((canvasJSON: object) => void) | null} [onSave]
+ * @param {((canvasJSON: object, canvasSize: { width: number, height: number }) => void) | null} [onSave]
+ * @param {{ width?: number, height?: number, onLoaded?: (canvas: import('fabric').Canvas) => void }} [options]
  * @returns {React.RefObject<import('fabric').Canvas | null>}
  */
-export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
+export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, options) {
   const fabricCanvasRef = useRef(null)
   const onSaveRef = useRef(onSave)
   const disposePromiseRef = useRef(null)
@@ -41,8 +46,9 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
       if (cancelled) return
 
       fabricCanvas = new Canvas(el, {
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
+        width: options?.width ?? CANVAS_WIDTH,
+        height: options?.height ?? CANVAS_HEIGHT,
+        backgroundColor: '#ffffff',
       })
 
       let isLoading = false
@@ -52,7 +58,8 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
         clearTimeout(debounceTimer)
         debounceTimer = setTimeout(() => {
           if (onSaveRef.current) {
-            onSaveRef.current(fabricCanvas.toJSON())
+            const canvasSize = { width: fabricCanvas.getWidth(), height: fabricCanvas.getHeight() }
+            onSaveRef.current(fabricCanvas.toJSON(), canvasSize)
           }
         }, DEBOUNCE_MS)
       }
@@ -67,6 +74,9 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave) {
           if (cancelled) return
           fabricCanvas.renderAll()
           isLoading = false
+          if (options?.onLoaded) {
+            options.onLoaded(fabricCanvas)
+          }
         })
       }
 

@@ -25,7 +25,7 @@ export function DiaryApp() {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const allData = loadAllDiaryData()
-  const { canvasJSON } = getDatePageData(allData, selectedDate, activeTab)
+  const { canvasJSON, canvasSize } = getDatePageData(allData, selectedDate, activeTab)
 
   function handleSelectDate(dateKey) {
     setSelectedDate(dateKey)
@@ -42,9 +42,9 @@ export function DiaryApp() {
     setScreen('main')
   }
 
-  function handleSaveCanvas(newCanvasJSON) {
+  function handleSaveCanvas(newCanvasJSON, newCanvasSize) {
     const current = loadAllDiaryData()
-    const updated = setDatePageData(current, selectedDate, activeTab, newCanvasJSON)
+    const updated = setDatePageData(current, selectedDate, activeTab, newCanvasJSON, newCanvasSize)
     saveAllDiaryData(updated)
   }
 
@@ -84,9 +84,9 @@ export function DiaryApp() {
   }
 
   return (
-    <div style={{ display: 'flex', gap: '24px', padding: '24px', alignItems: 'flex-start' }}>
-      <div style={{ flex: 1 }}>
-        <h2 style={{ margin: '0 0 12px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ display: 'flex', gap: '8px', padding: '8px', alignItems: 'flex-start', height: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+      <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={handleReturnToMain}
             style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '16px' }}
@@ -100,6 +100,7 @@ export function DiaryApp() {
           <DiaryCanvas
             key={`${selectedDate}-diary-${refreshKey}`}
             canvasJSON={canvasJSON}
+            canvasSize={canvasSize}
             onSave={handleSaveCanvas}
             selectedDate={selectedDate}
             onImportSuccess={handleImportSuccess}
