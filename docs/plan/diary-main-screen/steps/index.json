@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "todo-widget",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T11:28:29+0900",
+      "summary": "src/components/TodoWidget/TodoWidget.jsx 신규 생성: export function TodoWidget({ selectedDate }). loadAllDiaryData()→getDateTodos로 목록을 읽고, 추가(crypto.randomUUID())/체크(toggleTodoDone)/삭제(removeTodo) 시마다 loadAllDiaryData()→setDateTodos→saveAllDiaryData로 즉시 저장(낙관적 setState 병행). selectedDate가 바뀌면 useEffect가 그 날짜의 todos로 목록 교체. localStorage 직접 접근 없이 diaryStorage.js 함수만 사용. done 항목은 취소선(#888). WeatherWidget/AnalogClockWidget과 동일한 XP 카드 스타일(160px, #0a246a 테두리, #ece9d8 배경). Playwright로 추가/체크/삭제 각각 새로고침 후에도 유지/삭제됨을 확인, 다른 selectedDate에서 독립된 빈 목록도 확인. DiaryApp.jsx는 검증 후 원복(git diff 없음), 실제 연결은 step 5. 다음 step이 import할 산출 파일: src/components/TodoWidget/TodoWidget.jsx.",
+      "completed_at": "2026-07-11T11:35:00+0900"
     },
     {
       "step": 5,
