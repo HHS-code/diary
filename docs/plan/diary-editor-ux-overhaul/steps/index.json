@@ -25,7 +25,7 @@
       "status": "completed",
       "started_at": "2026-07-11T22:58:37+0900",
       "summary": "ObjectToolbar.jsx 전면 재작성: 플로팅(getBoundingRect+absolute) 폐기, StickerPalette 프레임(헤더 '오브젝트', 폭 240px) 고정 패널로 교체. props { activeObject, actions } 유지, activeObject null이면 버튼 6개(복사/삭제/맨 앞으로/맨 뒤로/한 단계 앞으로/한 단계 뒤로) disabled+opacity 0.45. 버튼 라벨은 아직 텍스트 — step 3에서 아이콘 교체 예정. DiaryCanvas.jsx: 툴바를 캔버스 래퍼 밖 좌측 사이드바(CanvasBackgroundControl 아래)로 이동, 항상 렌더링, 캔버스 래퍼의 position:relative 제거(용도 소멸). useObjectActions.js 무수정. 신규 ObjectToolbar.test.jsx 6개(createRoot+act 패턴), 전체 22개 통과. fabric 미import·getBoundingRect 0건 grep 확인.",
-      "completed_at": "2026-07-11T23:05:00+0900"
+      "completed_at": "2026-07-11T23:03:02+0900"
     },
     {
       "step": 3,
