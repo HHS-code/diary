@@ -124,7 +124,12 @@ class StepBuilder:
     # --- git ---
 
     def _run_git(self, *args) -> subprocess.CompletedProcess:
-        return subprocess.run(["git", *args], cwd=self._root, capture_output=True, text=True)
+        # Windows 기본 로케일(cp949)로 git의 UTF-8 출력(—, ✓ 등)을 읽으면
+        # UnicodeDecodeError로 reader thread가 죽는다 — encoding을 명시한다.
+        return subprocess.run(
+            ["git", *args], cwd=self._root, capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+        )
 
     def _checkout_branch(self) -> None:
         branch = f"feat-{self._phase}"
