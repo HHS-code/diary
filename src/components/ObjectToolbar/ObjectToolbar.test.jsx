@@ -30,7 +30,7 @@ function renderToolbar(props) {
 
 function findButtonByLabel(label) {
   const buttons = [...container.querySelectorAll('button')]
-  return buttons.find((button) => button.textContent === label)
+  return buttons.find((button) => button.getAttribute('aria-label') === label)
 }
 
 afterEach(() => {
@@ -85,6 +85,17 @@ describe('ObjectToolbar (고정 패널)', () => {
     })
 
     expect(actions.remove).toHaveBeenCalledWith(activeObject)
+  })
+
+  it('각 버튼은 아이콘(svg)만 표시하고 title/aria-label로 의미를 전달한다', () => {
+    renderToolbar({ activeObject: null, actions: createActions() })
+
+    for (const label of BUTTON_LABELS) {
+      const button = findButtonByLabel(label)
+      expect(button.querySelector('svg'), `"${label}" 버튼에 svg 아이콘이 없음`).toBeTruthy()
+      expect(button.getAttribute('title'), `"${label}" 버튼에 title이 없음`).toBe(label)
+      expect(button.textContent, `"${label}" 버튼에 텍스트가 남아 있음`).toBe('')
+    }
   })
 
   it('플로팅 배치가 아니다 — position: absolute를 사용하지 않는다', () => {

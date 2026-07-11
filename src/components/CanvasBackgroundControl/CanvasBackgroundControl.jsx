@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { MdPalette, MdWallpaper } from 'react-icons/md'
 
 /**
  * 캔버스 배경을 색상 또는 이미지로 바꾸는 컨트롤 패널.
@@ -47,6 +48,7 @@ export function CanvasBackgroundControl({ actions }) {
         배경
       </div>
       <div style={{ display: 'flex', gap: '8px', padding: '8px', alignItems: 'center' }}>
+        <MdPalette size={18} title="배경 색상" aria-hidden="true" />
         <input
           type="color"
           defaultValue="#ffffff"
@@ -80,9 +82,13 @@ export function CanvasBackgroundControl({ actions }) {
             background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
             cursor: 'pointer',
             fontSize: '14px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
           }}
         >
-          배경 이미지
+          <MdWallpaper size={18} /> 배경 이미지
         </button>
       </div>
     </div>

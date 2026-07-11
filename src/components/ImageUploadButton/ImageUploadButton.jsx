@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { FabricImage } from 'fabric'
+import { MdAddPhotoAlternate } from 'react-icons/md'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
@@ -61,9 +62,13 @@ export function ImageUploadButton({ fabricCanvasRef }) {
           cursor: 'pointer',
           fontSize: '14px',
           width: '100%',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
         }}
       >
-        이미지 추가
+        <MdAddPhotoAlternate size={18} /> 이미지 추가
       </button>
     </>
   )

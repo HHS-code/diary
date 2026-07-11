@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { MdFileDownload, MdFileUpload, MdPhotoCamera } from 'react-icons/md'
 import { loadAllDiaryData, saveAllDiaryData } from '../../storage/diaryStorage'
 
 /**
@@ -62,12 +63,19 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
     background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
     cursor: 'pointer',
     fontSize: '13px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
   }
 
   return (
     <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-      <button style={buttonStyle} onClick={handleExportJSON}>JSON 내보내기</button>
-      <button style={buttonStyle} onClick={() => fileInputRef.current.click()}>JSON 불러오기</button>
+      <button style={buttonStyle} onClick={handleExportJSON}>
+        <MdFileDownload size={16} /> JSON 내보내기
+      </button>
+      <button style={buttonStyle} onClick={() => fileInputRef.current.click()}>
+        <MdFileUpload size={16} /> JSON 불러오기
+      </button>
       <input
         ref={fileInputRef}
         type="file"
@@ -75,7 +83,9 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
         style={{ display: 'none' }}
         onChange={handleImportJSON}
       />
-      <button style={buttonStyle} onClick={handleExportPNG}>PNG 내보내기</button>
+      <button style={buttonStyle} onClick={handleExportPNG}>
+        <MdPhotoCamera size={16} /> PNG 내보내기
+      </button>
     </div>
   )
 }

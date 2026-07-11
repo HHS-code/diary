@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { IText } from 'fabric'
+import { MdTextFields } from 'react-icons/md'
 
 const FONTS = [
   { label: '나눔손글씨 (한글)', value: 'Nanum Pen Script' },
@@ -124,9 +125,13 @@ export function TextMemoButton({ fabricCanvasRef }) {
             cursor: 'pointer',
             fontSize: '14px',
             width: '100%',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
           }}
         >
-          텍스트 추가
+          <MdTextFields size={18} /> 텍스트 추가
         </button>
       )}
     </div>

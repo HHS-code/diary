@@ -1,3 +1,14 @@
+import {
+  MdContentCopy,
+  MdDelete,
+  MdFlipToBack,
+  MdFlipToFront,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
+} from 'react-icons/md'
+
+const ICON_SIZE = 18
+
 const panelStyle = {
   width: '240px',
   boxSizing: 'border-box',
@@ -33,6 +44,9 @@ function buildButtonStyle(isEnabled) {
     opacity: isEnabled ? 1 : 0.45,
     padding: '4px 8px',
     fontSize: 12,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 }
 
@@ -57,21 +71,29 @@ export function ObjectToolbar({ activeObject, actions }) {
   const buttonStyle = buildButtonStyle(isEnabled)
 
   const buttons = [
-    { label: '복사', onClick: () => actions.copy(activeObject) },
-    { label: '삭제', onClick: () => actions.remove(activeObject) },
-    { label: '맨 앞으로', onClick: () => actions.bringToFront(activeObject) },
-    { label: '맨 뒤로', onClick: () => actions.sendToBack(activeObject) },
-    { label: '한 단계 앞으로', onClick: () => actions.bringForward(activeObject) },
-    { label: '한 단계 뒤로', onClick: () => actions.sendBackward(activeObject) },
+    { label: '복사', icon: <MdContentCopy size={ICON_SIZE} />, onClick: () => actions.copy(activeObject) },
+    { label: '삭제', icon: <MdDelete size={ICON_SIZE} />, onClick: () => actions.remove(activeObject) },
+    { label: '맨 앞으로', icon: <MdFlipToFront size={ICON_SIZE} />, onClick: () => actions.bringToFront(activeObject) },
+    { label: '맨 뒤로', icon: <MdFlipToBack size={ICON_SIZE} />, onClick: () => actions.sendToBack(activeObject) },
+    { label: '한 단계 앞으로', icon: <MdKeyboardArrowUp size={ICON_SIZE} />, onClick: () => actions.bringForward(activeObject) },
+    { label: '한 단계 뒤로', icon: <MdKeyboardArrowDown size={ICON_SIZE} />, onClick: () => actions.sendBackward(activeObject) },
   ]
 
   return (
     <div style={panelStyle}>
       <div style={headerStyle}>오브젝트</div>
       <div style={buttonRowStyle}>
-        {buttons.map(({ label, onClick }) => (
-          <button key={label} type="button" style={buttonStyle} disabled={!isEnabled} onClick={onClick}>
-            {label}
+        {buttons.map(({ label, icon, onClick }) => (
+          <button
+            key={label}
+            type="button"
+            style={buttonStyle}
+            disabled={!isEnabled}
+            onClick={onClick}
+            title={label}
+            aria-label={label}
+          >
+            {icon}
           </button>
         ))}
       </div>
