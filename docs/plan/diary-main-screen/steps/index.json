@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "xp-calendar",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-11T11:10:47+0900",
+      "summary": "src/components/XPCalendar/XPCalendar.jsx 신규 생성: export function XPCalendar({ selectedDate, onSelectDate, currentYear, currentMonth, onChangeMonth }). 연/월 state는 이 컴포넌트가 갖지 않고 부모에게서 props로만 받아 표시 — ◀▶ 클릭 시 계산만 해서 onChangeMonth(year, month) 호출. 오늘=노란 배경(#ffff00), 선택된 날짜(오늘 아님)=파란 2px 테두리, buildCalendarDays/formatDateKey는 Calendar.jsx와 동일 로직으로 파일 내부에 재구현(공유 안 함). Calendar.jsx는 삭제하지 않음(step 5 범위). DiaryApp.jsx는 아직 연결 안 함(step 5 범위). 다음 step이 import할 산출 파일: src/components/XPCalendar/XPCalendar.jsx.",
+      "completed_at": "2026-07-11T11:15:00+0900"
     },
     {
       "step": 2,
