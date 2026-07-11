@@ -1,0 +1,10 @@
+{
+  "project": "diary",
+  "phase": "canvas-object-toolbar",
+  "steps": [
+    { "step": 0, "name": "active-selection-tracking", "status": "pending" },
+    { "step": 1, "name": "object-actions-toolbar", "status": "pending" },
+    { "step": 2, "name": "alignment-toolbar", "status": "pending" },
+    { "step": 3, "name": "keyboard-shortcuts", "status": "pending" }
+  ]
+}
