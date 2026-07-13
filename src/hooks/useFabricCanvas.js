@@ -4,6 +4,9 @@ import { Canvas } from 'fabric'
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
 const DEBOUNCE_MS = 500
+// 배경 이미지(isBackground 태그)와 그 고정 상태(selectable/evented)가
+// 새로고침 후에도 유지되도록 표준 직렬화에 추가로 포함하는 속성들.
+const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented']
 
 /**
  * Fabric.js 캔버스 생명주기를 React에 연결하는 커스텀 훅.
@@ -59,7 +62,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
         debounceTimer = setTimeout(() => {
           if (onSaveRef.current) {
             const canvasSize = { width: fabricCanvas.getWidth(), height: fabricCanvas.getHeight() }
-            onSaveRef.current(fabricCanvas.toJSON(), canvasSize)
+            onSaveRef.current(fabricCanvas.toObject(EXTRA_SERIALIZED_PROPS), canvasSize)
           }
         }, DEBOUNCE_MS)
       }

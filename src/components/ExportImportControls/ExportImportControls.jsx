@@ -69,7 +69,7 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
   }
 
   return (
-    <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <button style={buttonStyle} onClick={handleExportJSON}>
         <MdFileDownload size={16} /> JSON 내보내기
       </button>

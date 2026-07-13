@@ -1,10 +1,18 @@
 import { useRef } from 'react'
-import { MdPalette, MdWallpaper } from 'react-icons/md'
+import { MdPalette, MdWallpaper, MdSave, MdLayersClear } from 'react-icons/md'
 
 /**
  * 캔버스 배경을 색상 또는 이미지로 바꾸는 컨트롤 패널.
+ * 배경 이미지는 추가 직후 자유롭게 이동·크기조절할 수 있고,
+ * "배경 고정"을 눌러야 선택 불가 상태로 고정된다. "배경 초기화"는
+ * 배경 이미지만 제거한다 (다른 오브젝트는 그대로).
  * fabric을 직접 다루지 않고, props로 받은 actions 함수만 호출한다.
- * @param {{ actions: { setColor: (hex: string) => void, setImage: (file: File) => void } }} props
+ * @param {{ actions: {
+ *   setColor: (hex: string) => void,
+ *   setImage: (file: File) => void,
+ *   lockBackground: () => void,
+ *   clearBackground: () => void,
+ * } }} props
  */
 export function CanvasBackgroundControl({ actions }) {
   const fileInputRef = useRef(null)
@@ -89,6 +97,46 @@ export function CanvasBackgroundControl({ actions }) {
           }}
         >
           <MdWallpaper size={18} /> 배경 이미지
+        </button>
+      </div>
+      <div style={{ display: 'flex', gap: '8px', padding: '0 8px 8px' }}>
+        <button
+          type="button"
+          onClick={() => actions.lockBackground()}
+          style={{
+            flex: 1,
+            padding: '6px 8px',
+            border: '1px solid #7d7d64',
+            borderRadius: 3,
+            background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
+            cursor: 'pointer',
+            fontSize: '13px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+          }}
+        >
+          <MdSave size={16} /> 배경 고정
+        </button>
+        <button
+          type="button"
+          onClick={() => actions.clearBackground()}
+          style={{
+            flex: 1,
+            padding: '6px 8px',
+            border: '1px solid #7d7d64',
+            borderRadius: 3,
+            background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
+            cursor: 'pointer',
+            fontSize: '13px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+          }}
+        >
+          <MdLayersClear size={16} /> 배경 초기화
         </button>
       </div>
     </div>
