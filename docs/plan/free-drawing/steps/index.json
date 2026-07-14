@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "paint-toolbox-ui",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-14T22:00:54+0900",
+      "completed_at": "2026-07-14T22:05:30+0900",
+      "summary": "PaintToolbox({ tool, color, width, onToolChange, onColorChange, onWidthChange }) 신규 (src/components/PaintToolbox/PaintToolbox.jsx) — fabric 미import 순수 UI. 도구 2열 격자 5개(선택 MdNearMe/연필 MdCreate/브러시 MdBrush/에어브러시 MdBlurOn/지우개 MdCleaningServices, aria-label=한글명, 현재 도구 aria-pressed+sunken 스타일), 굵기 버튼 [2,4,6,8](brush/airbrush/eraser만 활성, select/pencil disabled), XP 28색 팔레트(PALETTE_COLORS 2행×14열, aria-label='색상 #HEX')+현재 색 표시 칸. 색 선택은 모든 도구에서 활성(일관성 재량 선택). DiaryCanvas의 CanvasWorkspace에 usePaintTools 호출 추가, PaintToolbox를 사이드바 최상단(StickerPalette 위) 배치 — 그 외 무수정. 테스트 src/components/PaintToolbox/PaintToolbox.test.jsx (ObjectToolbar.test.jsx의 createRoot+act+aria-label 패턴, 9개). 픽셀 정밀 매칭은 step 4(match-reference) 몫 — 스타일은 design.md 패널/버튼 스펙 재사용."
     },
     {
       "step": 3,

@@ -4,7 +4,9 @@ import { useActiveSelection } from '../../hooks/useActiveSelection'
 import { useObjectActions } from '../../hooks/useObjectActions'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { useCanvasBackground } from '../../hooks/useCanvasBackground'
+import { usePaintTools } from '../../hooks/usePaintTools'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
+import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
 import { CanvasBackgroundControl } from '../CanvasBackgroundControl/CanvasBackgroundControl'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
@@ -79,6 +81,7 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
   const { activeObject } = useActiveSelection(fabricCanvasRef)
   const objectActions = useObjectActions(fabricCanvasRef)
   const backgroundActions = useCanvasBackground(fabricCanvasRef)
+  const paintTools = usePaintTools(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
 
   return (
@@ -93,6 +96,14 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
           gap: '12px',
         }}
       >
+        <PaintToolbox
+          tool={paintTools.tool}
+          color={paintTools.color}
+          width={paintTools.width}
+          onToolChange={paintTools.setTool}
+          onColorChange={paintTools.setColor}
+          onWidthChange={paintTools.setWidth}
+        />
         <StickerPalette fabricCanvasRef={fabricCanvasRef} />
         <CanvasBackgroundControl actions={backgroundActions} />
         <ObjectToolbar activeObject={activeObject} actions={objectActions} />
