@@ -1,4 +1,5 @@
 import { FabricImage } from 'fabric'
+import { LOGICAL_CANVAS } from './useFabricCanvas'
 
 /**
  * 캔버스 배경(색상/이미지)을 다루는 커스텀 훅.
@@ -30,10 +31,11 @@ export function useCanvasBackground(fabricCanvasRef) {
 
   async function addAdjustableBackgroundImage(canvas, dataUrl) {
     const img = await FabricImage.fromURL(dataUrl)
-    // 처음엔 캔버스를 덮는 크기로 깔아주되, 이후 조절은 사용자 몫
+    // 처음엔 캔버스(논리 좌표계)를 덮는 크기로 깔아주되, 이후 조절은 사용자 몫.
+    // canvas.getWidth()는 표시(축소된) 크기라 쓰지 않는다.
     const coverScale = Math.max(
-      canvas.getWidth() / img.width,
-      canvas.getHeight() / img.height,
+      LOGICAL_CANVAS.width / img.width,
+      LOGICAL_CANVAS.height / img.height,
     )
     img.set({ left: 0, top: 0, scaleX: coverScale, scaleY: coverScale, isBackground: true })
     canvas.add(img)

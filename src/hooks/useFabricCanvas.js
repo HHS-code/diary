@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { Canvas } from 'fabric'
 
-const CANVAS_WIDTH = 800
-const CANVAS_HEIGHT = 600
+// 모든 오브젝트 좌표·저장 데이터가 기준으로 삼는 논리 캔버스 크기.
+// 기기·창 크기와 무관하게 고정 — 화면에는 displayScale 배율로 표시만 한다.
+export const LOGICAL_CANVAS = { width: 1600, height: 1000 }
+
 const DEBOUNCE_MS = 500
 // 배경 이미지(isBackground 태그)와 그 고정 상태(selectable/evented)가
 // 새로고침 후에도 유지되도록 표준 직렬화에 추가로 포함하는 속성들.
@@ -13,14 +15,15 @@ const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented']
  * 마운트 시 fabric.Canvas를 생성하고, 언마운트 시 dispose()로 정리한다.
  * initialCanvasJSON이 있으면 캔버스 생성 직후 loadFromJSON으로 복원한다.
  * onSave가 있으면 캔버스 변경(추가·수정·삭제) 이벤트마다 500ms 디바운스 후
- * (canvasJSON, 현재 캔버스 크기 { width, height }) 인자로 호출한다.
- * options.width/height로 캔버스 크기를 지정할 수 있고, 생략 시 800×600.
+ * (canvasJSON, LOGICAL_CANVAS) 인자로 호출한다 — 저장은 항상 논리 좌표계 기준.
+ * 캔버스의 논리 크기는 LOGICAL_CANVAS(1600×1000)로 고정이며,
+ * options.displayScale(기본 1)에 따라 화면 표시 크기만 달라진다.
  * options.onLoaded는 loadFromJSON 복원 완료 직후 fabric Canvas를 인자로 1회 호출된다.
  * options는 마운트 시점 값만 사용한다 (이후 변경 무시).
  * @param {React.RefObject<HTMLCanvasElement>} canvasElementRef
  * @param {object | null} [initialCanvasJSON]
  * @param {((canvasJSON: object, canvasSize: { width: number, height: number }) => void) | null} [onSave]
- * @param {{ width?: number, height?: number, onLoaded?: (canvas: import('fabric').Canvas) => void }} [options]
+ * @param {{ displayScale?: number, onLoaded?: (canvas: import('fabric').Canvas) => void }} [options]
  * @returns {React.RefObject<import('fabric').Canvas | null>}
  */
 export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, options) {
@@ -48,11 +51,15 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
     const setupPromise = Promise.resolve(disposePromiseRef.current).then(() => {
       if (cancelled) return
 
+      const displayScale = options?.displayScale ?? 1
       fabricCanvas = new Canvas(el, {
-        width: options?.width ?? CANVAS_WIDTH,
-        height: options?.height ?? CANVAS_HEIGHT,
+        width: LOGICAL_CANVAS.width * displayScale,
+        height: LOGICAL_CANVAS.height * displayScale,
         backgroundColor: '#ffffff',
       })
+      // 오브젝트 좌표는 논리(1600×1000) 평면 그대로 두고 표시만 축소/확대.
+      // zoom이 걸리면 fabric이 마우스 좌표를 논리 좌표로 자동 변환한다.
+      fabricCanvas.setZoom(displayScale)
 
       let isLoading = false
 
@@ -61,8 +68,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
         clearTimeout(debounceTimer)
         debounceTimer = setTimeout(() => {
           if (onSaveRef.current) {
-            const canvasSize = { width: fabricCanvas.getWidth(), height: fabricCanvas.getHeight() }
-            onSaveRef.current(fabricCanvas.toObject(EXTRA_SERIALIZED_PROPS), canvasSize)
+            onSaveRef.current(fabricCanvas.toObject(EXTRA_SERIALIZED_PROPS), LOGICAL_CANVAS)
           }
         }, DEBOUNCE_MS)
       }

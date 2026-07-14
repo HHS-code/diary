@@ -1,4 +1,5 @@
 import { FabricText } from 'fabric'
+import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
 
 const STICKERS = [
   '❤️', '🧡', '💛', '💚', '💙', '💜',
@@ -8,8 +9,8 @@ const STICKERS = [
   '🍓', '🧁', '☕', '🍒', '🍰', '🎀',
 ]
 
-const CANVAS_CENTER_X = 400
-const CANVAS_CENTER_Y = 300
+const CANVAS_CENTER_X = LOGICAL_CANVAS.width / 2
+const CANVAS_CENTER_Y = LOGICAL_CANVAS.height / 2
 const RANDOM_SPREAD = 200
 
 function randomOffset() {

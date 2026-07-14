@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { FabricImage } from 'fabric'
 import { MdAddPhotoAlternate } from 'react-icons/md'
+import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
 
-const CANVAS_WIDTH = 800
-const CANVAS_HEIGHT = 600
+const CANVAS_WIDTH = LOGICAL_CANVAS.width
+const CANVAS_HEIGHT = LOGICAL_CANVAS.height
 
 /**
  * 이미지 파일을 선택해 Fabric 캔버스에 추가하는 버튼.

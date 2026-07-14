@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { MdFileDownload, MdFileUpload, MdPhotoCamera } from 'react-icons/md'
 import { loadAllDiaryData, saveAllDiaryData } from '../../storage/diaryStorage'
+import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
 
 /**
  * anchor 태그를 생성해 Blob을 파일로 다운로드시킨다.
@@ -49,7 +50,11 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
   function handleExportPNG() {
     const canvas = fabricCanvasRef.current
     if (!canvas) return
-    const dataUrl = canvas.toDataURL({ format: 'png' })
+    // 표시 배율(축소/확대)과 무관하게 항상 논리 크기(1600×1000)로 출력한다.
+    const dataUrl = canvas.toDataURL({
+      format: 'png',
+      multiplier: LOGICAL_CANVAS.width / canvas.getWidth(),
+    })
     const a = document.createElement('a')
     a.href = dataUrl
     a.download = `diary-${selectedDate}.png`
@@ -69,7 +74,7 @@ export function ExportImportControls({ fabricCanvasRef, selectedDate, onImportSu
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '240px', boxSizing: 'border-box' }}>
       <button style={buttonStyle} onClick={handleExportJSON}>
         <MdFileDownload size={16} /> JSON 내보내기
       </button>

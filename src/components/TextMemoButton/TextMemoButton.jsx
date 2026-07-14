@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { IText } from 'fabric'
 import { MdTextFields } from 'react-icons/md'
+import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
 
 const FONTS = [
   { label: '나눔손글씨 (한글)', value: 'Nanum Pen Script' },
@@ -13,8 +14,8 @@ const FONTS = [
   { label: 'Shadows Into Light (영문)', value: 'Shadows Into Light' },
 ]
 
-const CANVAS_WIDTH = 800
-const CANVAS_HEIGHT = 600
+const CANVAS_WIDTH = LOGICAL_CANVAS.width
+const CANVAS_HEIGHT = LOGICAL_CANVAS.height
 
 /**
  * 폰트를 선택하고 텍스트를 입력해 Fabric 캔버스에 IText 오브젝트로 추가하는 버튼.
