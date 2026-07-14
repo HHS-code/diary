@@ -12,6 +12,7 @@
 | `diary-main-screen` | XP 스타일 캘린더 + 위젯 3종(할일/날씨/시계), 메인/편집 화면 전환 | 완료 (step0~5, report 있음) |
 | XP 스타일 리디자인 | `docs/design.md` — 기능 변경 없이 색·그라디언트·폰트·보더만 Luna 스타일로 교체 | 완료 (대상 컴포넌트 전부 Luna 색상값 적용 확인됨) |
 | `canvas-object-toolbar` | 오브젝트 복사/삭제/레이어 순서 편의 툴바 + 키보드 단축키(Delete/Ctrl+C/V) | 완료 (정렬/등간격 배치는 Fabric.js ActiveSelection 좌표계 문제로 범위 제외 — "다중 선택 시 함께 이동"은 Fabric.js 기본 동작으로 충족) |
+| `diary-editor-ux-overhaul` | 캔버스 확대(1400x900)+마이그레이션, 배경 색/이미지 커스텀, 오브젝트 툴바 고정 패널화, 버튼 아이콘, 모아보기 갤러리, 캘린더 hover 작성 버튼, 메인 화면 정리 | 완료 (step0~6, report 있음) |
 
 > 참고: `desktop-ui/steps/index.json`은 상태가 "pending"으로 남아있었으나 실제로는 완료된 상태라 "done"으로 동기화함(git log 기준).
 
@@ -21,7 +22,7 @@
 
 | 순서 | Phase | 내용 | 비고 |
 |---|---|---|---|
-| 1 | `free-drawing` | 캔버스 위에 자유롭게 그림 그리기 (Fabric.js free drawing mode) | |
+| 1 | `free-drawing` | XP 그림판식 자유 그리기 — 연필/브러시/에어브러시, 진짜 지우개(@erase2d/fabric), 전체 undo/redo, 그림판 UI (docs/plan/free-drawing/) | 도형 그리기(직선/사각형/원)는 후속 후보 `paint-shapes`로 분리 (2026-07-14 합의) |
 | 2 | `asset-import-pipeline` | 배경/폰트 파일 업로드 + 폴더 일괄 추가·드래그앤드롭·붙여넣기 감지로 에셋을 등록하는 공용 입력 방식 | localStorage 용량 한계 검토 필요. 이후 스티커 에디터가 재사용 |
 | 3 | `sticker-studio` | 스티커 전용 에디터 메뉴 — 새 스티커 그리기/만들기 + 기존 스티커 편집 | `asset-import-pipeline`에 의존 |
 | 4 | `youtube-embed` | 다이어리에 유튜브 링크를 넣으면 재생 가능한 썸네일 카드로 표시 | |
