@@ -1,0 +1,11 @@
+{
+  "project": "diary",
+  "phase": "free-drawing",
+  "steps": [
+    { "step": 0, "name": "paint-tools-drawing", "status": "pending" },
+    { "step": 1, "name": "eraser-erase2d", "status": "pending" },
+    { "step": 2, "name": "paint-toolbox-ui", "status": "pending" },
+    { "step": 3, "name": "canvas-history", "status": "pending" },
+    { "step": 4, "name": "xp-paint-ui-match", "status": "manual", "note": "match-reference 실측 매칭 — headless 불가, 러너 완료 후 대화 세션에서 진행" }
+  ]
+}
