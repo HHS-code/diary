@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "eraser-erase2d",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-14T21:50:15+0900",
+      "completed_at": "2026-07-14T21:59:30+0900",
+      "summary": "usePaintTools tool에 'eraser' 추가 — buildEraserBrush(canvas, width)가 @erase2d/fabric EraserBrush 생성, end 이벤트에서 event.preventDefault() 후 await brush.commit(event.detail)로 수동 커밋하고 canvas.fire('object:modified')로 오토세이브 파이프라인을 태움(targets 비면 skip). erasable:true 획만 지워짐(walk가 필터) — 스티커/사진/텍스트 무영향 테스트 증명. @erase2d/fabric import는 usePaintTools.js에만 있고, 이 import 부수효과로 ClippingGroup(type 'clipping')이 classRegistry에 등록됨 — 별도 등록 코드 불필요. 직렬화 검증: src/hooks/freeDrawingSerialization.test.js — 지워진 획(clipPath=ClippingGroup) toObject→loadFromJSON 왕복·픽셀 검증·박제 속성 유지·buildThumbnail(StaticCanvas) 복원·SprayBrush Group 왕복 전부 통과 (EXTRA_SERIALIZED_PROPS 목록은 테스트에 복사돼 있음 — useFabricCanvas와 동기화 필요). 실제 포인터 문지르기는 jsdom 불가 — 브라우저 수동 검증 항목(리포트 참고). DiaryCanvas 연결은 여전히 step 2 몫."
     },
     {
       "step": 2,

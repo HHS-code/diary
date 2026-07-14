@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { PencilBrush, SprayBrush } from 'fabric'
+// 이 import는 부수효과로 ClippingGroup(type 'clipping')을 fabric classRegistry에
+// 등록한다 — 지워진 획의 loadFromJSON 역직렬화에 필요. 다른 파일로 옮기지 말 것
+// (architecture.md 모듈 경계: @erase2d/fabric 의존은 이 파일 안에만).
+import { EraserBrush } from '@erase2d/fabric'
 
 const DEFAULT_COLOR = '#000000'
 const DEFAULT_WIDTH = 4
@@ -9,6 +13,21 @@ const PENCIL_WIDTH = 1
 // 기본 굵기 4에서 fabric SprayBrush의 기본 밀도(20)와 같아진다.
 const SPRAY_DENSITY_PER_WIDTH = 5
 const CANVAS_READY_POLL_MS = 50
+
+function buildEraserBrush(canvas, width) {
+  const brush = new EraserBrush(canvas)
+  brush.width = width
+  brush.on('end', async (event) => {
+    // 기본 자동 커밋 대신 직접 커밋해 완료 시점을 잡는다 — 지우기는 fabric의
+    // object:* 이벤트를 스스로 발생시키지 않으므로, 커밋이 끝난 뒤
+    // object:modified를 발생시켜야 기존 오토세이브가 지운 상태를 저장한다.
+    event.preventDefault()
+    if (event.detail.targets.length === 0) return
+    await brush.commit(event.detail)
+    canvas.fire('object:modified')
+  })
+  return brush
+}
 
 function buildBrush(canvas, tool, color, width) {
   if (tool === 'pencil') {
@@ -22,6 +41,9 @@ function buildBrush(canvas, tool, color, width) {
     brush.color = color
     brush.width = width
     return brush
+  }
+  if (tool === 'eraser') {
+    return buildEraserBrush(canvas, width)
   }
   // airbrush
   const brush = new SprayBrush(canvas)
@@ -43,16 +65,18 @@ function applyToolToCanvas(canvas, tool, color, width) {
 /**
  * 그림판식 그리기 도구 상태를 Fabric.js 캔버스에 연결하는 커스텀 훅.
  *
- * - tool ∈ { 'select', 'pencil', 'brush', 'airbrush' }, 기본 'select'.
+ * - tool ∈ { 'select', 'pencil', 'brush', 'airbrush', 'eraser' }, 기본 'select'.
  *   select는 그리기 모드를 끄고(기존 오브젝트 선택/이동), 나머지는
  *   그리기 모드를 켜며 도구에 맞는 브러시를 설정한다.
  * - color/width 변경은 현재 활성 브러시에 즉시 반영된다 (연필은 굵기 1 고정).
  * - 그린 획은 path:created 시점에 박제된다 — 그림판처럼 선택·이동 불가
  *   (selectable/evented false)이고, isFreeDrawing·erasable 태그로
  *   직렬화·지우개 대상 식별이 가능하다.
+ * - 지우개(EraserBrush)는 erasable:true인 오브젝트(=그린 획)만 지운다.
+ *   스티커/사진/텍스트는 erasable 미설정(기본 false)이라 영향받지 않는다.
  * @param {React.RefObject<import('fabric').Canvas | null>} fabricCanvasRef
  * @returns {{
- *   tool: 'select' | 'pencil' | 'brush' | 'airbrush',
+ *   tool: 'select' | 'pencil' | 'brush' | 'airbrush' | 'eraser',
  *   color: string,
  *   width: number,
  *   setTool: (tool: string) => void,

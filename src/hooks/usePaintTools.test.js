@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Canvas, Group, Path, PencilBrush, SprayBrush } from 'fabric'
+import { Canvas, Group, Path, PencilBrush, Point, Rect, SprayBrush } from 'fabric'
+import { ClippingGroup, EraserBrush } from '@erase2d/fabric'
 import { usePaintTools } from './usePaintTools'
 
 // react-dom이 act() 사용을 허용하도록 하는 React 테스트 환경 플래그
@@ -142,5 +143,71 @@ describe('usePaintTools', () => {
     const result = renderPaintTools({ current: null })
 
     expect(() => act(() => result.setTool('brush'))).not.toThrow()
+  })
+
+  it('eraser 선택 시 그리기 모드가 켜지고 width 굵기의 EraserBrush가 설정된다', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+
+    act(() => result.setWidth(10))
+    act(() => result.setTool('eraser'))
+
+    expect(canvas.isDrawingMode).toBe(true)
+    expect(canvas.freeDrawingBrush).toBeInstanceOf(EraserBrush)
+    expect(canvas.freeDrawingBrush.width).toBe(10)
+  })
+
+  /** 지우개가 (150,0)→(150,150) 세로로 지나간 상황을 드래그 없이 재현한다. */
+  function finishEraserStrokeAcross(eraser) {
+    eraser._points = [new Point(150, 0), new Point(150, 150)]
+    eraser._finalizeAndAddPath()
+  }
+
+  it('지우개가 지나가면 erasable 획에만 지운 자국(ClippingGroup clipPath)이 커밋된다', async () => {
+    const canvas = createCanvas()
+    const stroke = new Path('M 0 75 L 300 75', { stroke: '#000000', strokeWidth: 4, fill: null, erasable: true })
+    // 스티커/사진/텍스트에 해당 — erasable 미설정(기본 false)
+    const sticker = new Rect({ left: 100, top: 25, width: 100, height: 100, fill: '#00ff00' })
+    canvas.add(stroke, sticker)
+    const result = renderPaintTools({ current: canvas })
+    act(() => result.setTool('eraser'))
+
+    finishEraserStrokeAcross(canvas.freeDrawingBrush)
+
+    await vi.waitFor(() => expect(stroke.clipPath).toBeInstanceOf(ClippingGroup))
+    expect(sticker.clipPath).toBeUndefined()
+  })
+
+  it('지운 커밋이 끝나면 object:modified를 발생시켜 기존 오토세이브 파이프라인을 태운다', async () => {
+    const canvas = createCanvas()
+    const stroke = new Path('M 0 75 L 300 75', { stroke: '#000000', strokeWidth: 4, fill: null, erasable: true })
+    canvas.add(stroke)
+    const result = renderPaintTools({ current: canvas })
+    act(() => result.setTool('eraser'))
+    const onModified = vi.fn()
+    canvas.on('object:modified', onModified)
+
+    finishEraserStrokeAcross(canvas.freeDrawingBrush)
+
+    await vi.waitFor(() => expect(onModified).toHaveBeenCalled())
+    expect(stroke.clipPath).toBeInstanceOf(ClippingGroup)
+  })
+
+  it('아무것도 지우지 못한 드래그는 커밋도 object:modified도 발생시키지 않는다', async () => {
+    const canvas = createCanvas()
+    const stroke = new Path('M 0 75 L 300 75', { stroke: '#000000', strokeWidth: 4, fill: null, erasable: true })
+    canvas.add(stroke)
+    const result = renderPaintTools({ current: canvas })
+    act(() => result.setTool('eraser'))
+    const onModified = vi.fn()
+    canvas.on('object:modified', onModified)
+
+    const eraser = canvas.freeDrawingBrush
+    eraser._points = [new Point(5, 5), new Point(10, 10)]
+    eraser._finalizeAndAddPath()
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(stroke.clipPath).toBeUndefined()
+    expect(onModified).not.toHaveBeenCalled()
   })
 })
