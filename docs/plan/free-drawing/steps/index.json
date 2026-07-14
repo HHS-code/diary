@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "canvas-history",
-      "status": "pending"
+      "status": "error",
+      "started_at": "2026-07-14T22:05:52+0900",
+      "error_message": "[3회 시도 후 실패] Step이 status를 갱신하지 않음",
+      "failed_at": "2026-07-14T22:09:34+0900"
     },
     {
       "step": 4,
