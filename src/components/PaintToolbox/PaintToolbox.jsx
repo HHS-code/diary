@@ -11,6 +11,8 @@ const PALETTE_COLORS = [
 ]
 
 const WIDTH_OPTIONS = [2, 4, 6, 8]
+// 지우개는 전용 굵기 체계 — XP 그림판의 지우개 크기 4단계처럼 브러시보다 굵다.
+const ERASER_WIDTH_OPTIONS = [8, 16, 24, 32]
 
 const TOOLS = [
   { tool: 'select', label: '선택', icon: <MdNearMe size={ICON_SIZE} /> },
@@ -127,6 +129,8 @@ function buildColorButtonStyle(color) {
  */
 export function PaintToolbox({ tool, color, width, onToolChange, onColorChange, onWidthChange }) {
   const isWidthEnabled = WIDTH_ADJUSTABLE_TOOLS.includes(tool)
+  const isEraser = tool === 'eraser'
+  const widthOptions = isEraser ? ERASER_WIDTH_OPTIONS : WIDTH_OPTIONS
 
   return (
     <div style={panelStyle}>
@@ -147,7 +151,7 @@ export function PaintToolbox({ tool, color, width, onToolChange, onColorChange, 
         ))}
       </div>
       <div style={widthRowStyle}>
-        {WIDTH_OPTIONS.map((option) => (
+        {widthOptions.map((option) => (
           <button
             key={option}
             type="button"
@@ -157,7 +161,12 @@ export function PaintToolbox({ tool, color, width, onToolChange, onColorChange, 
             title={`굵기 ${option}`}
             aria-label={`굵기 ${option}`}
           >
-            <span style={{ width: '70%', height: `${option}px`, background: '#000', borderRadius: option }} />
+            {/* 지우개는 굵기(8~32)가 버튼 높이보다 커서 절반 크기 사각형으로 표시 */}
+            {isEraser ? (
+              <span style={{ width: `${option / 2}px`, height: `${option / 2}px`, background: '#000' }} />
+            ) : (
+              <span style={{ width: '70%', height: `${option}px`, background: '#000', borderRadius: option }} />
+            )}
           </button>
         ))}
       </div>

@@ -145,16 +145,43 @@ describe('usePaintTools', () => {
     expect(() => act(() => result.setTool('brush'))).not.toThrow()
   })
 
-  it('eraser 선택 시 그리기 모드가 켜지고 width 굵기의 EraserBrush가 설정된다', () => {
+  it('eraser 선택 시 그리기 모드가 켜지고 전용 기본 굵기 16의 EraserBrush가 설정된다', () => {
     const canvas = createCanvas()
     const result = renderPaintTools({ current: canvas })
 
-    act(() => result.setWidth(10))
     act(() => result.setTool('eraser'))
 
     expect(canvas.isDrawingMode).toBe(true)
     expect(canvas.freeDrawingBrush).toBeInstanceOf(EraserBrush)
-    expect(canvas.freeDrawingBrush.width).toBe(10)
+    expect(canvas.freeDrawingBrush.width).toBe(16)
+  })
+
+  it('지우개 굵기는 브러시 굵기와 독립이다 — 도구를 오가도 각자 값을 기억한다', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+
+    act(() => result.setTool('brush'))
+    act(() => result.setWidth(8))
+    act(() => result.setTool('eraser'))
+    expect(result.width).toBe(16)
+
+    act(() => result.setWidth(32))
+    expect(canvas.freeDrawingBrush.width).toBe(32)
+
+    act(() => result.setTool('brush'))
+    expect(result.width).toBe(8)
+    expect(canvas.freeDrawingBrush.width).toBe(8)
+  })
+
+  it('지우개 도구는 캔버스 커서를 지우개 크기 사각형으로 바꾸고, 다른 도구는 되돌린다', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+
+    act(() => result.setTool('eraser'))
+    expect(canvas.freeDrawingCursor).toContain('data:image/svg+xml')
+
+    act(() => result.setTool('brush'))
+    expect(canvas.freeDrawingCursor).toBe('crosshair')
   })
 
   /** 지우개가 (150,0)→(150,150) 세로로 지나간 상황을 드래그 없이 재현한다. */

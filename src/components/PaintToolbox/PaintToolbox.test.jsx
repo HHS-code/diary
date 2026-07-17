@@ -140,4 +140,18 @@ describe('PaintToolbox (그리기 도구 패널)', () => {
       expect(button.disabled).toBe(false)
     }
   })
+
+  it('brush 도구일 때 굵기 옵션은 2/4/6/8이다', () => {
+    renderToolbox(defaultProps({ tool: 'brush' }))
+
+    const labels = findWidthButtons().map((button) => button.getAttribute('aria-label'))
+    expect(labels).toEqual(['굵기 2', '굵기 4', '굵기 6', '굵기 8'])
+  })
+
+  it('eraser 도구일 때 굵기 옵션이 지우개 전용 8/16/24/32로 바뀐다', () => {
+    renderToolbox(defaultProps({ tool: 'eraser', width: 16 }))
+
+    const labels = findWidthButtons().map((button) => button.getAttribute('aria-label'))
+    expect(labels).toEqual(['굵기 8', '굵기 16', '굵기 24', '굵기 32'])
+  })
 })

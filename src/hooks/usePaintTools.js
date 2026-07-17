@@ -7,6 +7,8 @@ import { EraserBrush } from '@erase2d/fabric'
 
 const DEFAULT_COLOR = '#000000'
 const DEFAULT_WIDTH = 4
+// 지우개는 브러시(2~8)보다 굵은 전용 굵기 체계(8~32)를 쓴다 — XP 그림판의 지우개 크기처럼.
+const ERASER_DEFAULT_WIDTH = 16
 // XP 그림판의 연필처럼 항상 가는 고정 굵기
 const PENCIL_WIDTH = 1
 // 에어브러시 밀도(분사 점 개수)를 굵기에 비례시키는 배율.
@@ -14,8 +16,29 @@ const PENCIL_WIDTH = 1
 const SPRAY_DENSITY_PER_WIDTH = 5
 const CANVAS_READY_POLL_MS = 50
 
+/**
+ * 드래그 중 실시간 미리보기를 교정한 지우개 브러시.
+ *
+ * erase2d 기본 _render는 하단 캔버스를 destination-out으로 뚫는데, 그러면
+ * 캔버스 뒤 회색 작업대가 경로 가장자리(안티앨리어싱)로 비쳐서 지우개가
+ * 지나간 자리가 회색 줄로 보인다 — 굵기가 얇을수록 줄 전체가 회색이 된다.
+ * 미리보기는 "지워진 뒤의 모습"(배경 + 지울 수 없는 오브젝트만 그린
+ * effectContext)을 경로 모양으로 상단 캔버스에 덮어그리면 충분하므로,
+ * 하단 캔버스를 뚫는 단계를 생략한다. 실제 지우기 커밋(mouseup)은 그대로다.
+ */
+class LiveEraserBrush extends EraserBrush {
+  _render(ctx = this.canvas.getTopContext()) {
+    PencilBrush.prototype._render.call(this, ctx)
+    ctx.save()
+    ctx.globalCompositeOperation = 'source-in'
+    ctx.resetTransform()
+    ctx.drawImage(this.effectContext.canvas, 0, 0)
+    ctx.restore()
+  }
+}
+
 function buildEraserBrush(canvas, width) {
-  const brush = new EraserBrush(canvas)
+  const brush = new LiveEraserBrush(canvas)
   brush.width = width
   brush.on('end', async (event) => {
     // 기본 자동 커밋 대신 직접 커밋해 완료 시점을 잡는다 — 지우기는 fabric의
@@ -53,6 +76,19 @@ function buildBrush(canvas, tool, color, width) {
   return brush
 }
 
+/**
+ * 지우개 크기를 그대로 보여주는 사각형 커서 (XP 그림판의 지우개 커서).
+ * size는 화면 픽셀 기준 — 논리 굵기에 표시 배율(zoom)을 곱해 넘긴다.
+ */
+function buildEraserCursor(size) {
+  const side = Math.max(Math.round(size), 4)
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${side}' height='${side}'>` +
+    `<rect x='0.5' y='0.5' width='${side - 1}' height='${side - 1}' fill='white' stroke='black'/></svg>`
+  const hotspot = Math.floor(side / 2)
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot} ${hotspot}, crosshair`
+}
+
 function applyToolToCanvas(canvas, tool, color, width) {
   if (tool === 'select') {
     canvas.isDrawingMode = false
@@ -60,6 +96,7 @@ function applyToolToCanvas(canvas, tool, color, width) {
   }
   canvas.isDrawingMode = true
   canvas.freeDrawingBrush = buildBrush(canvas, tool, color, width)
+  canvas.freeDrawingCursor = tool === 'eraser' ? buildEraserCursor(width * canvas.getZoom()) : 'crosshair'
 }
 
 /**
@@ -69,6 +106,9 @@ function applyToolToCanvas(canvas, tool, color, width) {
  *   select는 그리기 모드를 끄고(기존 오브젝트 선택/이동), 나머지는
  *   그리기 모드를 켜며 도구에 맞는 브러시를 설정한다.
  * - color/width 변경은 현재 활성 브러시에 즉시 반영된다 (연필은 굵기 1 고정).
+ * - width는 현재 도구의 굵기다: 지우개는 전용 굵기(기본 16)를 따로 기억하고,
+ *   브러시·에어브러시는 공용 굵기(기본 4)를 쓴다. setWidth도 현재 도구 쪽에 반영된다.
+ * - 지우개 도구는 캔버스 커서를 지우개 크기의 사각형으로 바꾼다.
  * - 그린 획은 path:created 시점에 박제된다 — 그림판처럼 선택·이동 불가
  *   (selectable/evented false)이고, isFreeDrawing·erasable 태그로
  *   직렬화·지우개 대상 식별이 가능하다.
@@ -87,7 +127,11 @@ function applyToolToCanvas(canvas, tool, color, width) {
 export function usePaintTools(fabricCanvasRef) {
   const [tool, setTool] = useState('select')
   const [color, setColor] = useState(DEFAULT_COLOR)
-  const [width, setWidth] = useState(DEFAULT_WIDTH)
+  const [drawWidth, setDrawWidth] = useState(DEFAULT_WIDTH)
+  const [eraserWidth, setEraserWidth] = useState(ERASER_DEFAULT_WIDTH)
+
+  const width = tool === 'eraser' ? eraserWidth : drawWidth
+  const setWidth = tool === 'eraser' ? setEraserWidth : setDrawWidth
 
   useEffect(() => {
     const canvas = fabricCanvasRef.current
