@@ -21,7 +21,9 @@
     {
       "step": 2,
       "name": "asset-import-panel",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T00:19:01+0900",
+      "summary": "src/hooks/useAssetLibrary.js: useAssetLibrary() -> { images, fonts, registerImage(file)->Promise<id>, registerFont(file)->Promise<id>, refresh() }, assetStorage.listAssets/saveAsset 위에 상태 래핑. classifyAssetType(filename) -> 'image'|'font'|null 공용 export(확장자: jpg/jpeg/png/gif/webp → image, ttf/otf/woff/woff2 → font). registerFont는 파일명(확장자 제외)을 fontFamily로 쓰고 fonts 목록과 이름 충돌 시 crypto.randomUUID() 앞 4자리 suffix를 붙임. src/components/AssetImportPanel/AssetImportPanel.jsx: props { library } (훅을 내부에서 호출하지 않고 주입받음) — 파일 선택 input, 폴더 선택 input(webkitdirectory), 드래그앤드롭 3경로 모두 classifyAssetType으로 분류 후 library.registerImage/registerFont 호출, 미지원 확장자는 조용히 skip. 등록된 이미지/폰트 파일명만 나열(삭제/편집 UI 없음, PRD out-of-scope). 폴더 드롭 시 webkitGetAsEntry 재귀 탐색은 구현하지 않음(ADR 합의). 스타일은 StickerPalette 톤(XP 스타일 패널)을 그대로 재사용. npm run lint/build/test 전체 통과 확인(신규 테스트 6개 포함 109개) — test 스위트를 여러 번 돌리는 동안 useCanvasHistory.test.js/useCanvasBackground.test.js가 각각 다른 실행에서 5000ms 타임아웃으로 1개씩 실패했으나 단독 실행 시 통과하고 이번 step이 건드리지 않은 파일이라 시스템 부하로 인한 기존 플레이키니스로 판단, 이번 step 코드와 무관. 다음 step(font-registry)은 useAssetLibrary의 fonts 배열과 fontFamily 필드, AssetImportPanel을 그대로 재사용하면 됨."
     },
     {
       "step": 3,
