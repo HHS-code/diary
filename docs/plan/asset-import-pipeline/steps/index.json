@@ -16,7 +16,7 @@
       "status": "completed",
       "started_at": "2026-07-18T00:10:35+0900",
       "summary": "src/storage/assetMigration.js: runAssetMigration() -> Promise<void>. localStorage['diary-asset-migration-done']==='true'면 즉시 반환(멱등). diaryStorage.loadAllDiaryData()의 모든 dateKey×{diary,movie}.canvasJSON.objects를 순회, src가 'data:'로 시작하는 오브젝트만 fetch(dataUrl)->blob->assetStorage.saveAsset({type:'image',...})로 이관 후 src 제거+assetId 추가, saveAllDiaryData로 재저장. 오브젝트 단위 실패는 원본 유지하고 계속 진행(부분 성공, 롤백 없음). src/hooks/useFabricCanvas.js에 resolveCanvasAssetReferences(canvasJSON) -> Promise<object> 추가 export — loadFromJSON 직전에 objects[].assetId를 assetStorage.getAsset+createAssetObjectURL로 src에 역참조 채움(assetId 없거나 조회 실패 시 원본 그대로 통과). App.jsx 최상위 useEffect(fire-and-forget)에서 runAssetMigration() 호출. 테스트에서 fetch/Blob이 만드는 jsdom Blob은 fake-indexeddb structuredClone과 비호환이라(step0과 동일 이슈) assetMigration.test.js는 vi.stubGlobal('fetch', ...)로 node:buffer Blob을 반환하도록 테스트에서만 우회 — 프로덕션 fetch 호출 자체는 스펙 그대로.",
-      "completed_at": "2026-07-18T00:20:00+0900"
+      "completed_at": "2026-07-18T00:18:59+0900"
     },
     {
       "step": 2,
