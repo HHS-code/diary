@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "font-registry",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T00:39:23+0900",
+      "summary": "src/hooks/useFontRegistry.js: useFontRegistry(fontAssets?) -> { customFonts: {label,value}[] }. 인자 생략 시 마운트 시 1회 assetStorage.listAssets('font')로 자체 조회, 인자(예: useAssetLibrary().fonts)를 넘기면 그 배열 참조가 바뀔 때마다 재로드 — 두 훅이 상태를 공유하려는 미래 통합 지점을 열어둠(현재는 아무 부모도 이렇게 연결하지 않음, TextMemoButton은 인자 없이 자체 호출). 각 폰트 레코드는 createAssetObjectURL(blob)+new FontFace(fontFamily, url)+.load()+document.fonts.add()로 등록하되 document.fonts를 순회해 동일 family면 재등록 skip. FontFace.load() 실패(손상된/디코딩 불가 폰트)는 assetMigration.js와 동일한 부분 성공 패턴으로 해당 폰트만 건너뛰고 나머지는 계속 등록(원래 구현엔 이 예외처리가 없어 폰트 하나만 깨져도 전체 customFonts가 안 나타나는 버그가 있었음 — 브라우저 실측으로 발견해 수정). src/components/TextMemoButton/TextMemoButton.jsx: 기존 FONTS 상수 유지, [...FONTS, ...useFontRegistry().customFonts]를 드롭다운에 렌더링(그룹 분리 없음, ADR-3). 부수 효과로 src/components/buttonIcons.test.jsx가 TextMemoButton을 마운트하면서 간접적으로 IndexedDB를 타게 돼 'fake-indexeddb/auto' import를 추가해야 했음(기존 다른 테스트 파일들과 동일 컨벤션). npm run lint/build/test 전체 통과(108개, useCanvasHistory.test.js가 다른 회차에서 시스템 부하로 1회 타임아웃 — 단독 실행 시 통과, 이번 step과 무관한 기존 플레이키니스). AssetImportPanel은 아직 DiaryCanvas/앱 어디에도 마운트되지 않은 상태(이전 step도 동일) — 실사용 등록 경로는 다음 step들(4: canvas-background-integration, 5: clipboard-paste-priority)이나 이후 화면 통합에서 연결될 것으로 보임.",
+      "completed_at": "2026-07-18T03:19:14+0900"
     },
     {
       "step": 4,
