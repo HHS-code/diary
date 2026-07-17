@@ -86,34 +86,35 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
 
   return (
     <div style={{ display: 'flex', gap: `${LAYOUT_GAP}px`, height: '100%' }}>
+      {/* 스크롤 컨테이너와 flex 배치를 분리 — 패널들이 flex 축소로 잘리는 대신
+          내용 높이 그대로 쌓이고, 넘치면 바깥 div가 세로 스크롤한다. */}
       <div
         style={{
           width: `${SIDEBAR_WIDTH}px`,
           flexShrink: 0,
           overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
         }}
       >
-        <PaintToolbox
-          tool={paintTools.tool}
-          color={paintTools.color}
-          width={paintTools.width}
-          onToolChange={paintTools.setTool}
-          onColorChange={paintTools.setColor}
-          onWidthChange={paintTools.setWidth}
-        />
-        <StickerPalette fabricCanvasRef={fabricCanvasRef} />
-        <CanvasBackgroundControl actions={backgroundActions} />
-        <ObjectToolbar activeObject={activeObject} actions={objectActions} />
-        <ImageUploadButton fabricCanvasRef={fabricCanvasRef} />
-        <TextMemoButton fabricCanvasRef={fabricCanvasRef} />
-        <ExportImportControls
-          fabricCanvasRef={fabricCanvasRef}
-          selectedDate={selectedDate}
-          onImportSuccess={onImportSuccess}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <PaintToolbox
+            tool={paintTools.tool}
+            color={paintTools.color}
+            width={paintTools.width}
+            onToolChange={paintTools.setTool}
+            onColorChange={paintTools.setColor}
+            onWidthChange={paintTools.setWidth}
+          />
+          <StickerPalette fabricCanvasRef={fabricCanvasRef} />
+          <CanvasBackgroundControl actions={backgroundActions} />
+          <ObjectToolbar activeObject={activeObject} actions={objectActions} />
+          <ImageUploadButton fabricCanvasRef={fabricCanvasRef} />
+          <TextMemoButton fabricCanvasRef={fabricCanvasRef} />
+          <ExportImportControls
+            fabricCanvasRef={fabricCanvasRef}
+            selectedDate={selectedDate}
+            onImportSuccess={onImportSuccess}
+          />
+        </div>
       </div>
       {/* XP 그림판 스타일 작업대 — 캔버스는 좌측 상단, 남는 공간은 회색 작업 영역 */}
       <div
