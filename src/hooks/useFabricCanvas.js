@@ -9,7 +9,7 @@ const DEBOUNCE_MS = 500
 // 배경 이미지(isBackground 태그)와 그 고정 상태(selectable/evented),
 // 자유 그리기 획의 박제·지우개 대상 태그(isFreeDrawing/erasable)가
 // 새로고침 후에도 유지되도록 표준 직렬화에 추가로 포함하는 속성들.
-const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented', 'isFreeDrawing', 'erasable']
+export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented', 'isFreeDrawing', 'erasable']
 
 /**
  * Fabric.js 캔버스 생명주기를 React에 연결하는 커스텀 훅.

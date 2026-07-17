@@ -29,10 +29,10 @@
     {
       "step": 3,
       "name": "canvas-history",
-      "status": "error",
-      "started_at": "2026-07-14T22:05:52+0900",
-      "error_message": "[3회 시도 후 실패] Step이 status를 갱신하지 않음",
-      "failed_at": "2026-07-14T22:09:34+0900"
+      "status": "completed",
+      "started_at": "2026-07-17T20:26:26+0900",
+      "completed_at": "2026-07-17T20:40:00+0900",
+      "summary": "useCanvasHistory(fabricCanvasRef) -> { undo, redo, canUndo, canRedo } 신규 (src/hooks/useCanvasHistory.js). object:added/modified/removed마다 canvas.toObject(EXTRA_SERIALIZED_PROPS) 스냅샷을 past 배열에 push(30개 캡, 초과 시 shift), 새 변경 시 future 비움. undo=pop(past)→push(future)→loadFromJSON(새 past 최상단), redo는 반대. loadFromJSON 복원 중에는 isRestoringRef로 recordSnapshot을 막고, 복원 뒤 canvas.fire('object:modified')를 '가드 해제 전'에 호출해 그 fire조차 히스토리로 안 쌓이게 함(오토세이브 파이프라인은 그대로 탐). EXTRA_SERIALIZED_PROPS는 useFabricCanvas.js에서 export로 변경(값 동일, 재사용). Ctrl+Z/Y 전역 keydown 등록, IText 편집 중(getActiveObject().isEditing)엔 가로채지 않음 — useCanvasKeyboardShortcuts와 동일 판별. DiaryCanvas.jsx엔 useCanvasHistory(fabricCanvasRef) 호출 한 줄만 추가(UI 버튼 없음, PRD 범위). 알려진 한계: 초기 base 스냅샷은 '마운트 후 캔버스 발견 시점'에 잡히므로, 저장된 diary(canvasJSON)가 아직 loadFromJSON 복원 중일 때 이 훅이 붙으면 복원이 일으키는 object:added들이 히스토리에 별도 단계로 쌓일 수 있음(자기 자신의 undo/redo 왕복은 가드로 완전히 막혀 있음 — 문제는 useFabricCanvas의 '최초 1회' 복원뿐). useFabricCanvas는 onLoaded 콜백을 이미 DiaryCanvas의 fitLoadedObjects가 쓰고 있어 이번 step 금지 규칙(오토세이브 로직 무수정) 때문에 추가 배선을 하지 않음 — 실사용에서 문제가 확인되면 후속 step에서 onLoaded 신호 공유 방식 논의 필요. 테스트 src/hooks/useCanvasHistory.test.js (usePaintTools.test.js와 동일한 react act+createRoot 하니스, 7개)."
     },
     {
       "step": 4,

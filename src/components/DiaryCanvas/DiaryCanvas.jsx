@@ -5,6 +5,7 @@ import { useObjectActions } from '../../hooks/useObjectActions'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { useCanvasBackground } from '../../hooks/useCanvasBackground'
 import { usePaintTools } from '../../hooks/usePaintTools'
+import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
@@ -83,6 +84,7 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
   const backgroundActions = useCanvasBackground(fabricCanvasRef)
   const paintTools = usePaintTools(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
+  useCanvasHistory(fabricCanvasRef)
 
   return (
     <div style={{ display: 'flex', gap: `${LAYOUT_GAP}px`, height: '100%' }}>
