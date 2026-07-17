@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IText } from 'fabric'
 import { MdTextFields } from 'react-icons/md'
 import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
+import { useFontRegistry } from '../../hooks/useFontRegistry'
 
 const FONTS = [
   { label: '나눔손글씨 (한글)', value: 'Nanum Pen Script' },
@@ -22,6 +23,8 @@ const CANVAS_HEIGHT = LOGICAL_CANVAS.height
  * @param {{ fabricCanvasRef: React.RefObject<import('fabric').Canvas | null> }} props
  */
 export function TextMemoButton({ fabricCanvasRef }) {
+  const { customFonts } = useFontRegistry()
+  const allFonts = [...FONTS, ...customFonts]
   const [selectedFont, setSelectedFont] = useState(FONTS[0].value)
   const [inputText, setInputText] = useState('')
   const [isInputVisible, setIsInputVisible] = useState(false)
@@ -74,7 +77,7 @@ export function TextMemoButton({ fabricCanvasRef }) {
               width: '100%',
             }}
           >
-            {FONTS.map((font) => (
+            {allFonts.map((font) => (
               <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
                 {font.label}
               </option>
