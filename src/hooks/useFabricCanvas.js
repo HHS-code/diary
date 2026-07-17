@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Canvas } from 'fabric'
+import { getAsset, createAssetObjectURL } from '../storage/assetStorage'
 
 // 모든 오브젝트 좌표·저장 데이터가 기준으로 삼는 논리 캔버스 크기.
 // 기기·창 크기와 무관하게 고정 — 화면에는 displayScale 배율로 표시만 한다.
@@ -10,6 +11,38 @@ const DEBOUNCE_MS = 500
 // 자유 그리기 획의 박제·지우개 대상 태그(isFreeDrawing/erasable)가
 // 새로고침 후에도 유지되도록 표준 직렬화에 추가로 포함하는 속성들.
 export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented', 'isFreeDrawing', 'erasable']
+
+/**
+ * assetId를 가진 오브젝트에 대해 assetStorage에서 Blob을 조회해
+ * objectURL을 만들고 src 필드를 채운 새 오브젝트를 반환한다.
+ * assetId가 없거나 해당 id의 에셋을 찾을 수 없으면 원본을 그대로 반환한다.
+ * @param {object} object
+ * @returns {Promise<object>}
+ */
+async function resolveObjectAssetReference(object) {
+  if (!object.assetId) {
+    return object
+  }
+  const record = await getAsset(object.assetId)
+  if (!record) {
+    return object
+  }
+  return { ...object, src: createAssetObjectURL(record.blob) }
+}
+
+/**
+ * canvasJSON.objects 안의 assetId 참조를 실제 objectURL(src)로 채워 넣은
+ * 새 canvasJSON을 반환한다. objects가 없으면 원본을 그대로 반환한다.
+ * @param {object} canvasJSON
+ * @returns {Promise<object>}
+ */
+export async function resolveCanvasAssetReferences(canvasJSON) {
+  if (!canvasJSON?.objects) {
+    return canvasJSON
+  }
+  const objects = await Promise.all(canvasJSON.objects.map(resolveObjectAssetReference))
+  return { ...canvasJSON, objects }
+}
 
 /**
  * Fabric.js 캔버스 생명주기를 React에 연결하는 커스텀 훅.
@@ -80,14 +113,16 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
 
       if (initialCanvasJSON) {
         isLoading = true
-        fabricCanvas.loadFromJSON(initialCanvasJSON).then(() => {
-          if (cancelled) return
-          fabricCanvas.renderAll()
-          isLoading = false
-          if (options?.onLoaded) {
-            options.onLoaded(fabricCanvas)
-          }
-        })
+        resolveCanvasAssetReferences(initialCanvasJSON)
+          .then((resolvedCanvasJSON) => fabricCanvas.loadFromJSON(resolvedCanvasJSON))
+          .then(() => {
+            if (cancelled) return
+            fabricCanvas.renderAll()
+            isLoading = false
+            if (options?.onLoaded) {
+              options.onLoaded(fabricCanvas)
+            }
+          })
       }
 
       fabricCanvasRef.current = fabricCanvas
