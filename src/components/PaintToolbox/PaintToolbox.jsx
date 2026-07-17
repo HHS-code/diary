@@ -64,17 +64,11 @@ const colorGridStyle = {
   flex: 1,
 }
 
-// XP 그림판 실측값 (reference/ms-paint-on-xp-v0-lilxt1d7tbf11.webp):
-// 비선택 도구 버튼은 패널 배경과 같은 플랫 베이지(보더 없음),
-// 선택된 도구 버튼은 흰색 배경 + 중간 회색 보더의 눌린 모양.
-const PRESSED_BUTTON_BG = '#ffffff'
-const PRESSED_BUTTON_BORDER = '#9c9e9c'
-
 function buildToolButtonStyle(isCurrent) {
   const style = {
-    border: '1px solid transparent',
+    border: '1px solid #7d7d64',
     borderRadius: 3,
-    background: 'transparent',
+    background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
     cursor: 'pointer',
     padding: '6px 0',
     display: 'inline-flex',
@@ -82,8 +76,9 @@ function buildToolButtonStyle(isCurrent) {
     justifyContent: 'center',
   }
   if (isCurrent) {
-    style.background = PRESSED_BUTTON_BG
-    style.border = `1px solid ${PRESSED_BUTTON_BORDER}`
+    // XP 그림판의 눌린(sunken) 도구 버튼
+    style.background = '#dcd9c7'
+    style.boxShadow = 'inset 1px 1px 2px rgba(0,0,0,.35)'
   }
   return style
 }
@@ -92,9 +87,9 @@ function buildWidthButtonStyle(isEnabled, isCurrent) {
   const style = {
     flex: 1,
     height: '24px',
-    border: '1px solid transparent',
+    border: '1px solid #7d7d64',
     borderRadius: 3,
-    background: 'transparent',
+    background: 'linear-gradient(180deg,#fdfdfa,#dcd9c7)',
     cursor: isEnabled ? 'pointer' : 'default',
     opacity: isEnabled ? 1 : 0.45,
     display: 'inline-flex',
@@ -103,23 +98,18 @@ function buildWidthButtonStyle(isEnabled, isCurrent) {
     padding: 0,
   }
   if (isCurrent) {
-    style.background = PRESSED_BUTTON_BG
-    style.border = `1px solid ${PRESSED_BUTTON_BORDER}`
+    style.background = '#dcd9c7'
+    style.boxShadow = 'inset 1px 1px 2px rgba(0,0,0,.35)'
   }
   return style
 }
 
-// 색상 칸 sunken 보더 실측값 — 좌상단 회색, 우하단 밝음.
 function buildColorButtonStyle(color) {
   return {
     width: '100%',
     aspectRatio: '1',
     padding: 0,
-    border: 0,
-    borderTop: '1px solid #aeaca9',
-    borderLeft: '1px solid #aeaca9',
-    borderBottom: '1px solid #e5e4e3',
-    borderRight: '1px solid #e5e4e3',
+    border: '1px solid #7d7d64',
     background: color,
     cursor: 'pointer',
   }
@@ -188,10 +178,7 @@ export function PaintToolbox({ tool, color, width, onToolChange, onColorChange, 
             width: '28px',
             height: '28px',
             flexShrink: 0,
-            borderTop: '1px solid #aeaca9',
-            borderLeft: '1px solid #aeaca9',
-            borderBottom: '1px solid #e5e4e3',
-            borderRight: '1px solid #e5e4e3',
+            border: '1px solid #7d7d64',
             background: color,
             boxSizing: 'border-box',
           }}

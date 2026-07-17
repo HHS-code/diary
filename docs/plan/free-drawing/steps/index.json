@@ -40,7 +40,7 @@
       "status": "completed",
       "note": "match-reference 실측 매칭 — headless 불가, 러너 완료 후 대화 세션에서 진행",
       "completed_at": "2026-07-17T20:47:00+0900",
-      "summary": "match-reference 실측 매칭 완료 — PaintToolbox.jsx 색·보더만 수정: 선택 도구 버튼 #ffffff+#9c9e9c 보더(플랫), 비선택 버튼 투명 플랫, 색상 칸/현재 색 sunken 보더 #aeaca9/#e5e4e3. 재실측 ΔRGB≤4. 브라우저 실동작 검증: 브러시 긋기·지우개 문지르기·Ctrl+Z 복원·Ctrl+Y·획 박제(선택 불가) 전부 픽셀 검증 통과. lint/test(87)/build 통과."
+      "summary": "match-reference 실측 매칭 완료 — PaintToolbox.jsx 색·보더만 수정: 선택 도구 버튼 #ffffff+#9c9e9c 보더(플랫), 비선택 버튼 투명 플랫, 색상 칸/현재 색 sunken 보더 #aeaca9/#e5e4e3. 재실측 ΔRGB≤4. 브라우저 실동작 검증: 브러시 긋기·지우개 문지르기·Ctrl+Z 복원·Ctrl+Y·획 박제(선택 불가) 전부 픽셀 검증 통과. lint/test(87)/build 통과. [되돌림] 2026-07-17 사용자 요청으로 step 4의 스타일 변경 전체를 step 2 상태로 복원 — 실측값은 리포트에 기록만 남음."
     }
   ],
   "created_at": "2026-07-14T21:43:24+0900",
