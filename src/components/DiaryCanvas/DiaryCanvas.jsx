@@ -4,6 +4,7 @@ import { useActiveSelection } from '../../hooks/useActiveSelection'
 import { useObjectActions } from '../../hooks/useObjectActions'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { useCanvasBackground } from '../../hooks/useCanvasBackground'
+import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { usePaintTools } from '../../hooks/usePaintTools'
 import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
@@ -83,7 +84,8 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
   const objectActions = useObjectActions(fabricCanvasRef)
   const backgroundActions = useCanvasBackground(fabricCanvasRef)
   const paintTools = usePaintTools(fabricCanvasRef)
-  useCanvasKeyboardShortcuts(fabricCanvasRef)
+  const assetLibrary = useAssetLibrary()
+  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage: assetLibrary.registerImage })
   useCanvasHistory(fabricCanvasRef)
 
   return (
