@@ -1,4 +1,4 @@
-import { wallpaper, diaryIcon } from '../../assets/icons'
+import { wallpaper, diaryIcon, stickerStudioIcon } from '../../assets/icons'
 
 const screenStyle = {
   position: 'fixed',
@@ -27,9 +27,9 @@ const iconLabelStyle = {
 }
 
 /**
- * @param {{ onOpenDiary: () => void }} props
+ * @param {{ onOpenDiary: () => void, onOpenStickerStudio: () => void }} props
  */
-export function Desktop({ onOpenDiary }) {
+export function Desktop({ onOpenDiary, onOpenStickerStudio }) {
   function handleMouseEnter(event) {
     event.currentTarget.style.border = '1px dotted rgba(255,255,255,.6)'
     event.currentTarget.style.background = 'rgba(30,70,160,.25)'
@@ -45,12 +45,24 @@ export function Desktop({ onOpenDiary }) {
       <button
         type="button"
         style={iconButtonStyle}
+        aria-label="diary"
         onClick={onOpenDiary}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <img src={diaryIcon} alt="" style={{ height: '84px', width: 'auto' }} />
         <span style={iconLabelStyle}>diary</span>
+      </button>
+      <button
+        type="button"
+        style={iconButtonStyle}
+        aria-label="sticker studio"
+        onClick={onOpenStickerStudio}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <img src={stickerStudioIcon} alt="" style={{ height: '84px', width: 'auto' }} />
+        <span style={iconLabelStyle}>sticker studio</span>
       </button>
     </div>
   )

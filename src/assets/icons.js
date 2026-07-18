@@ -2,5 +2,6 @@ import wallpaper from './wallpaper.webp'
 import diaryIcon from './diary-icon.png'
 import powerButtonIcon from './power-button.png'
 import downloadIcon from './download-icon.png'
+import stickerStudioIcon from './sticker-studio-icon.png'
 
-export { wallpaper, diaryIcon, powerButtonIcon, downloadIcon }
+export { wallpaper, diaryIcon, powerButtonIcon, downloadIcon, stickerStudioIcon }
