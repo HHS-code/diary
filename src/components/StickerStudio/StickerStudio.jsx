@@ -8,6 +8,7 @@ import { useStickerCropTool } from '../../hooks/useStickerCropTool'
 import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { commitLassoCutout, previewLassoCutout } from '../../fabric/stickerCutout'
 import { createOutlinedSticker } from '../../fabric/stickerOutline'
+import { removeBackgroundFromImage } from '../../ai/backgroundRemoval'
 import { getAsset, createAssetObjectURL } from '../../storage/assetStorage'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerImageUpload } from './StickerImageUpload'
@@ -60,6 +61,40 @@ function resolveLassoCutoutTarget(canvas) {
 }
 
 /**
+ * targetImage의 경계 영역만 rasterize한 HTMLCanvasElement를 반환한다(commitLassoCutout의
+ * rasterize 패턴과 동일 — canvas.toCanvasElement + filter). AI 배경제거의 입력(source)이자,
+ * 이후 "AI 보정"의 복원이 참조할 원본 픽셀이 된다.
+ * @param {import('fabric').Canvas} canvas
+ * @param {import('fabric').FabricObject} targetImage
+ * @returns {{ canvasElement: HTMLCanvasElement, left: number, top: number }}
+ */
+function rasterizeTargetImageBounds(canvas, targetImage) {
+  const { left, top, width, height } = targetImage.getBoundingRect()
+  const canvasElement = canvas.toCanvasElement(1, {
+    left,
+    top,
+    width,
+    height,
+    filter: (object) => object === targetImage,
+  })
+  return { canvasElement, left, top }
+}
+
+/**
+ * "AI 배경제거" 버튼 라벨을 상태에 따라 결정한다.
+ * @param {'idle' | 'processing' | 'error'} status
+ * @param {string} progressMessage
+ * @returns {string}
+ */
+function getBackgroundRemovalButtonLabel(status, progressMessage) {
+  if (status === 'processing') {
+    return progressMessage ? `처리 중... (${progressMessage})` : '처리 중...'
+  }
+  if (status === 'error') return '실패'
+  return 'AI 배경제거'
+}
+
+/**
  * HTMLCanvasElement를 투명 배경 PNG Blob으로 변환한다(콜백 기반 toBlob을 Promise로 감쌈).
  * @param {HTMLCanvasElement} canvasElement
  * @returns {Promise<Blob>}
@@ -103,6 +138,12 @@ export function StickerStudio() {
 
   const [isSaved, setIsSaved] = useState(false)
 
+  // AI 배경제거 직전의 대상 이미지 rasterize 결과 — 다음 step("AI 보정"의 복원)이 참조할
+  // 원본 픽셀이다. 저장/새로고침 시 유지할 필요는 없다(세션 메모리로 충분, ADR-4).
+  const originalBeforeAiRemovalRef = useRef(null)
+  const [backgroundRemovalStatus, setBackgroundRemovalStatus] = useState('idle')
+  const [backgroundRemovalProgressMessage, setBackgroundRemovalProgressMessage] = useState('')
+
   useEffect(() => {
     function handlePathCreated(canvas, path) {
       if (paintTools.tool !== 'lasso') return
@@ -136,6 +177,40 @@ export function StickerStudio() {
     const canvas = fabricCanvasRef.current
     if (!canvas) return
     commitLassoCutout(canvas, resolveLassoCutoutTarget(canvas))
+  }
+
+  // 대상 이미지를 AI 세그멘테이션 모델로 배경 제거한다(PRD 섹션 1). 처리 직전 상태를
+  // originalBeforeAiRemovalRef에 저장해두는데, 이는 다음 step의 "AI 보정 → 복원"이
+  // 참조할 원본이다. 결과 이미지는 commitLassoCutout과 동일한 방식(새 FabricImage로
+  // 원래 위치에 교체, assetId 승계)으로 캔버스에 반영된다.
+  async function handleRemoveBackground() {
+    const canvas = fabricCanvasRef.current
+    if (!canvas) return
+
+    const targetImage = resolveLassoCutoutTarget(canvas)
+    if (!targetImage) return
+
+    const { canvasElement, left, top } = rasterizeTargetImageBounds(canvas, targetImage)
+    originalBeforeAiRemovalRef.current = canvasElement
+    setBackgroundRemovalProgressMessage('')
+    setBackgroundRemovalStatus('processing')
+
+    try {
+      const resultBlob = await removeBackgroundFromImage(canvasElement, (info) => {
+        setBackgroundRemovalProgressMessage(info?.message ?? '')
+      })
+      const resultImage = await FabricImage.fromURL(createAssetObjectURL(resultBlob))
+      resultImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId })
+
+      canvas.remove(targetImage)
+      canvas.add(resultImage)
+      canvas.setActiveObject(resultImage)
+      canvas.renderAll()
+      setBackgroundRemovalStatus('idle')
+    } catch {
+      setBackgroundRemovalStatus('error')
+      setTimeout(() => setBackgroundRemovalStatus('idle'), SAVED_LABEL_RESET_MS)
+    }
   }
 
   // 두께 슬라이더가 바뀔 때마다(디바운스) 현재 캔버스를 rasterize해 오프스크린에서
@@ -231,6 +306,14 @@ export function StickerStudio() {
           )}
           <button type="button" style={cropButtonStyle} onClick={handleCommitLassoCutout}>
             누끼 적용
+          </button>
+          <button
+            type="button"
+            style={cropButtonStyle}
+            onClick={handleRemoveBackground}
+            disabled={backgroundRemovalStatus === 'processing'}
+          >
+            {getBackgroundRemovalButtonLabel(backgroundRemovalStatus, backgroundRemovalProgressMessage)}
           </button>
         </div>
         <div style={sidebarPanelStyle}>

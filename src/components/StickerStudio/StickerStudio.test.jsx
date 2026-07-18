@@ -1,7 +1,9 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { Canvas, FabricImage } from 'fabric'
 import { StickerStudio } from './StickerStudio'
+import { removeBackgroundFromImage } from '../../ai/backgroundRemoval'
 
 const registerSticker = vi.fn().mockResolvedValue('sticker-id')
 
@@ -11,6 +13,48 @@ vi.mock('../../hooks/useAssetLibrary', () => ({
     registerSticker,
   })),
 }))
+
+vi.mock('../../ai/backgroundRemoval', () => ({
+  removeBackgroundFromImage: vi.fn(),
+}))
+
+// jsdom은 <img>.src를 설정해도 실제로 로드하지 않아 onload가 영영 안 온다.
+// StickerImageUpload.test.jsx와 동일하게, 이미지 업로드로 캔버스에 대상 이미지를
+// 하나 올려둔 뒤 "AI 배경제거" 버튼을 눌러야 하므로 같은 우회가 필요하다.
+let nextImageSize = { width: 100, height: 80 }
+beforeAll(() => {
+  const nativeDescriptor = Object.getOwnPropertyDescriptor(window.HTMLImageElement.prototype, 'src')
+  Object.defineProperty(window.HTMLImageElement.prototype, 'src', {
+    configurable: true,
+    get() {
+      return nativeDescriptor.get.call(this)
+    },
+    set(value) {
+      nativeDescriptor.set.call(this, value)
+      if (!value) return
+      Object.defineProperty(this, 'width', { value: nextImageSize.width, configurable: true })
+      Object.defineProperty(this, 'height', { value: nextImageSize.height, configurable: true })
+      Object.defineProperty(this, 'complete', { value: true, configurable: true })
+      setTimeout(() => this.onload && this.onload())
+    },
+  })
+  const ctxProto = Object.getPrototypeOf(document.createElement('canvas').getContext('2d'))
+  ctxProto.drawImage = function drawImage() {}
+})
+
+async function uploadImageToCanvas(container) {
+  const input = container.querySelector('input[type="file"]')
+  const file = new File(['fake-image-bytes'], 'cat.png', { type: 'image/png' })
+  Object.defineProperty(input, 'files', { value: [file], writable: false, configurable: true })
+  await act(async () => {
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  })
+}
+
+function findButtonByText(container, text) {
+  return Array.from(container.querySelectorAll('button')).find((button) => button.textContent === text)
+}
 
 let container
 let root
@@ -41,6 +85,7 @@ async function unmountIgnoringKnownDomWrapperError() {
 afterEach(async () => {
   await unmountIgnoringKnownDomWrapperError()
   container.remove()
+  removeBackgroundFromImage.mockReset()
 })
 
 describe('StickerStudio', () => {
@@ -105,5 +150,109 @@ describe('StickerStudio', () => {
     expect(blob).toBeInstanceOf(Blob)
     expect(blob.type).toBe('image/png')
     expect(filename).toMatch(/^sticker-\d+\.png$/)
+  })
+
+  describe('AI 배경제거', () => {
+    it('클릭 즉시 버튼이 비활성화되고 "처리 중..."으로 바뀐다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+      await uploadImageToCanvas(container)
+
+      removeBackgroundFromImage.mockReturnValue(new Promise(() => {}))
+      const button = findButtonByText(container, 'AI 배경제거')
+
+      await act(async () => {
+        button.click()
+      })
+
+      expect(button.disabled).toBe(true)
+      expect(button.textContent).toBe('처리 중...')
+    })
+
+    it('성공 시 캔버스의 대상 오브젝트가 교체되고 버튼이 재활성화된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+      await uploadImageToCanvas(container)
+
+      const resultBlob = new Blob(['fake-png-bytes'], { type: 'image/png' })
+      removeBackgroundFromImage.mockResolvedValue(resultBlob)
+      const addSpy = vi.spyOn(Canvas.prototype, 'add')
+      const removeSpy = vi.spyOn(Canvas.prototype, 'remove')
+
+      const button = findButtonByText(container, 'AI 배경제거')
+
+      await act(async () => {
+        button.click()
+        await waitUntil(() => button.disabled === false)
+      })
+
+      expect(button.textContent).toBe('AI 배경제거')
+      expect(removeBackgroundFromImage).toHaveBeenCalledTimes(1)
+
+      const removedTarget = removeSpy.mock.calls.at(-1)[0]
+      const addedResult = addSpy.mock.calls.at(-1)[0]
+      expect(addedResult).not.toBe(removedTarget)
+      expect(addedResult).toBeInstanceOf(FabricImage)
+
+      addSpy.mockRestore()
+      removeSpy.mockRestore()
+    })
+
+    it('실패(reject) 시에도 버튼이 재활성화된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+      await uploadImageToCanvas(container)
+
+      removeBackgroundFromImage.mockRejectedValue(new Error('model load failed'))
+      const button = findButtonByText(container, 'AI 배경제거')
+
+      await act(async () => {
+        button.click()
+        await waitUntil(() => button.disabled === false)
+      })
+
+      expect(button.disabled).toBe(false)
+    })
+
+    it('AI 배경제거 직전 상태를 캡처해 removeBackgroundFromImage에 전달한다(다음 step의 복원용 저장)', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+      await uploadImageToCanvas(container)
+
+      removeBackgroundFromImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }))
+      const toCanvasElementSpy = vi.spyOn(Canvas.prototype, 'toCanvasElement')
+      const button = findButtonByText(container, 'AI 배경제거')
+
+      await act(async () => {
+        button.click()
+        await waitUntil(() => button.disabled === false)
+      })
+
+      expect(toCanvasElementSpy).toHaveBeenCalled()
+      const capturedElement = toCanvasElementSpy.mock.results[0].value
+      expect(removeBackgroundFromImage.mock.calls[0][0]).toBe(capturedElement)
+
+      toCanvasElementSpy.mockRestore()
+    })
   })
 })
