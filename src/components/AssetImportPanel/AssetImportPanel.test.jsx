@@ -7,8 +7,10 @@ function createLibrary() {
   return {
     images: [],
     fonts: [],
+    stickers: [],
     registerImage: vi.fn().mockResolvedValue('image-id'),
     registerFont: vi.fn().mockResolvedValue('font-id'),
+    registerSticker: vi.fn().mockResolvedValue('sticker-id'),
     refresh: vi.fn().mockResolvedValue(undefined),
   }
 }
@@ -116,5 +118,28 @@ describe('AssetImportPanel', () => {
 
     expect(onSelectImage).toHaveBeenCalledTimes(1)
     expect(onSelectImage).toHaveBeenCalledWith(asset)
+  })
+
+  it('library.stickers가 있을 때 "스티커" 섹션이 개수와 함께 렌더링되고, 클릭 시 onSelectImage가 해당 스티커 asset과 함께 호출된다', () => {
+    const library = createLibrary()
+    const sticker = { id: '1', filename: 'my-sticker.png', blob: new Blob(['x'], { type: 'image/png' }) }
+    library.stickers = [sticker]
+    const onSelectImage = vi.fn()
+    renderPanel(library, onSelectImage)
+
+    expect(container.textContent).toContain('스티커 (1)')
+    const img = container.querySelector('img[alt="my-sticker.png"]')
+    expect(img).not.toBeNull()
+    expect(img.src).toMatch(/^blob:/)
+
+    const button = [...container.querySelectorAll('button')].find((el) =>
+      el.querySelector('img[alt="my-sticker.png"]'),
+    )
+    act(() => {
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(onSelectImage).toHaveBeenCalledTimes(1)
+    expect(onSelectImage).toHaveBeenCalledWith(sticker)
   })
 })

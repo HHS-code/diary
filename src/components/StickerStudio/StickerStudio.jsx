@@ -5,16 +5,20 @@ import { usePaintTools } from '../../hooks/usePaintTools'
 import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { useStickerCropTool } from '../../hooks/useStickerCropTool'
+import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { commitLassoCutout, previewLassoCutout } from '../../fabric/stickerCutout'
 import { createOutlinedSticker } from '../../fabric/stickerOutline'
+import { getAsset, createAssetObjectURL } from '../../storage/assetStorage'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerImageUpload } from './StickerImageUpload'
+import { MyStickersPanel } from './MyStickersPanel'
 
 const CANVAS_READY_POLL_MS = 50
 const OUTLINE_PREVIEW_DEBOUNCE_MS = 100
 const DEFAULT_OUTLINE_THICKNESS_PX = 5
 const MIN_OUTLINE_THICKNESS_PX = 0
 const MAX_OUTLINE_THICKNESS_PX = 20
+const SAVED_LABEL_RESET_MS = 1500
 
 const sidebarPanelStyle = {
   width: '240px',
@@ -56,6 +60,15 @@ function resolveLassoCutoutTarget(canvas) {
 }
 
 /**
+ * HTMLCanvasElement를 투명 배경 PNG Blob으로 변환한다(콜백 기반 toBlob을 Promise로 감쌈).
+ * @param {HTMLCanvasElement} canvasElement
+ * @returns {Promise<Blob>}
+ */
+function rasterizeCanvasToPngBlob(canvasElement) {
+  return new Promise((resolve) => canvasElement.toBlob(resolve, 'image/png'))
+}
+
+/**
  * 스티커 스튜디오 화면의 루트. 빈 투명 캔버스를 열고, 다이어리의 그리기·undo/redo·
  * 복사/붙여넣기 훅을 그대로 재사용한다(ADR-7). 편집 중 상태를 영속시키지 않으므로
  * useFabricCanvas에 onSave를 넘기지 않는다 — 저장은 이후 step("완성" 버튼)에서 다룬다.
@@ -63,6 +76,10 @@ function resolveLassoCutoutTarget(canvas) {
  * 올가미(lasso) 도구로 그린 Path는 path:created 시 stickerCutout.js의 previewLassoCutout으로
  * 넘어가 대상 이미지의 clipPath 미리보기가 되고, "누끼 적용" 버튼이 commitLassoCutout으로
  * 확정(rasterize)한다(ADR-5).
+ * "완성" 버튼은 테두리 확정 결과(있으면)나 현재 캔버스를 rasterize해 PNG Blob으로 만들어
+ * assetStorage에 type: 'sticker'로 저장한다 — 항상 새 assetId로 저장하며 원본을 덮어쓰지
+ * 않는다(ADR-4). "내 스티커" 패널(MyStickersPanel)에서 저장된 스티커를 클릭하면 현재 캔버스의
+ * 오브젝트를 모두 지우고 그 스티커 하나로 교체해 재편집을 이어갈 수 있다.
  */
 export function StickerStudio() {
   const canvasElRef = useRef(null)
@@ -72,6 +89,7 @@ export function StickerStudio() {
   })
   const paintTools = usePaintTools(fabricCanvasRef)
   const cropTool = useStickerCropTool(fabricCanvasRef)
+  const assetLibrary = useAssetLibrary()
 
   useCanvasHistory(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
@@ -82,6 +100,8 @@ export function StickerStudio() {
   // 확정된 테두리 결과 — "적용"을 누르기 전까지는 null(테두리는 선택 사항, PRD 섹션 5).
   // 다음 step(저장)이 이 값을 읽어 있으면 이걸, 없으면 원본 캔버스를 저장한다.
   const outlinedResultRef = useRef(null)
+
+  const [isSaved, setIsSaved] = useState(false)
 
   useEffect(() => {
     function handlePathCreated(canvas, path) {
@@ -148,6 +168,40 @@ export function StickerStudio() {
     container.replaceChildren(outlinePreviewCanvas)
   }
 
+  // 테두리 확정 결과가 있으면 그것을, 없으면 현재 캔버스를 rasterize해 저장 대상으로 삼는다
+  // (다음 step 요약에서 정한 규칙). 항상 새 assetId로 저장한다(ADR-4).
+  async function handleSaveSticker() {
+    const canvas = fabricCanvasRef.current
+    if (!canvas) return
+
+    const sourceCanvasElement = outlinedResultRef.current ?? canvas.toCanvasElement()
+    const blob = await rasterizeCanvasToPngBlob(sourceCanvasElement)
+    await assetLibrary.registerSticker(blob, `sticker-${Date.now()}.png`)
+
+    setIsSaved(true)
+    setTimeout(() => setIsSaved(false), SAVED_LABEL_RESET_MS)
+  }
+
+  // "내 스티커"에서 스티커를 클릭하면 크롭과 동일하게 캔버스를 이 스티커 하나로 다시 시작한다.
+  // 원본 assetId는 추적하지 않는다 — 저장은 항상 새 항목으로 이루어진다(ADR-4).
+  async function handleSelectSticker(asset) {
+    const canvas = fabricCanvasRef.current
+    if (!canvas) return
+
+    const record = await getAsset(asset.id)
+    if (!record) return
+
+    const img = await FabricImage.fromURL(createAssetObjectURL(record.blob))
+    canvas.remove(...canvas.getObjects())
+    img.set({
+      left: (canvas.getWidth() - img.width) / 2,
+      top: (canvas.getHeight() - img.height) / 2,
+    })
+    canvas.add(img)
+    canvas.setActiveObject(img)
+    canvas.renderAll()
+  }
+
   return (
     <div style={{ display: 'flex', gap: '12px', padding: '8px', height: '100%', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -211,6 +265,12 @@ export function StickerStudio() {
               </button>
             </>
           )}
+        </div>
+        <div style={sidebarPanelStyle}>
+          <button type="button" style={cropButtonStyle} onClick={handleSaveSticker}>
+            {isSaved ? '저장됨' : '완성'}
+          </button>
+          <MyStickersPanel stickers={assetLibrary.stickers} onSelectSticker={handleSelectSticker} />
         </div>
       </div>
       <div

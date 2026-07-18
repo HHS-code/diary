@@ -55,6 +55,7 @@ export function AssetImportPanel({ library, onSelectImage }) {
   const fileInputRef = useRef(null)
   const folderInputRef = useRef(null)
   const thumbnailUrls = useImageThumbnailUrls(library.images)
+  const stickerThumbnailUrls = useImageThumbnailUrls(library.stickers)
 
   function handleFileInputChange(event) {
     const files = Array.from(event.target.files ?? [])
@@ -219,11 +220,69 @@ export function AssetImportPanel({ library, onSelectImage }) {
           ))}
         </div>
         <div>폰트 ({library.fonts.length})</div>
-        <ul style={{ margin: '2px 0 0', paddingLeft: '16px' }}>
+        <ul style={{ margin: '2px 0 8px', paddingLeft: '16px' }}>
           {library.fonts.map((asset) => (
             <li key={asset.id}>{asset.filename}</li>
           ))}
         </ul>
+        <div>스티커 ({library.stickers.length})</div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: '6px',
+            margin: '4px 0 0',
+          }}
+        >
+          {library.stickers.map((asset) => (
+            <button
+              key={asset.id}
+              type="button"
+              title={asset.filename}
+              onClick={() => onSelectImage?.(asset)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '2px',
+                padding: '4px',
+                border: '1px solid transparent',
+                borderRadius: 3,
+                background: 'none',
+                cursor: onSelectImage ? 'pointer' : 'default',
+                minWidth: 0,
+                maxWidth: '100%',
+              }}
+            >
+              <img
+                src={stickerThumbnailUrls[asset.id]}
+                alt={asset.filename}
+                style={{
+                  width: '100%',
+                  maxWidth: '48px',
+                  height: '48px',
+                  objectFit: 'cover',
+                  border: '1px solid #7d7d64',
+                  borderRadius: 2,
+                  background: '#fff',
+                }}
+              />
+              <span
+                style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  fontSize: '10px',
+                  color: '#333',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {asset.filename}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
