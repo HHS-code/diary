@@ -16,6 +16,7 @@
 | `free-drawing` | XP 그림판식 자유 그리기 — 연필/브러시/에어브러시, 진짜 지우개(@erase2d/fabric), 전체 undo/redo(Ctrl+Z/Y) | 완료 (step0~4, report 있음. step4 실측 매칭 스타일은 사용자 요청으로 되돌림) |
 | `asset-import-pipeline` | 배경/폰트 파일 업로드 + 폴더 일괄 추가·드래그앤드롭·붙여넣기 감지로 에셋을 등록하는 공용 입력 방식(IndexedDB 저장, localStorage 자동 마이그레이션 포함) | 완료 (step0~5, report 있음. AssetImportPanel의 DiaryCanvas 화면 마운트는 step5 이후 커밋 1bbbef6로 완료) |
 | `animated-gif-support` | 캔버스에 올린 GIF가 첫 프레임에서 멈추던 문제 해결 — GIF 프레임 디코딩(gifuct-js), FabricImage 상속 커스텀 오브젝트로 실제 애니메이션 재생, 캔버스당 공유 렌더 루프로 다수 동시재생 성능 확보, 저장/재로드 후에도 애니메이션 유지 | 완료 (step0~4, report 있음. 로드맵 예정 목록에 없던 phase — 사용자가 버그로 발견해 coplan으로 새로 계획함. 배경 이미지로 쓰는 GIF와 PNG export는 범위 밖, 계속 정지 이미지) |
+| `sticker-studio` | 스티커 전용 에디터(데스크톱 독립 앱) — 그리기 도구 재사용, 이미지 업로드+사각형 크롭, 올가미 누끼따기(clipPath rasterize), 흰색 테두리(다방향 스탬프), assetStorage `sticker` 타입 저장, AssetImportPanel/내 스티커 패널 재사용 연동 | 완료 (step0~6, report 있음) |
 
 > 참고: `desktop-ui/steps/index.json`은 상태가 "pending"으로 남아있었으나 실제로는 완료된 상태라 "done"으로 동기화함(git log 기준).
 
@@ -25,7 +26,7 @@
 
 | 순서 | Phase | 내용 | 비고 |
 |---|---|---|---|
-| 1 | `sticker-studio` | 스티커 전용 에디터 메뉴 — 새 스티커 그리기/만들기 + 기존 스티커 편집 | `asset-import-pipeline`에 의존(완료됨) |
+| 1 | `ai-background-removal` | 스티커 스튜디오에 로컬 AI 배경 제거(@bunnio/rembg-web, MIT, u2netp 모델) + AI 보정 도구(복원/삭제) 추가 | `sticker-studio`에 의존(완료됨). @imgly/background-removal은 AGPL이라 배제 |
 | 2 | `youtube-embed` | 다이어리에 유튜브 링크를 넣으면 재생 가능한 썸네일 카드로 표시 | |
 | 3 | `desktop-custom` | 바탕화면 아이콘/배경화면 사용자 커스터마이징 | |
 | 4 | `movie-review-standalone` | 영화 리뷰를 diary와 분리된 독립 메뉴로 재구성, 템플릿/배경 커스텀, 동일 편집기 재사용 | 가장 큼. 기존 PRD의 "다이어리 탭 하위" 구조에서 "독립 메뉴"로 재정의 필요 |
