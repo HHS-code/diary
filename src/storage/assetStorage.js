@@ -5,7 +5,7 @@ const STORE_NAME = 'assets'
 /**
  * @typedef {{
  *   id: string,
- *   type: "image" | "font",
+ *   type: "image" | "font" | "sticker",
  *   filename: string,
  *   mimeType: string,
  *   fontFamily?: string,
@@ -63,8 +63,8 @@ async function runTransaction(mode, makeRequest) {
 }
 
 /**
- * 이미지/폰트 에셋을 IndexedDB에 저장한다. id는 내부에서 crypto.randomUUID()로 발급한다.
- * @param {{ type: "image" | "font", filename: string, mimeType: string, blob: Blob, fontFamily?: string }} asset
+ * 이미지/폰트/스티커 에셋을 IndexedDB에 저장한다. id는 내부에서 crypto.randomUUID()로 발급한다.
+ * @param {{ type: "image" | "font" | "sticker", filename: string, mimeType: string, blob: Blob, fontFamily?: string }} asset
  * @returns {Promise<string>} 저장된 에셋의 id
  */
 export async function saveAsset({ type, filename, mimeType, blob, fontFamily }) {
@@ -90,8 +90,8 @@ export async function getAsset(id) {
 }
 
 /**
- * type("image" | "font")으로 필터링한 에셋 목록을 createdAt 오름차순으로 반환한다.
- * @param {"image" | "font"} type
+ * type("image" | "font" | "sticker")으로 필터링한 에셋 목록을 createdAt 오름차순으로 반환한다.
+ * @param {"image" | "font" | "sticker"} type
  * @returns {Promise<AssetRecord[]>}
  */
 export async function listAssets(type) {

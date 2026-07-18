@@ -45,23 +45,31 @@ function buildUniqueFontFamily(filename, existingFonts) {
 }
 
 /**
- * IndexedDB에 등록된 이미지/폰트 에셋 목록을 상태로 유지하고, 새 에셋 등록 함수를 제공하는 훅.
+ * IndexedDB에 등록된 이미지/폰트/스티커 에셋 목록을 상태로 유지하고, 새 에셋 등록 함수를 제공하는 훅.
  * @returns {{
  *   images: import('../storage/assetStorage').AssetRecord[],
  *   fonts: import('../storage/assetStorage').AssetRecord[],
+ *   stickers: import('../storage/assetStorage').AssetRecord[],
  *   registerImage: (file: File) => Promise<string>,
  *   registerFont: (file: File) => Promise<string>,
+ *   registerSticker: (blob: Blob, filename: string) => Promise<string>,
  *   refresh: () => Promise<void>,
  * }}
  */
 export function useAssetLibrary() {
   const [images, setImages] = useState([])
   const [fonts, setFonts] = useState([])
+  const [stickers, setStickers] = useState([])
 
   const refresh = useCallback(async () => {
-    const [nextImages, nextFonts] = await Promise.all([listAssets('image'), listAssets('font')])
+    const [nextImages, nextFonts, nextStickers] = await Promise.all([
+      listAssets('image'),
+      listAssets('font'),
+      listAssets('sticker'),
+    ])
     setImages(nextImages)
     setFonts(nextFonts)
+    setStickers(nextStickers)
   }, [])
 
   useEffect(() => {
@@ -93,5 +101,14 @@ export function useAssetLibrary() {
     [refresh, fonts],
   )
 
-  return { images, fonts, registerImage, registerFont, refresh }
+  const registerSticker = useCallback(
+    async (blob, filename) => {
+      const id = await saveAsset({ type: 'sticker', filename, mimeType: blob.type || 'image/png', blob })
+      await refresh()
+      return id
+    },
+    [refresh],
+  )
+
+  return { images, fonts, stickers, registerImage, registerFont, registerSticker, refresh }
 }

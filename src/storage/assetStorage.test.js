@@ -70,4 +70,22 @@ describe('assetStorage', () => {
 
     expect(record).toBeNull()
   })
+
+  it('saveAsset({ type: "sticker" })로 저장한 레코드는 listAssets("sticker")로만 조회되고 image/font 목록에는 섞이지 않는다', async () => {
+    const stickerId = await saveAsset({
+      type: 'sticker',
+      filename: 'my-sticker.png',
+      mimeType: 'image/png',
+      blob: createImageBlob(),
+    })
+    const imageId = await saveAsset({ type: 'image', filename: 'a.png', mimeType: 'image/png', blob: createImageBlob() })
+
+    const stickers = await listAssets('sticker')
+    const images = await listAssets('image')
+    const fonts = await listAssets('font')
+
+    expect(stickers.map((asset) => asset.id)).toEqual([stickerId])
+    expect(images.map((asset) => asset.id)).toEqual([imageId])
+    expect(fonts).toEqual([])
+  })
 })

@@ -95,4 +95,19 @@ describe('useAssetLibrary', () => {
     expect(second.fontFamily).not.toBe('MyFont')
     expect(second.fontFamily.startsWith('MyFont-')).toBe(true)
   })
+
+  it('registerSticker로 등록한 스티커가 stickers 상태에 반영되고 images/fonts에는 영향을 주지 않는다', async () => {
+    renderHost()
+    const blob = new NodeBlob(['fake-sticker-bytes'], { type: 'image/png' })
+
+    await act(async () => {
+      await latestLibrary.registerSticker(blob, 'my-sticker.png')
+    })
+
+    expect(latestLibrary.stickers).toHaveLength(1)
+    expect(latestLibrary.stickers[0].filename).toBe('my-sticker.png')
+    expect(latestLibrary.stickers[0].type).toBe('sticker')
+    expect(latestLibrary.images).toHaveLength(0)
+    expect(latestLibrary.fonts).toHaveLength(0)
+  })
 })
