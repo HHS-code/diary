@@ -15,6 +15,7 @@
 | `diary-editor-ux-overhaul` | 캔버스 확대(1400x900)+마이그레이션, 배경 색/이미지 커스텀, 오브젝트 툴바 고정 패널화, 버튼 아이콘, 모아보기 갤러리, 캘린더 hover 작성 버튼, 메인 화면 정리 | 완료 (step0~6, report 있음) |
 | `free-drawing` | XP 그림판식 자유 그리기 — 연필/브러시/에어브러시, 진짜 지우개(@erase2d/fabric), 전체 undo/redo(Ctrl+Z/Y) | 완료 (step0~4, report 있음. step4 실측 매칭 스타일은 사용자 요청으로 되돌림) |
 | `asset-import-pipeline` | 배경/폰트 파일 업로드 + 폴더 일괄 추가·드래그앤드롭·붙여넣기 감지로 에셋을 등록하는 공용 입력 방식(IndexedDB 저장, localStorage 자동 마이그레이션 포함) | 완료 (step0~5, report 있음. AssetImportPanel의 DiaryCanvas 화면 마운트는 step5 이후 커밋 1bbbef6로 완료) |
+| `animated-gif-support` | 캔버스에 올린 GIF가 첫 프레임에서 멈추던 문제 해결 — GIF 프레임 디코딩(gifuct-js), FabricImage 상속 커스텀 오브젝트로 실제 애니메이션 재생, 캔버스당 공유 렌더 루프로 다수 동시재생 성능 확보, 저장/재로드 후에도 애니메이션 유지 | 완료 (step0~4, report 있음. 로드맵 예정 목록에 없던 phase — 사용자가 버그로 발견해 coplan으로 새로 계획함. 배경 이미지로 쓰는 GIF와 PNG export는 범위 밖, 계속 정지 이미지) |
 
 > 참고: `desktop-ui/steps/index.json`은 상태가 "pending"으로 남아있었으나 실제로는 완료된 상태라 "done"으로 동기화함(git log 기준).
 
