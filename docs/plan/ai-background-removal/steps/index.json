@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "bg-removal-button",
-      "status": "pending"
+      "status": "error",
+      "started_at": "2026-07-18T22:34:13+0900",
+      "error_message": "[3회 시도 후 실패] Step이 status를 갱신하지 않음",
+      "failed_at": "2026-07-18T22:42:55+0900"
     },
     {
       "step": 2,
