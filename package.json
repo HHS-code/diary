@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@bunnio/rembg-web": "^1.0.2",
     "@erase2d/fabric": "^1.2.1",
     "fabric": "^7.4.0",
     "gifuct-js": "^2.1.2",
