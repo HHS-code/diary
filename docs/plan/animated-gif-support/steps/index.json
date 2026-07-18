@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "shared-render-loop",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T15:47:14+0900",
+      "summary": "공개 시그니처: createSharedGifRenderLoop(fabricCanvas) -> { register(obj), unregister(obj), start(), stop() } (src/fabric/sharedGifRenderLoop.js). 내부 Set+WeakMap으로 등록 오브젝트별 마지막 프레임전환 시각을 추적, 매 rAF 틱마다 obj.frameDelays[obj.currentFrameIndex]가 지난 오브젝트만 advanceFrame() 호출하고, 이번 틱에 하나라도 갱신됐을 때만 fabricCanvas.renderAll()을 최대 1회 호출(ADR-4). start()는 rafId가 이미 있으면 no-op, stop()은 cancelAnimationFrame 후 rafId를 null로 리셋. useFabricCanvas.js는 fabricCanvas 생성 직후 이 루프를 만들어 start()하고, object:added/object:removed에 별도 리스너를 달아 target instanceof AnimatedGif일 때만 register/unregister하며(fabric의 loadFromJSON도 내부적으로 canvas.add()를 거쳐 object:added가 발생하므로 재로드된 AnimatedGif도 이 리스너 하나로 자동 등록됨 — 별도 처리 불필요, 소스 확인함), effect cleanup에서 gifRenderLoop.stop()을 fabricCanvas.dispose() 이전에 동기 호출. 다음 step(gif-placement-integration)은 canvasAssetPlacement.js/ImageUploadButton에서 AnimatedGif 인스턴스를 만들어 canvas.add()하기만 하면 이 루프에 자동 register된다 — 이 step은 스케줄링 배선만 하고 GIF 판별/배치 로직은 건드리지 않았다.",
+      "completed_at": "2026-07-18T15:56:30+0900"
     },
     {
       "step": 3,
