@@ -94,6 +94,33 @@ describe('usePaintTools', () => {
     expect(path.erasable).toBe(true)
   })
 
+  it('lasso 선택 시 얇은 파란 점선 PencilBrush가 설정된다', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+
+    act(() => result.setTool('lasso'))
+
+    expect(canvas.isDrawingMode).toBe(true)
+    expect(canvas.freeDrawingBrush).toBeInstanceOf(PencilBrush)
+    expect(canvas.freeDrawingBrush.color).toBe('#0080ff')
+    expect(canvas.freeDrawingBrush.width).toBe(1)
+    expect(canvas.freeDrawingBrush.strokeDashArray).toEqual([4, 4])
+  })
+
+  it('lasso로 그린 Path는 path:created 시 isFreeDrawing 태그 없이 캔버스에서 제거된다', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+    act(() => result.setTool('lasso'))
+    const lassoPath = new Path('M 0 0 L 10 10 L 10 0 Z')
+    canvas.add(lassoPath)
+
+    canvas.fire('path:created', { path: lassoPath })
+
+    expect(canvas.getObjects()).not.toContain(lassoPath)
+    expect(lassoPath.isFreeDrawing).toBeUndefined()
+    expect(lassoPath.erasable).toBeUndefined()
+  })
+
   it('에어브러시 산출물(Group)도 path:created에서 동일하게 박제된다', () => {
     const canvas = createCanvas()
     renderPaintTools({ current: canvas })

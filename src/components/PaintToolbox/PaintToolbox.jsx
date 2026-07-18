@@ -1,4 +1,4 @@
-import { MdBlurOn, MdBrush, MdCleaningServices, MdCreate, MdNearMe } from 'react-icons/md'
+import { MdBlurOn, MdBrush, MdCleaningServices, MdCreate, MdGesture, MdNearMe } from 'react-icons/md'
 
 const ICON_SIZE = 18
 
@@ -20,6 +20,7 @@ const TOOLS = [
   { tool: 'brush', label: '브러시', icon: <MdBrush size={ICON_SIZE} /> },
   { tool: 'airbrush', label: '에어브러시', icon: <MdBlurOn size={ICON_SIZE} /> },
   { tool: 'eraser', label: '지우개', icon: <MdCleaningServices size={ICON_SIZE} /> },
+  { tool: 'lasso', label: '올가미', icon: <MdGesture size={ICON_SIZE} /> },
 ]
 
 // 굵기 조절이 의미 있는 도구 — select는 그리지 않고, pencil은 굵기 1 고정.
@@ -119,7 +120,7 @@ function buildColorButtonStyle(color) {
  * XP 그림판식 그리기 도구 패널 — 순수 UI.
  * Fabric.js를 직접 다루지 않고, usePaintTools가 준 상태/함수만 사용한다.
  * @param {{
- *   tool: 'select' | 'pencil' | 'brush' | 'airbrush' | 'eraser',
+ *   tool: 'select' | 'pencil' | 'brush' | 'airbrush' | 'eraser' | 'lasso',
  *   color: string,
  *   width: number,
  *   onToolChange: (tool: string) => void,
