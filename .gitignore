@@ -29,6 +29,7 @@ dist-ssr
 
 # Local reference material (not for public repo)
 /reference
+/reference_web
 
 # Session lock files
 .claude/scheduled_tasks.lock
