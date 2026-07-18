@@ -13,10 +13,10 @@
     {
       "step": 1,
       "name": "bg-removal-button",
-      "status": "error",
+      "status": "completed",
       "started_at": "2026-07-18T22:34:13+0900",
-      "error_message": "[3회 시도 후 실패] Step이 status를 갱신하지 않음",
-      "failed_at": "2026-07-18T22:42:55+0900"
+      "summary": "StickerStudio.jsx에 'AI 배경제거' 버튼 추가(commit 27fe98d). resolveLassoCutoutTarget으로 대상 이미지를 고르고, rasterizeTargetImageBounds(canvas.toCanvasElement + filter, commitLassoCutout과 동일 패턴)로 경계 영역만 rasterize해 originalBeforeAiRemovalRef(useRef)에 보관 — 다음 step(AI 보정의 복원)이 참조할 원본. backgroundRemovalStatus state('idle'|'processing'|'error')로 버튼 disabled 및 라벨('AI 배경제거'/'처리 중...(progress message)'/'실패')을 제어, onProgress 콜백은 info.message를 텍스트로 반영. 성공 시 결과 Blob을 FabricImage.fromURL로 만들어 원래 left/top/assetId를 승계해 캔버스 오브젝트 교체, 실패 시 catch에서 'error' 상태로 잠깐 표시 후 idle로 복귀(SAVED_LABEL_RESET_MS 재사용). assetStorage 저장은 하지 않음(ADR-4, '완성' 버튼만 저장). npm run lint/test 통과 확인(StickerStudio 테스트 12개 통과, 기존 회귀 없음). 참고: 이 step은 headless 세션이 구현을 커밋한 뒤 상태 갱신 전에 중단되어(토큰 소진으로 추정) 사람이 직접 코드/테스트를 검증하고 이 요약을 사후 작성함 — step2(ai-correction-tool)는 이 산출물(특히 originalBeforeAiRemovalRef의 존재)을 그대로 전제로 진행하면 됨.",
+      "completed_at": "2026-07-18T22:42:55+0900"
     },
     {
       "step": 2,
