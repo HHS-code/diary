@@ -10,6 +10,7 @@ const TOOL_LABELS = {
   airbrush: '에어브러시',
   eraser: '지우개',
   lasso: '올가미',
+  'ai-correction': 'AI 보정',
 }
 
 function defaultProps(overrides = {}) {
@@ -57,7 +58,7 @@ afterEach(() => {
 })
 
 describe('PaintToolbox (그리기 도구 패널)', () => {
-  it('도구 버튼 6개(선택/연필/브러시/에어브러시/지우개/올가미)가 모두 렌더링된다', () => {
+  it('도구 버튼 7개(선택/연필/브러시/에어브러시/지우개/올가미/AI 보정)가 모두 렌더링된다', () => {
     renderToolbox(defaultProps())
 
     for (const label of Object.values(TOOL_LABELS)) {
@@ -81,7 +82,7 @@ describe('PaintToolbox (그리기 도구 패널)', () => {
     renderToolbox(defaultProps({ tool: 'brush' }))
 
     expect(findButtonByLabel('브러시').getAttribute('aria-pressed')).toBe('true')
-    for (const label of ['선택', '연필', '에어브러시', '지우개', '올가미']) {
+    for (const label of ['선택', '연필', '에어브러시', '지우개', '올가미', 'AI 보정']) {
       expect(findButtonByLabel(label).getAttribute('aria-pressed'), `"${label}"가 눌린 상태임`).toBe('false')
     }
   })
@@ -128,6 +129,14 @@ describe('PaintToolbox (그리기 도구 패널)', () => {
 
   it('lasso 도구일 때도 굵기 버튼이 비활성이다 — 점선 굵기 1 고정', () => {
     renderToolbox(defaultProps({ tool: 'lasso' }))
+
+    for (const button of findWidthButtons()) {
+      expect(button.disabled).toBe(true)
+    }
+  })
+
+  it('ai-correction 도구일 때도 굵기 버튼이 비활성이다 — 점선 굵기 1 고정', () => {
+    renderToolbox(defaultProps({ tool: 'ai-correction' }))
 
     for (const button of findWidthButtons()) {
       expect(button.disabled).toBe(true)

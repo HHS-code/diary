@@ -19,6 +19,11 @@ const SPRAY_DENSITY_PER_WIDTH = 5
 const LASSO_COLOR = '#0080ff'
 const LASSO_WIDTH = 1
 const LASSO_DASH_ARRAY = [4, 4]
+// AI 보정도 올가미와 동일하게 선택 영역 표시선이지만, 캔버스 위에서 올가미(파란 점선)와
+// 혼동되지 않도록 다른 색·다른 점선 간격으로 고정한다(ADR-3).
+const AI_CORRECTION_COLOR = '#ff8000'
+const AI_CORRECTION_WIDTH = 1
+const AI_CORRECTION_DASH_ARRAY = [2, 6]
 const CANVAS_READY_POLL_MS = 50
 
 /**
@@ -80,6 +85,13 @@ function buildBrush(canvas, tool, color, width) {
     brush.strokeDashArray = LASSO_DASH_ARRAY
     return brush
   }
+  if (tool === 'ai-correction') {
+    const brush = new PencilBrush(canvas)
+    brush.color = AI_CORRECTION_COLOR
+    brush.width = AI_CORRECTION_WIDTH
+    brush.strokeDashArray = AI_CORRECTION_DASH_ARRAY
+    return brush
+  }
   // airbrush
   const brush = new SprayBrush(canvas)
   brush.color = color
@@ -114,7 +126,7 @@ function applyToolToCanvas(canvas, tool, color, width) {
 /**
  * 그림판식 그리기 도구 상태를 Fabric.js 캔버스에 연결하는 커스텀 훅.
  *
- * - tool ∈ { 'select', 'pencil', 'brush', 'airbrush', 'eraser', 'lasso' }, 기본 'select'.
+ * - tool ∈ { 'select', 'pencil', 'brush', 'airbrush', 'eraser', 'lasso', 'ai-correction' }, 기본 'select'.
  *   select는 그리기 모드를 끄고(기존 오브젝트 선택/이동), 나머지는
  *   그리기 모드를 켜며 도구에 맞는 브러시를 설정한다.
  * - color/width 변경은 현재 활성 브러시에 즉시 반영된다 (연필은 굵기 1 고정).
@@ -129,9 +141,13 @@ function applyToolToCanvas(canvas, tool, color, width) {
  * - lasso(올가미)는 얇은 파란 점선 브러시로 그려지지만 그림 획이 아니라 선택 영역
  *   표시선이다. path:created 시 박제되지 않고 캔버스에서 즉시 제거되며, 좌표 정보는
  *   호출부(StickerStudio)가 별도로 구독해 stickerCutout.js로 전달한다.
+ * - ai-correction(AI 보정)도 선택 영역 표시선이지만, 올가미와 헷갈리지 않도록 얇은
+ *   주황 점선 브러시로 그려진다(ADR-3, 올가미와 별개 도구). path:created 시 그림 획으로
+ *   박제되지 않는다는 점은 올가미와 같지만, 캔버스에서의 제거·보관은 usePaintTools가
+ *   아니라 호출부(StickerStudio)가 직접 구독해 stickerAiCorrection.js로 전달한다.
  * @param {React.RefObject<import('fabric').Canvas | null>} fabricCanvasRef
  * @returns {{
- *   tool: 'select' | 'pencil' | 'brush' | 'airbrush' | 'eraser' | 'lasso',
+ *   tool: 'select' | 'pencil' | 'brush' | 'airbrush' | 'eraser' | 'lasso' | 'ai-correction',
  *   color: string,
  *   width: number,
  *   setTool: (tool: string) => void,
@@ -158,11 +174,14 @@ export function usePaintTools(fabricCanvasRef) {
     // 에어브러시 산출물(Group)도 path 키로 전달된다 — 획과 동일하게 박제.
     // 올가미(lasso)는 선택 도구이지 그리기 도구가 아니므로, 그린 Path를 그림 획으로
     // 박제하지 않고 캔버스에서 즉시 제거한다 — 좌표 정보만 stickerCutout.js로 넘어간다.
+    // AI 보정(ai-correction)도 선택 도구이지만, 제거·보관은 StickerStudio.jsx가 직접
+    // 구독해서 처리한다(usePaintTools는 그림 획으로 박제하지만 않으면 된다).
     function pinCreatedStroke(canvas, path) {
       if (tool === 'lasso') {
         canvas.remove(path)
         return
       }
+      if (tool === 'ai-correction') return
       path.set({ selectable: false, evented: false, isFreeDrawing: true, erasable: true })
     }
 

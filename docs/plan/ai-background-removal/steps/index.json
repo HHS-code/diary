@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "ai-correction-tool",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T23:49:33+0900",
+      "summary": "공개 함수: restoreRegion(currentCanvasElement, originalCanvasElement, regionPath, left, top) -> HTMLCanvasElement, eraseRegion(currentCanvasElement, regionPath, left, top) -> HTMLCanvasElement (src/fabric/stickerAiCorrection.js). architecture.md 가정과 달리 left/top 파라미터를 추가했다(불확실성 명시 문구가 허용한 조정) — 두 함수 모두 대상 이미지 경계 영역만 크롭한 캔버스를 받으며(step1의 originalBeforeAiRemovalRef와 동일 크롭 관례), regionPath는 스티커 캔버스 절대좌표로 그려지므로 크롭 원점(left,top)을 알아야 stickerCutout.js와 동일한 util.sendObjectToPlane(regionPath, undefined, util.createTranslateMatrix(left, top)) 패턴으로 정렬 가능하다(regionPath는 previewLassoCutout처럼 제자리 변경됨, 재사용 금지 — 적용 후 버리는 일회용). 마스크 렌더링은 FabricObject.render(ctx)를 캔버스 없이 직접 호출해 만든다(별도 StaticCanvas 불필요) — fill을 흰색으로 강제해 열린 곡선도 lasso와 동일하게 Canvas fill의 암묵적 닫힘 규칙에 맡긴다. usePaintTools.js에 'ai-correction' 도구 추가(PencilBrush, 주황 점선 #ff8000/[2,6] — 올가미 파랑과 구분), path:created 시 그림 획으로 박제하지 않되 캔버스 제거는 하지 않음(StickerStudio.jsx가 직접 구독해 canvas.remove 후 pendingCorrectionRegion state로 보관·적용 후 null 리셋). PaintToolbox.jsx에 'AI 보정' 도구 버튼 추가(MdAutoFixHigh). StickerStudio.jsx: originalBeforeAiRemovalRef 저장 형태를 canvasElement 단독에서 {canvasElement,left,top}으로 변경(step1 코드의 불가피한 최소 수정 — 이 정보 없이는 정렬 불가능, 다른 소비처 없어 안전). '복원' 버튼은 원본 없음 또는 보정 영역 미지정 시 비활성화, '삭제'는 보정 영역 미지정 시에만 비활성화. npm run lint/build/test 전체(34 files·209 tests) 통과 확인. 다음 step이 읽어야 할 파일: src/fabric/stickerAiCorrection.js, src/components/StickerStudio/StickerStudio.jsx(originalBeforeAiRemovalRef 저장 형태·pendingCorrectionRegion 상태), docs/plan/ai-background-removal/reports/step2-ai-correction-tool.md.",
+      "completed_at": "2026-07-19T00:20:00+0900"
     }
   ],
   "created_at": "2026-07-18T22:17:16+0900"

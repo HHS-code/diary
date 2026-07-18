@@ -121,6 +121,34 @@ describe('usePaintTools', () => {
     expect(lassoPath.erasable).toBeUndefined()
   })
 
+  it('ai-correction 선택 시 얇은 주황 점선 PencilBrush가 설정된다(올가미와 다른 스타일)', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+
+    act(() => result.setTool('ai-correction'))
+
+    expect(canvas.isDrawingMode).toBe(true)
+    expect(canvas.freeDrawingBrush).toBeInstanceOf(PencilBrush)
+    expect(canvas.freeDrawingBrush.color).toBe('#ff8000')
+    expect(canvas.freeDrawingBrush.width).toBe(1)
+    expect(canvas.freeDrawingBrush.strokeDashArray).toEqual([2, 6])
+    expect(canvas.freeDrawingBrush.color).not.toBe('#0080ff')
+  })
+
+  it('ai-correction으로 그린 Path는 path:created 시 그림 획으로 박제되지 않는다(캔버스 제거는 StickerStudio.jsx 책임)', () => {
+    const canvas = createCanvas()
+    const result = renderPaintTools({ current: canvas })
+    act(() => result.setTool('ai-correction'))
+    const correctionPath = new Path('M 0 0 L 10 10 L 10 0 Z')
+    canvas.add(correctionPath)
+
+    canvas.fire('path:created', { path: correctionPath })
+
+    expect(correctionPath.isFreeDrawing).toBeUndefined()
+    expect(correctionPath.erasable).toBeUndefined()
+    expect(canvas.getObjects()).toContain(correctionPath)
+  })
+
   it('에어브러시 산출물(Group)도 path:created에서 동일하게 박제된다', () => {
     const canvas = createCanvas()
     renderPaintTools({ current: canvas })

@@ -8,6 +8,7 @@ import { useStickerCropTool } from '../../hooks/useStickerCropTool'
 import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { commitLassoCutout, previewLassoCutout } from '../../fabric/stickerCutout'
 import { createOutlinedSticker } from '../../fabric/stickerOutline'
+import { eraseRegion, restoreRegion } from '../../fabric/stickerAiCorrection'
 import { removeBackgroundFromImage } from '../../ai/backgroundRemoval'
 import { getAsset, createAssetObjectURL } from '../../storage/assetStorage'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
@@ -138,16 +139,30 @@ export function StickerStudio() {
 
   const [isSaved, setIsSaved] = useState(false)
 
-  // AI 배경제거 직전의 대상 이미지 rasterize 결과 — 다음 step("AI 보정"의 복원)이 참조할
-  // 원본 픽셀이다. 저장/새로고침 시 유지할 필요는 없다(세션 메모리로 충분, ADR-4).
+  // AI 배경제거 직전의 대상 이미지 rasterize 결과 — "AI 보정"의 복원이 참조할 원본
+  // 픽셀이다. left/top도 함께 보관해, 이후 보정 시점에 다시 rasterize한 현재 캔버스
+  // 크롭과 같은 좌표계로 정렬할 수 있게 한다(stickerAiCorrection.js). 저장/새로고침 시
+  // 유지할 필요는 없다(세션 메모리로 충분, ADR-4).
   const originalBeforeAiRemovalRef = useRef(null)
   const [backgroundRemovalStatus, setBackgroundRemovalStatus] = useState('idle')
   const [backgroundRemovalProgressMessage, setBackgroundRemovalProgressMessage] = useState('')
 
+  // "AI 보정" 도구로 마지막으로 그린 보정 영역 — 캔버스에서는 즉시 제거되고(그림 획으로
+  // 남기지 않음, architecture.md), "복원"/"삭제" 버튼이 적용할 때까지만 참조로 보관한다.
+  // 적용 후에는 null로 되돌려, 같은 영역을 실수로 두 번 적용하지 않게 한다.
+  const [pendingCorrectionRegion, setPendingCorrectionRegion] = useState(null)
+
   useEffect(() => {
     function handlePathCreated(canvas, path) {
-      if (paintTools.tool !== 'lasso') return
-      previewLassoCutout(resolveLassoCutoutTarget(canvas), path)
+      if (paintTools.tool === 'lasso') {
+        previewLassoCutout(resolveLassoCutoutTarget(canvas), path)
+        return
+      }
+      if (paintTools.tool === 'ai-correction') {
+        canvas.remove(path)
+        canvas.renderAll()
+        setPendingCorrectionRegion(path)
+      }
     }
 
     function subscribeToCanvas(canvas) {
@@ -180,7 +195,7 @@ export function StickerStudio() {
   }
 
   // 대상 이미지를 AI 세그멘테이션 모델로 배경 제거한다(PRD 섹션 1). 처리 직전 상태를
-  // originalBeforeAiRemovalRef에 저장해두는데, 이는 다음 step의 "AI 보정 → 복원"이
+  // originalBeforeAiRemovalRef에 저장해두는데, 이는 "AI 보정 → 복원"(handleRestoreCorrectionRegion)이
   // 참조할 원본이다. 결과 이미지는 commitLassoCutout과 동일한 방식(새 FabricImage로
   // 원래 위치에 교체, assetId 승계)으로 캔버스에 반영된다.
   async function handleRemoveBackground() {
@@ -191,7 +206,7 @@ export function StickerStudio() {
     if (!targetImage) return
 
     const { canvasElement, left, top } = rasterizeTargetImageBounds(canvas, targetImage)
-    originalBeforeAiRemovalRef.current = canvasElement
+    originalBeforeAiRemovalRef.current = { canvasElement, left, top }
     setBackgroundRemovalProgressMessage('')
     setBackgroundRemovalStatus('processing')
 
@@ -211,6 +226,50 @@ export function StickerStudio() {
       setBackgroundRemovalStatus('error')
       setTimeout(() => setBackgroundRemovalStatus('idle'), SAVED_LABEL_RESET_MS)
     }
+  }
+
+  // stickerAiCorrection.js가 반환한 결과 캔버스로 targetImage를 교체한다(commitLassoCutout과
+  // 동일한 방식 — 원래 위치/assetId 유지).
+  function applyCorrectionResult(canvas, targetImage, resultCanvasElement, left, top) {
+    const correctedImage = new FabricImage(resultCanvasElement)
+    correctedImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId })
+    canvas.remove(targetImage)
+    canvas.add(correctedImage)
+    canvas.setActiveObject(correctedImage)
+    canvas.renderAll()
+  }
+
+  // "복원": pendingCorrectionRegion 영역 안에서, AI 배경제거 이전 원본(originalBeforeAiRemovalRef)의
+  // 픽셀을 되살린다. 원본이 없으면(AI 배경제거를 한 번도 안 한 상태) 아무 것도 하지 않는다
+  // — 버튼도 이 조건으로 비활성화된다.
+  function handleRestoreCorrectionRegion() {
+    const canvas = fabricCanvasRef.current
+    if (!canvas || !pendingCorrectionRegion || !originalBeforeAiRemovalRef.current) return
+
+    const targetImage = resolveLassoCutoutTarget(canvas)
+    if (!targetImage) return
+
+    const { canvasElement: currentCanvasElement, left, top } = rasterizeTargetImageBounds(canvas, targetImage)
+    const { canvasElement: originalCanvasElement } = originalBeforeAiRemovalRef.current
+    const resultCanvasElement = restoreRegion(currentCanvasElement, originalCanvasElement, pendingCorrectionRegion, left, top)
+
+    applyCorrectionResult(canvas, targetImage, resultCanvasElement, left, top)
+    setPendingCorrectionRegion(null)
+  }
+
+  // "삭제": pendingCorrectionRegion 영역을 투명화한다. 원본 없이도 동작 가능하다(현재 픽셀만 필요).
+  function handleEraseCorrectionRegion() {
+    const canvas = fabricCanvasRef.current
+    if (!canvas || !pendingCorrectionRegion) return
+
+    const targetImage = resolveLassoCutoutTarget(canvas)
+    if (!targetImage) return
+
+    const { canvasElement: currentCanvasElement, left, top } = rasterizeTargetImageBounds(canvas, targetImage)
+    const resultCanvasElement = eraseRegion(currentCanvasElement, pendingCorrectionRegion, left, top)
+
+    applyCorrectionResult(canvas, targetImage, resultCanvasElement, left, top)
+    setPendingCorrectionRegion(null)
   }
 
   // 두께 슬라이더가 바뀔 때마다(디바운스) 현재 캔버스를 rasterize해 오프스크린에서
@@ -315,6 +374,24 @@ export function StickerStudio() {
           >
             {getBackgroundRemovalButtonLabel(backgroundRemovalStatus, backgroundRemovalProgressMessage)}
           </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              style={cropButtonStyle}
+              onClick={handleRestoreCorrectionRegion}
+              disabled={!pendingCorrectionRegion || !originalBeforeAiRemovalRef.current}
+            >
+              복원
+            </button>
+            <button
+              type="button"
+              style={cropButtonStyle}
+              onClick={handleEraseCorrectionRegion}
+              disabled={!pendingCorrectionRegion}
+            >
+              삭제
+            </button>
+          </div>
         </div>
         <div style={sidebarPanelStyle}>
           <button type="button" style={cropButtonStyle} onClick={handleToggleOutlineEditor}>

@@ -1,7 +1,7 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { Canvas, FabricImage } from 'fabric'
+import { Canvas, FabricImage, Path } from 'fabric'
 import { StickerStudio } from './StickerStudio'
 import { removeBackgroundFromImage } from '../../ai/backgroundRemoval'
 
@@ -54,6 +54,34 @@ async function uploadImageToCanvas(container) {
 
 function findButtonByText(container, text) {
   return Array.from(container.querySelectorAll('button')).find((button) => button.textContent === text)
+}
+
+// StickerStudio가 내부적으로 만드는 fabric Canvas 인스턴스는 컴포넌트 밖에 노출되지 않는다.
+// Canvas.prototype.on은 마운트 시 usePaintTools/StickerStudio의 path:created 구독에서 곧바로
+// 호출되므로, 그 호출의 this(=mock.instances[0])를 잡아 인스턴스를 얻는다.
+async function mountStickerStudioAndGetFabricCanvas() {
+  const onSpy = vi.spyOn(Canvas.prototype, 'on')
+  await act(async () => {
+    root.render(<StickerStudio />)
+  })
+  const fabricCanvas = onSpy.mock.instances[0]
+  onSpy.mockRestore()
+  return fabricCanvas
+}
+
+// 도구 전환(tool 상태 변경)과 path:created 발생을 한 act() 안에서 동시에 처리하면, 발행
+// 시점에 아직 이전 tool 값을 캡처한 구독이 반응해 보정 영역이 무시된다 — 도구 전환이 먼저
+// 이펙트로 재구독을 마치도록 act()를 둘로 나눈다.
+async function drawAiCorrectionRegion(container, fabricCanvas) {
+  const aiCorrectionToolButton = container.querySelector('button[aria-label="AI 보정"]')
+  await act(async () => {
+    aiCorrectionToolButton.click()
+  })
+  const regionPath = new Path('M 0 0 L 40 0 L 40 40 L 0 40 Z')
+  await act(async () => {
+    fabricCanvas.add(regionPath)
+    fabricCanvas.fire('path:created', { path: regionPath })
+  })
 }
 
 let container
@@ -253,6 +281,112 @@ describe('StickerStudio', () => {
       expect(removeBackgroundFromImage.mock.calls[0][0]).toBe(capturedElement)
 
       toCanvasElementSpy.mockRestore()
+    })
+  })
+
+  describe('AI 보정', () => {
+    it('AI 배경제거를 한 번도 하지 않은 상태로 "AI 보정" 도구를 선택하면 "복원" 버튼이 비활성화된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+
+      const restoreButton = findButtonByText(container, '복원')
+      const eraseButton = findButtonByText(container, '삭제')
+
+      expect(restoreButton.disabled).toBe(true)
+      expect(eraseButton.disabled).toBe(true)
+    })
+
+    it('AI 배경제거 성공 후에도 보정 영역을 그리기 전에는 "복원"/"삭제" 버튼이 비활성화된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      await act(async () => {
+        root.render(<StickerStudio />)
+      })
+      await uploadImageToCanvas(container)
+
+      removeBackgroundFromImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }))
+      const removeBgButton = findButtonByText(container, 'AI 배경제거')
+      await act(async () => {
+        removeBgButton.click()
+        await waitUntil(() => removeBgButton.disabled === false)
+      })
+
+      expect(findButtonByText(container, '복원').disabled).toBe(true)
+      expect(findButtonByText(container, '삭제').disabled).toBe(true)
+    })
+
+    it('AI 배경제거 후 보정 영역을 그리고 "복원"을 누르면 대상 오브젝트가 교체되고 버튼이 다시 비활성화된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      const fabricCanvas = await mountStickerStudioAndGetFabricCanvas()
+      await uploadImageToCanvas(container)
+
+      removeBackgroundFromImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }))
+      const removeBgButton = findButtonByText(container, 'AI 배경제거')
+      await act(async () => {
+        removeBgButton.click()
+        await waitUntil(() => removeBgButton.disabled === false)
+      })
+
+      await drawAiCorrectionRegion(container, fabricCanvas)
+
+      const restoreButton = findButtonByText(container, '복원')
+      expect(restoreButton.disabled).toBe(false)
+
+      const addSpy = vi.spyOn(Canvas.prototype, 'add')
+      const removeSpy = vi.spyOn(Canvas.prototype, 'remove')
+
+      await act(async () => {
+        restoreButton.click()
+      })
+
+      const removedTarget = removeSpy.mock.calls.at(-1)[0]
+      const addedResult = addSpy.mock.calls.at(-1)[0]
+      expect(addedResult).not.toBe(removedTarget)
+      expect(addedResult).toBeInstanceOf(FabricImage)
+      expect(findButtonByText(container, '복원').disabled).toBe(true)
+
+      addSpy.mockRestore()
+      removeSpy.mockRestore()
+    })
+
+    it('AI 배경제거 없이도 보정 영역을 그리고 "삭제"를 누르면 대상 오브젝트가 교체된다', async () => {
+      container = document.createElement('div')
+      document.body.appendChild(container)
+      root = createRoot(container)
+
+      const fabricCanvas = await mountStickerStudioAndGetFabricCanvas()
+      await uploadImageToCanvas(container)
+
+      await drawAiCorrectionRegion(container, fabricCanvas)
+
+      const eraseButton = findButtonByText(container, '삭제')
+      expect(eraseButton.disabled).toBe(false)
+
+      const addSpy = vi.spyOn(Canvas.prototype, 'add')
+      const removeSpy = vi.spyOn(Canvas.prototype, 'remove')
+
+      await act(async () => {
+        eraseButton.click()
+      })
+
+      const removedTarget = removeSpy.mock.calls.at(-1)[0]
+      const addedResult = addSpy.mock.calls.at(-1)[0]
+      expect(addedResult).not.toBe(removedTarget)
+      expect(addedResult).toBeInstanceOf(FabricImage)
+      expect(findButtonByText(container, '삭제').disabled).toBe(true)
+
+      addSpy.mockRestore()
+      removeSpy.mockRestore()
     })
   })
 })
