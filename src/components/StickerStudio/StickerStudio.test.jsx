@@ -36,4 +36,30 @@ describe('StickerStudio', () => {
 
     expect(container.querySelector('canvas')).not.toBeNull()
   })
+
+  it('"테두리 추가" 버튼을 누르면 두께 슬라이더와 적용 버튼이 나타나고, 다시 누르면 사라진다', async () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+
+    await act(async () => {
+      root.render(<StickerStudio />)
+    })
+
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const outlineToggleButton = buttons.find((button) => button.textContent === '테두리 추가')
+
+    await act(async () => {
+      outlineToggleButton.click()
+    })
+
+    expect(container.querySelector('input[type="range"]')).not.toBeNull()
+    expect(Array.from(container.querySelectorAll('button')).some((b) => b.textContent === '적용')).toBe(true)
+
+    await act(async () => {
+      outlineToggleButton.click()
+    })
+
+    expect(container.querySelector('input[type="range"]')).toBeNull()
+  })
 })

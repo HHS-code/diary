@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FabricImage } from 'fabric'
 import { useFabricCanvas } from '../../hooks/useFabricCanvas'
 import { usePaintTools } from '../../hooks/usePaintTools'
@@ -6,10 +6,15 @@ import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcuts'
 import { useStickerCropTool } from '../../hooks/useStickerCropTool'
 import { commitLassoCutout, previewLassoCutout } from '../../fabric/stickerCutout'
+import { createOutlinedSticker } from '../../fabric/stickerOutline'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerImageUpload } from './StickerImageUpload'
 
 const CANVAS_READY_POLL_MS = 50
+const OUTLINE_PREVIEW_DEBOUNCE_MS = 100
+const DEFAULT_OUTLINE_THICKNESS_PX = 5
+const MIN_OUTLINE_THICKNESS_PX = 0
+const MAX_OUTLINE_THICKNESS_PX = 20
 
 const sidebarPanelStyle = {
   width: '240px',
@@ -71,6 +76,13 @@ export function StickerStudio() {
   useCanvasHistory(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
 
+  const [isOutlineEditorOpen, setIsOutlineEditorOpen] = useState(false)
+  const [outlineThicknessPx, setOutlineThicknessPx] = useState(DEFAULT_OUTLINE_THICKNESS_PX)
+  const [outlinePreviewCanvas, setOutlinePreviewCanvas] = useState(null)
+  // 확정된 테두리 결과 — "적용"을 누르기 전까지는 null(테두리는 선택 사항, PRD 섹션 5).
+  // 다음 step(저장)이 이 값을 읽어 있으면 이걸, 없으면 원본 캔버스를 저장한다.
+  const outlinedResultRef = useRef(null)
+
   useEffect(() => {
     function handlePathCreated(canvas, path) {
       if (paintTools.tool !== 'lasso') return
@@ -106,6 +118,36 @@ export function StickerStudio() {
     commitLassoCutout(canvas, resolveLassoCutoutTarget(canvas))
   }
 
+  // 두께 슬라이더가 바뀔 때마다(디바운스) 현재 캔버스를 rasterize해 오프스크린에서
+  // createOutlinedSticker를 다시 계산한다 — Fabric 렌더 루프와 무관한 별도 처리(ADR-6).
+  useEffect(() => {
+    if (!isOutlineEditorOpen) return undefined
+    const canvas = fabricCanvasRef.current
+    if (!canvas) return undefined
+
+    const debounceTimer = setTimeout(() => {
+      const sourceCanvasElement = canvas.toCanvasElement()
+      setOutlinePreviewCanvas(createOutlinedSticker(sourceCanvasElement, outlineThicknessPx))
+    }, OUTLINE_PREVIEW_DEBOUNCE_MS)
+
+    return () => clearTimeout(debounceTimer)
+  }, [isOutlineEditorOpen, outlineThicknessPx, fabricCanvasRef])
+
+  function handleToggleOutlineEditor() {
+    setIsOutlineEditorOpen((open) => !open)
+  }
+
+  function handleConfirmOutline() {
+    if (!outlinePreviewCanvas) return
+    outlinedResultRef.current = outlinePreviewCanvas
+    setIsOutlineEditorOpen(false)
+  }
+
+  function attachOutlinePreviewCanvas(container) {
+    if (!container || !outlinePreviewCanvas) return
+    container.replaceChildren(outlinePreviewCanvas)
+  }
+
   return (
     <div style={{ display: 'flex', gap: '12px', padding: '8px', height: '100%', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -136,6 +178,39 @@ export function StickerStudio() {
           <button type="button" style={cropButtonStyle} onClick={handleCommitLassoCutout}>
             누끼 적용
           </button>
+        </div>
+        <div style={sidebarPanelStyle}>
+          <button type="button" style={cropButtonStyle} onClick={handleToggleOutlineEditor}>
+            테두리 추가
+          </button>
+          {isOutlineEditorOpen && (
+            <>
+              <label style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                두께 {outlineThicknessPx}px
+                <input
+                  type="range"
+                  min={MIN_OUTLINE_THICKNESS_PX}
+                  max={MAX_OUTLINE_THICKNESS_PX}
+                  value={outlineThicknessPx}
+                  onChange={(event) => setOutlineThicknessPx(Number(event.target.value))}
+                />
+              </label>
+              <div
+                ref={attachOutlinePreviewCanvas}
+                style={{
+                  background: '#808080',
+                  border: '1px inset #9a9a9a',
+                  minHeight: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              />
+              <button type="button" style={cropButtonStyle} onClick={handleConfirmOutline}>
+                적용
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div
