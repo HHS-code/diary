@@ -16,7 +16,7 @@
       "status": "completed",
       "started_at": "2026-07-18T20:37:08+0900",
       "summary": "assetStorage.js AssetRecord.type / saveAsset / listAssets JSDoc을 'image' | 'font' | 'sticker'로 확장(구현 로직 변경 없음 — 문자열 그대로 저장/필터). useAssetLibrary()가 stickers: AssetRecord[]와 registerSticker(blob: Blob, filename: string) -> Promise<string>을 반환하도록 확장 — registerImage/registerFont와 달리 File이 아니라 이미 만들어진 Blob을 받는다(mimeType은 blob.type || 'image/png'). classifyAssetType은 변경하지 않음(스티커는 확장자 분류 대상이 아님). AssetImportPanel.jsx는 아직 stickers를 노출하지 않음 — 그건 step 6 범위. 산출 파일: src/storage/assetStorage.js, src/storage/assetStorage.test.js, src/hooks/useAssetLibrary.js, src/hooks/useAssetLibrary.test.jsx.",
-      "completed_at": "2026-07-18T20:40:00+0900"
+      "completed_at": "2026-07-18T20:40:29+0900"
     },
     {
       "step": 2,
