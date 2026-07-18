@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "sticker-image-upload-crop",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T20:45:52+0900",
+      "summary": "신규 src/components/StickerStudio/StickerImageUpload.jsx: <input type=\"file\">로 고른 이미지를 FabricImage.fromURL(createAssetObjectURL(file))로 캔버스에 추가, fc.getWidth()/getHeight() 기준(하드코딩 상수 대신 실제 캔버스 크기 사용)으로 스케일 다운. assetStorage 저장/assetId 부여 없음(완성 버튼 전까지 임시 오브젝트, ADR-4). 신규 src/hooks/useStickerCropTool.js: useStickerCropTool(fabricCanvasRef) -> { isCropping, startCropping, cancelCropping, applyCrop }. 크롭 모드 진입 시 canvas.selection/skipTargetFind를 잠시 끄고 mouse:down/move/up(scenePoint)으로 점선 Rect를 그리며, applyCrop은 그 Rect를 제거한 뒤 canvas.toCanvasElement(1, {left,top,width,height})로 rasterize하고 기존 오브젝트를 모두 제거해 new FabricImage(croppedElement) 하나만 캔버스 중앙에 남긴다(assetStorage 저장 없음). StickerStudio.jsx가 두 기능을 사이드바에 연결(자르기/크롭 적용/취소 버튼). 산출 파일: src/components/StickerStudio/StickerImageUpload.jsx, src/components/StickerStudio/StickerImageUpload.test.jsx, src/hooks/useStickerCropTool.js, src/hooks/useStickerCropTool.test.jsx, src/components/StickerStudio/StickerStudio.jsx. 다음 step(sticker-lasso-cutout)은 usePaintTools에 'lasso' 도구를 추가하고 신규 src/fabric/stickerCutout.js에서 path:created로 얻은 Path를 clipPath로 미리보기 후 rasterize하면 됨 — 캔버스 위 임시 오브젝트를 다루는 패턴(스케일/좌표 변환 없이 논리 좌표 그대로)은 이번 step과 동일.",
+      "completed_at": "2026-07-18T21:05:00+0900"
     },
     {
       "step": 4,
