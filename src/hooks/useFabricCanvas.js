@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { Canvas } from 'fabric'
 import { getAsset, createAssetObjectURL } from '../storage/assetStorage'
+import { AnimatedGif } from '../fabric/AnimatedGif'
+import { createSharedGifRenderLoop } from '../fabric/sharedGifRenderLoop'
 
 // 모든 오브젝트 좌표·저장 데이터가 기준으로 삼는 논리 캔버스 크기.
 // 기기·창 크기와 무관하게 고정 — 화면에는 displayScale 배율로 표시만 한다.
@@ -77,6 +79,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
     let cancelled = false
     let debounceTimer = null
     let fabricCanvas = null
+    let gifRenderLoop = null
     // fabric Canvas#dispose()는 pending requestAnimationFrame이 있으면 그걸
     // 기다리는 비동기 작업(Promise 반환)이다. StrictMode 개발 모드는 같은
     // effect를 mount→unmount→mount로 두 번 실행하는데, dispose 완료 전에
@@ -96,6 +99,9 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
       // zoom이 걸리면 fabric이 마우스 좌표를 논리 좌표로 자동 변환한다.
       fabricCanvas.setZoom(displayScale)
 
+      gifRenderLoop = createSharedGifRenderLoop(fabricCanvas)
+      gifRenderLoop.start()
+
       let isLoading = false
 
       function scheduleSave() {
@@ -111,6 +117,19 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
       fabricCanvas.on('object:added', scheduleSave)
       fabricCanvas.on('object:modified', scheduleSave)
       fabricCanvas.on('object:removed', scheduleSave)
+
+      // loadFromJSON으로 복원되는 오브젝트도 내부적으로 canvas.add()를 거치므로
+      // object:added가 함께 발생해, 재로드된 AnimatedGif도 별도 처리 없이 등록된다.
+      fabricCanvas.on('object:added', ({ target }) => {
+        if (target instanceof AnimatedGif) {
+          gifRenderLoop.register(target)
+        }
+      })
+      fabricCanvas.on('object:removed', ({ target }) => {
+        if (target instanceof AnimatedGif) {
+          gifRenderLoop.unregister(target)
+        }
+      })
 
       if (initialCanvasJSON) {
         isLoading = true
@@ -133,6 +152,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
       cancelled = true
       clearTimeout(debounceTimer)
       fabricCanvasRef.current = null
+      gifRenderLoop?.stop()
       disposePromiseRef.current = setupPromise.then(() => fabricCanvas?.dispose())
     }
     // canvasElementRef는 useRef 반환값으로 렌더링 간 동일 참조 — 의존 배열 생략
