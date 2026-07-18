@@ -13,6 +13,7 @@
   "dependencies": {
     "@erase2d/fabric": "^1.2.1",
     "fabric": "^7.4.0",
+    "gifuct-js": "^2.1.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0"
