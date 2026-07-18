@@ -24,7 +24,7 @@
       "status": "completed",
       "started_at": "2026-07-18T20:40:29+0900",
       "summary": "Desktop.jsx가 onOpenStickerStudio prop을 받아 diary 아이콘 옆에 스티커 스튜디오 아이콘 버튼(aria-label=\"sticker studio\", diary 버튼도 aria-label=\"diary\" 추가)을 렌더링. App.jsx에 isStickerStudioOpen state를 isDiaryOpen과 나란히 추가해 Window(title=\"sticker studio\")로 <StickerStudio />를 연다. 신규 src/components/StickerStudio/StickerStudio.jsx: 모듈 상수 STICKER_LOGICAL_CANVAS={width:512,height:512}로 useFabricCanvas(el, null, null, {logicalSize, backgroundColor:'transparent'}) 호출(onSave 없음=오토세이브 비활성, 저장은 이후 step), usePaintTools/useCanvasHistory/useCanvasKeyboardShortcuts(등록 콜백 없이 호출 — Ctrl+C/V 객체 복제·Delete는 동작, 이미지 파일 붙여넣기 등록은 이후 step 범위)를 그대로 연결하고 PaintToolbox + <canvas>를 렌더링. src/assets/icons.js에 stickerStudioIcon export 추가(소스: reference/Windows XP Icons/Paint.png → src/assets/sticker-studio-icon.png). 다음 step(sticker-image-upload-crop)은 StickerStudio.jsx에 이미지 업로드 버튼과 크롭 UI를 추가하면 됨 — 캔버스/그리기 도구 뼈대는 이미 갖춰져 있음. 산출 파일: src/assets/icons.js, src/assets/sticker-studio-icon.png, src/components/Desktop/Desktop.jsx, src/components/Desktop/Desktop.test.jsx, src/App.jsx, src/components/StickerStudio/StickerStudio.jsx, src/components/StickerStudio/StickerStudio.test.jsx.",
-      "completed_at": "2026-07-18T20:44:00+0900"
+      "completed_at": "2026-07-18T20:45:52+0900"
     },
     {
       "step": 3,
