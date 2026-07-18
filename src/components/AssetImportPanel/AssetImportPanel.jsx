@@ -1,6 +1,7 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MdFolderOpen, MdUploadFile } from 'react-icons/md'
 import { classifyAssetType } from '../../hooks/useAssetLibrary'
+import { createAssetObjectURL } from '../../storage/assetStorage'
 
 /**
  * 파일 목록을 확장자로 분류해 이미지/폰트 각각 등록한다. 그 외 확장자는 조용히 무시한다.
@@ -19,25 +20,51 @@ async function importFiles(files, library) {
 }
 
 /**
+ * 등록된 이미지 목록의 blob마다 objectURL을 만들어 { assetId: url } 맵으로 반환한다.
+ * 목록이 바뀔 때마다 이전 objectURL을 해제해 메모리 누수를 막는다.
+ * @param {import('../../storage/assetStorage').AssetRecord[]} images
+ * @returns {Record<string, string>}
+ */
+function useImageThumbnailUrls(images) {
+  const [urls, setUrls] = useState({})
+
+  useEffect(() => {
+    const nextUrls = Object.fromEntries(
+      images.map((asset) => [asset.id, createAssetObjectURL(asset.blob)]),
+    )
+    setUrls(nextUrls)
+
+    return () => {
+      Object.values(nextUrls).forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [images])
+
+  return urls
+}
+
+/**
  * 이미지/폰트 파일을 파일 선택·폴더 선택·드래그앤드롭으로 등록하는 공용 패널.
  * 등록 로직은 갖고 있지 않고, props로 받은 library(useAssetLibrary 반환값)를 그대로 호출한다.
- * @param {{ library: ReturnType<typeof import('../../hooks/useAssetLibrary').useAssetLibrary> }} props
+ * 등록된 이미지 항목을 클릭하면 onSelectImage(asset)로 캔버스 배치를 위임한다.
+ * @param {{
+ *   library: ReturnType<typeof import('../../hooks/useAssetLibrary').useAssetLibrary>,
+ *   onSelectImage?: (asset: import('../../storage/assetStorage').AssetRecord) => void,
+ * }} props
  */
-export function AssetImportPanel({ library }) {
+export function AssetImportPanel({ library, onSelectImage }) {
   const fileInputRef = useRef(null)
   const folderInputRef = useRef(null)
+  const thumbnailUrls = useImageThumbnailUrls(library.images)
 
   function handleFileInputChange(event) {
-    const files = event.target.files
+    const files = Array.from(event.target.files ?? [])
     event.target.value = ''
-    if (!files) return
     importFiles(files, library)
   }
 
   function handleFolderInputChange(event) {
-    const files = event.target.files
+    const files = Array.from(event.target.files ?? [])
     event.target.value = ''
-    if (!files) return
     importFiles(files, library)
   }
 
@@ -61,7 +88,6 @@ export function AssetImportPanel({ library }) {
         borderRadius: 3,
         background: '#ece9d8',
         boxShadow: '1px 1px 0 rgba(255,255,255,.7) inset, 2px 2px 5px rgba(0,0,0,.25)',
-        overflow: 'hidden',
       }}
     >
       <div
@@ -72,6 +98,7 @@ export function AssetImportPanel({ library }) {
           fontSize: 12,
           padding: '5px 10px',
           textShadow: '1px 1px 1px rgba(0,0,0,.5)',
+          borderRadius: '2px 2px 0 0',
         }}
       >
         에셋
@@ -134,11 +161,63 @@ export function AssetImportPanel({ library }) {
       </div>
       <div style={{ padding: '0 8px 8px', fontSize: '12px', color: '#333' }}>
         <div>이미지 ({library.images.length})</div>
-        <ul style={{ margin: '2px 0 8px', paddingLeft: '16px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: '6px',
+            margin: '4px 0 8px',
+          }}
+        >
           {library.images.map((asset) => (
-            <li key={asset.id}>{asset.filename}</li>
+            <button
+              key={asset.id}
+              type="button"
+              title={asset.filename}
+              onClick={() => onSelectImage?.(asset)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '2px',
+                padding: '4px',
+                border: '1px solid transparent',
+                borderRadius: 3,
+                background: 'none',
+                cursor: onSelectImage ? 'pointer' : 'default',
+                minWidth: 0,
+                maxWidth: '100%',
+              }}
+            >
+              <img
+                src={thumbnailUrls[asset.id]}
+                alt={asset.filename}
+                style={{
+                  width: '100%',
+                  maxWidth: '48px',
+                  height: '48px',
+                  objectFit: 'cover',
+                  border: '1px solid #7d7d64',
+                  borderRadius: 2,
+                  background: '#fff',
+                }}
+              />
+              <span
+                style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  fontSize: '10px',
+                  color: '#333',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {asset.filename}
+              </span>
+            </button>
           ))}
-        </ul>
+        </div>
         <div>폰트 ({library.fonts.length})</div>
         <ul style={{ margin: '2px 0 0', paddingLeft: '16px' }}>
           {library.fonts.map((asset) => (

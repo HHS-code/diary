@@ -3,15 +3,18 @@ import { useEffect, useRef } from 'react'
 const CLONE_OFFSET = 10
 
 /**
- * 캔버스 오브젝트에 대한 키보드 단축키(Delete/Ctrl+C/Ctrl+V)를 등록하는 커스텀 훅.
+ * 캔버스 오브젝트에 대한 키보드 단축키(Delete·Backspace/Ctrl+C/Ctrl+V)를 등록하는 커스텀 훅.
  * 텍스트(IText/Textbox) 편집 중에는 아무 동작도 하지 않는다.
- * Ctrl+V 시 클립보드에 이미지 파일이 있으면 registerImage로 에셋 등록하고,
- * 없거나 클립보드 접근이 불가능하면 기존 오브젝트 붙여넣기로 폴백한다.
+ * Ctrl+V 시 우선순위: (1) 네이티브 paste 이벤트의 clipboardData.files에 이미지가 있으면 그걸 사용
+ * (OS 파일탐색기에서 복사한 이미지 파일이 여기로 들어오는 경우가 있음),
+ * (2) 없으면 navigator.clipboard.read()로 이미지 MIME 타입 확인,
+ * (3) 그마저 없으면 기존 오브젝트 붙여넣기로 폴백한다.
+ * 이미지를 찾으면 registerAndPlaceImage(file)로 에셋 등록과 캔버스 배치를 모두 위임한다.
  * @param {React.RefObject<import('fabric').Canvas | null>} fabricCanvasRef
- * @param {{ registerImage?: (file: File) => Promise<string> }} [assetLibrary]
+ * @param {{ registerAndPlaceImage?: (file: File) => Promise<void> }} [assetLibrary]
  * @returns {void}
  */
-export function useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage } = {}) {
+export function useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage } = {}) {
   const clipboardRef = useRef(null)
 
   useEffect(() => {
@@ -52,6 +55,20 @@ export function useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage } = 
       canvas.renderAll()
     }
 
+    function findImageFileInDataTransfer(dataTransfer) {
+      if (!dataTransfer) return null
+
+      const fileFromFiles = Array.from(dataTransfer.files ?? []).find((file) =>
+        file.type.startsWith('image/'),
+      )
+      if (fileFromFiles) return fileFromFiles
+
+      const fileFromItems = Array.from(dataTransfer.items ?? [])
+        .find((item) => item.kind === 'file' && item.type.startsWith('image/'))
+        ?.getAsFile()
+      return fileFromItems ?? null
+    }
+
     async function readClipboardImageFile() {
       if (!navigator.clipboard?.read) return null
 
@@ -70,10 +87,10 @@ export function useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage } = 
       }
     }
 
-    async function pasteImageOrClipboardObject(canvas) {
-      const imageFile = await readClipboardImageFile()
-      if (imageFile && registerImage) {
-        await registerImage(imageFile)
+    async function pasteImageOrClipboardObject(canvas, nativeImageFile) {
+      const imageFile = nativeImageFile ?? (await readClipboardImageFile())
+      if (imageFile && registerAndPlaceImage) {
+        await registerAndPlaceImage(imageFile)
         return
       }
       await pasteFromClipboard(canvas)
@@ -84,24 +101,32 @@ export function useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage } = 
       if (!canvas) return
       if (isEditingText(canvas)) return
 
-      const isCtrlOrCmd = event.ctrlKey || event.metaKey
-
-      if (event.key === 'Delete') {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault()
         removeActiveObject(canvas)
         return
       }
 
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey
       if (isCtrlOrCmd && event.key === 'c') {
         copyActiveObject(canvas)
-        return
-      }
-
-      if (isCtrlOrCmd && event.key === 'v') {
-        pasteImageOrClipboardObject(canvas)
       }
     }
 
+    function handlePaste(event) {
+      const canvas = fabricCanvasRef.current
+      if (!canvas) return
+      if (isEditingText(canvas)) return
+
+      const nativeImageFile = findImageFileInDataTransfer(event.clipboardData)
+      pasteImageOrClipboardObject(canvas, nativeImageFile)
+    }
+
     window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [fabricCanvasRef, registerImage])
+    window.addEventListener('paste', handlePaste)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('paste', handlePaste)
+    }
+  }, [fabricCanvasRef, registerAndPlaceImage])
 }

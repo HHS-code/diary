@@ -24,12 +24,12 @@ async function flushAsyncWork() {
 let container
 let root
 
-function renderPanel(library) {
+function renderPanel(library, onSelectImage) {
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
   act(() => {
-    root.render(<AssetImportPanel library={library} />)
+    root.render(<AssetImportPanel library={library} onSelectImage={onSelectImage} />)
   })
 }
 
@@ -82,11 +82,39 @@ describe('AssetImportPanel', () => {
 
   it('등록된 이미지/폰트 파일명을 목록에 표시한다', () => {
     const library = createLibrary()
-    library.images = [{ id: '1', filename: 'cat.png' }]
+    library.images = [{ id: '1', filename: 'cat.png', blob: new Blob(['x'], { type: 'image/png' }) }]
     library.fonts = [{ id: '2', filename: 'MyFont.ttf' }]
     renderPanel(library)
 
     expect(container.textContent).toContain('cat.png')
     expect(container.textContent).toContain('MyFont.ttf')
+  })
+
+  it('이미지 목록을 썸네일 img 태그로 렌더링한다', () => {
+    const library = createLibrary()
+    library.images = [{ id: '1', filename: 'cat.png', blob: new Blob(['x'], { type: 'image/png' }) }]
+    renderPanel(library)
+
+    const img = container.querySelector('img[alt="cat.png"]')
+    expect(img).not.toBeNull()
+    expect(img.src).toMatch(/^blob:/)
+  })
+
+  it('이미지 목록 항목을 클릭하면 onSelectImage가 해당 asset과 함께 호출된다', () => {
+    const library = createLibrary()
+    const asset = { id: '1', filename: 'cat.png', blob: new Blob(['x'], { type: 'image/png' }) }
+    library.images = [asset]
+    const onSelectImage = vi.fn()
+    renderPanel(library, onSelectImage)
+
+    const button = [...container.querySelectorAll('button')].find((el) =>
+      el.querySelector('img[alt="cat.png"]'),
+    )
+    act(() => {
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(onSelectImage).toHaveBeenCalledTimes(1)
+    expect(onSelectImage).toHaveBeenCalledWith(asset)
   })
 })

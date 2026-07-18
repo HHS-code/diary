@@ -8,8 +8,10 @@ import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { usePaintTools } from '../../hooks/usePaintTools'
 import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
+import { addImageAssetToCanvas } from '../../hooks/canvasAssetPlacement'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
+import { AssetImportPanel } from '../AssetImportPanel/AssetImportPanel'
 import { CanvasBackgroundControl } from '../CanvasBackgroundControl/CanvasBackgroundControl'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
@@ -85,7 +87,21 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
   const backgroundActions = useCanvasBackground(fabricCanvasRef)
   const paintTools = usePaintTools(fabricCanvasRef)
   const assetLibrary = useAssetLibrary()
-  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerImage: assetLibrary.registerImage })
+
+  async function registerAndPlaceImage(file) {
+    const id = await assetLibrary.registerImage(file)
+    const fc = fabricCanvasRef.current
+    if (!fc) return
+    await addImageAssetToCanvas(fc, { id, blob: file })
+  }
+
+  async function placeExistingImageAsset(asset) {
+    const fc = fabricCanvasRef.current
+    if (!fc) return
+    await addImageAssetToCanvas(fc, asset)
+  }
+
+  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage })
   useCanvasHistory(fabricCanvasRef)
 
   return (
@@ -108,6 +124,7 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
             onColorChange={paintTools.setColor}
             onWidthChange={paintTools.setWidth}
           />
+          <AssetImportPanel library={assetLibrary} onSelectImage={placeExistingImageAsset} />
           <StickerPalette fabricCanvasRef={fabricCanvasRef} />
           <CanvasBackgroundControl actions={backgroundActions} />
           <ObjectToolbar activeObject={activeObject} actions={objectActions} />
