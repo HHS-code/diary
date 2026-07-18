@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "animated-gif-object",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T15:42:02+0900",
+      "summary": "공개 시그니처: class AnimatedGif extends FabricImage (src/fabric/AnimatedGif.js), static type='AnimatedGif', static customProperties=['assetId','frameDelays','currentFrameIndex']. constructor(element, options)는 options.frames(HTMLCanvasElement[], 기본 [element])/frameDelays/currentFrameIndex(기본 0)를 세팅. advanceFrame()은 currentFrameIndex를 순환시키고 this._element를 frames[idx]로 교체 — frames.length<=1이면 no-op. _render/render/toObject는 오버라이드하지 않음(customProperties 메커니즘에 위임). static async fromObject(object, options)는 assetId로 getAsset() 조회 후 decodeGifFrames(record.blob)로 재디코딩해 new AnimatedGif(frames[0], {...object, frames, frameDelays: delays})를 반환하고, getAsset이 null이거나 디코딩 실패 시 FabricImage.fromObject(object에서 assetId/frameDelays/currentFrameIndex 제외한 나머지, options)로 폴백(에러를 던지지 않음). 파일 하단에서 classRegistry.setClass(AnimatedGif) 호출. 주의: FabricImage.toObject를 오버라이드하지 않으므로 직렬화 시 상속받은 src 필드(getSrc() 결과, 현재 프레임의 dataURL)가 함께 포함된다 — 이 값이 폴백 경로에서 FabricImage.fromObject가 이미지를 복원하는 데 쓰인다. 다음 step(shared-render-loop)은 advanceFrame()을 호출해 프레임을 넘기고 canvas.renderAll()을 호출하는 requestAnimationFrame 루프를 만들면 된다 — 이 파일은 스케줄링을 하지 않는다.",
+      "completed_at": "2026-07-18T15:45:46+0900"
     },
     {
       "step": 2,
