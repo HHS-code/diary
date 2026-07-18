@@ -9,7 +9,7 @@ import { MdPalette, MdWallpaper, MdSave, MdLayersClear } from 'react-icons/md'
  * fabric을 직접 다루지 않고, props로 받은 actions 함수만 호출한다.
  * @param {{ actions: {
  *   setColor: (hex: string) => void,
- *   setImage: (file: File) => void,
+ *   setImage: (file: File) => Promise<void>,
  *   lockBackground: () => void,
  *   clearBackground: () => void,
  * } }} props

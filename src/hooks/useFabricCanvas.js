@@ -8,9 +8,10 @@ export const LOGICAL_CANVAS = { width: 1600, height: 1000 }
 
 const DEBOUNCE_MS = 500
 // 배경 이미지(isBackground 태그)와 그 고정 상태(selectable/evented),
-// 자유 그리기 획의 박제·지우개 대상 태그(isFreeDrawing/erasable)가
-// 새로고침 후에도 유지되도록 표준 직렬화에 추가로 포함하는 속성들.
-export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'selectable', 'evented', 'isFreeDrawing', 'erasable']
+// 자유 그리기 획의 박제·지우개 대상 태그(isFreeDrawing/erasable),
+// assetStorage 참조(assetId)가 새로고침 후에도 유지되도록
+// 표준 직렬화에 추가로 포함하는 속성들.
+export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'assetId', 'selectable', 'evented', 'isFreeDrawing', 'erasable']
 
 /**
  * assetId를 가진 오브젝트에 대해 assetStorage에서 Blob을 조회해

@@ -1,5 +1,6 @@
 import { FabricImage } from 'fabric'
 import { LOGICAL_CANVAS } from './useFabricCanvas'
+import { saveAsset, createAssetObjectURL } from '../storage/assetStorage'
 
 /**
  * 캔버스 배경(색상/이미지)을 다루는 커스텀 훅.
@@ -14,7 +15,7 @@ import { LOGICAL_CANVAS } from './useFabricCanvas'
  * @param {React.RefObject<import('fabric').Canvas | null>} fabricCanvasRef
  * @returns {{
  *   setColor: (hex: string) => void,
- *   setImage: (file: File) => void,
+ *   setImage: (file: File) => Promise<void>,
  *   lockBackground: () => void,
  *   clearBackground: () => void,
  * }}
@@ -29,28 +30,28 @@ export function useCanvasBackground(fabricCanvasRef) {
     canvas.fire('object:modified')
   }
 
-  async function addAdjustableBackgroundImage(canvas, dataUrl) {
-    const img = await FabricImage.fromURL(dataUrl)
+  async function addAdjustableBackgroundImage(canvas, objectURL, assetId) {
+    const img = await FabricImage.fromURL(objectURL)
     // 처음엔 캔버스(논리 좌표계)를 덮는 크기로 깔아주되, 이후 조절은 사용자 몫.
     // canvas.getWidth()는 표시(축소된) 크기라 쓰지 않는다.
     const coverScale = Math.max(
       LOGICAL_CANVAS.width / img.width,
       LOGICAL_CANVAS.height / img.height,
     )
-    img.set({ left: 0, top: 0, scaleX: coverScale, scaleY: coverScale, isBackground: true })
+    img.set({ left: 0, top: 0, scaleX: coverScale, scaleY: coverScale, isBackground: true, assetId })
     canvas.add(img)
     canvas.sendObjectToBack(img)
     canvas.setActiveObject(img)
     canvas.renderAll()
   }
 
-  function setImage(file) {
+  async function setImage(file) {
     const canvas = fabricCanvasRef.current
     if (!canvas) return
 
-    const reader = new FileReader()
-    reader.onload = (e) => addAdjustableBackgroundImage(canvas, e.target.result)
-    reader.readAsDataURL(file)
+    const assetId = await saveAsset({ type: 'image', filename: file.name, mimeType: file.type, blob: file })
+    const objectURL = createAssetObjectURL(file)
+    await addAdjustableBackgroundImage(canvas, objectURL, assetId)
   }
 
   function lockBackground() {
