@@ -40,7 +40,7 @@
       "status": "completed",
       "started_at": "2026-07-18T09:42:43+0900",
       "summary": "src/hooks/useCanvasBackground.js: setImage(file)를 async로 교체 — FileReader/base64 대신 saveAsset({type:'image',...,blob:file})로 IndexedDB에 저장 후 createAssetObjectURL(file)로 objectURL을 만들어 FabricImage.fromURL에 넘김. 생성된 배경 오브젝트에 기존 isBackground:true에 더해 assetId를 함께 set. src/hooks/useFabricCanvas.js의 EXTRA_SERIALIZED_PROPS에 'assetId' 추가해 toObject()/toJSON() 직렬화에 포함되도록 함 — 로드 시 역참조(resolveCanvasAssetReferences)는 step1에서 이미 구현돼 있어 재사용만 함, 별도 분기 추가 없음. setColor/lockBackground/clearBackground는 미변경. 테스트(useCanvasBackground.test.js)에서 fake-indexeddb/auto + node:buffer 기반 FakeImageFile(File 대신, jsdom File/Blob이 structuredClone과 비호환이라 step0과 동일 이유로 우회) 사용. jsdom은 <img>.src를 설정해도 실제 로드를 안 해 FabricImage.fromURL이 영원히 대기하고, node-canvas 네이티브 바인딩이 없어 실제 drawImage도 'Image given has not completed loading'로 실패하므로, 이 테스트 파일 안에서만 HTMLImageElement.prototype.src setter를 즉시 onload 발화하도록, CanvasRenderingContext2D.prototype.drawImage를 no-op으로 스텁(다른 테스트 파일에는 영향 없음, jsdom 환경은 파일별로 새로 생성됨) — 이 우회 없이는 이미지 배경을 다루는 어떤 fabric 테스트도 이 프로젝트에서 불가능하다는 것을 발견. npm run lint/build/test 전체 통과(110개, 신규 2개 포함). AssetImportPanel/useAssetLibrary(step2)는 여전히 이 화면에 마운트되지 않음 — CanvasBackgroundControl은 기존 <input type=file single> 그대로이고, 다중/폴더/드래그드롭 경로 연결은 이 step 범위 밖(PRD 성공기준의 배경 이미지 파이프라인 전환만 담당).",
-      "completed_at": "2026-07-18T09:49:10+0900"
+      "completed_at": "2026-07-18T09:50:36+0900"
     },
     {
       "step": 5,
