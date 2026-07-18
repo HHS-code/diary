@@ -159,6 +159,126 @@ describe('useFabricCanvas의 공유 GIF 렌더 루프 생명주기', () => {
   })
 })
 
+function TestHostWithOptions({ onSave, options, onReady }) {
+  const canvasElRef = useRef(null)
+  const fabricCanvasRef = useFabricCanvas(canvasElRef, null, onSave, options)
+  onReady(fabricCanvasRef)
+  return createElement('canvas', { ref: canvasElRef })
+}
+
+// fabric의 StaticCanvasDOMManager가 <canvas>를 wrapper div로 감싸며 React가
+// 모르는 DOM 구조 변경을 일으켜, root.unmount()의 DOM 제거 단계에서
+// jsdom이 "not a child of this node"를 던진다(위 GIF 생명주기 테스트와 동일 이유).
+async function unmountIgnoringKnownDomWrapperError(root) {
+  try {
+    await act(async () => {
+      root.unmount()
+    })
+  } catch (error) {
+    if (!(error instanceof DOMException)) throw error
+  }
+}
+
+describe('useFabricCanvas의 캔버스 크기/배경색 옵션(logicalSize, backgroundColor)', () => {
+  it('logicalSize를 넘기면 fabric 캔버스의 width/height가 해당 크기로 생성된다', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    let fabricCanvasRef
+
+    await act(async () => {
+      root.render(createElement(TestHostWithOptions, {
+        options: { logicalSize: { width: 300, height: 300 } },
+        onReady: (ref) => { fabricCanvasRef = ref },
+      }))
+    })
+
+    expect(fabricCanvasRef.current.width).toBe(300)
+    expect(fabricCanvasRef.current.height).toBe(300)
+
+    await unmountIgnoringKnownDomWrapperError(root)
+    container.remove()
+  })
+
+  it('backgroundColor를 넘기면 fabric 캔버스의 backgroundColor가 해당 값으로 설정된다', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    let fabricCanvasRef
+
+    await act(async () => {
+      root.render(createElement(TestHostWithOptions, {
+        options: { backgroundColor: 'transparent' },
+        onReady: (ref) => { fabricCanvasRef = ref },
+      }))
+    })
+
+    expect(fabricCanvasRef.current.backgroundColor).toBe('transparent')
+
+    await unmountIgnoringKnownDomWrapperError(root)
+    container.remove()
+  })
+
+  it('logicalSize를 넘기지 않으면 onSave 콜백이 두 번째 인자로 기존 LOGICAL_CANVAS(1600x1000)를 받는다', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    const onSave = vi.fn()
+    let fabricCanvasRef
+
+    await act(async () => {
+      root.render(createElement(TestHostWithOptions, {
+        onSave,
+        onReady: (ref) => { fabricCanvasRef = ref },
+      }))
+    })
+
+    await act(async () => {
+      fabricCanvasRef.current.add(new (await import('fabric')).Rect({ width: 10, height: 10 }))
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600))
+    })
+
+    expect(onSave).toHaveBeenCalled()
+    expect(onSave.mock.calls[0][1]).toEqual({ width: 1600, height: 1000 })
+
+    await unmountIgnoringKnownDomWrapperError(root)
+    container.remove()
+  })
+
+  it('logicalSize를 넘기면 onSave 콜백이 두 번째 인자로 해당 logicalSize를 받는다', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    const onSave = vi.fn()
+    let fabricCanvasRef
+
+    await act(async () => {
+      root.render(createElement(TestHostWithOptions, {
+        onSave,
+        options: { logicalSize: { width: 300, height: 300 } },
+        onReady: (ref) => { fabricCanvasRef = ref },
+      }))
+    })
+
+    await act(async () => {
+      fabricCanvasRef.current.add(new (await import('fabric')).Rect({ width: 10, height: 10 }))
+    })
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600))
+    })
+
+    expect(onSave).toHaveBeenCalled()
+    expect(onSave.mock.calls[0][1]).toEqual({ width: 300, height: 300 })
+
+    await unmountIgnoringKnownDomWrapperError(root)
+    container.remove()
+  })
+})
+
 function TestHostWithLoad({ initialCanvasJSON, onReady, onLoaded }) {
   const canvasElRef = useRef(null)
   const fabricCanvasRef = useFabricCanvas(canvasElRef, initialCanvasJSON, null, { onLoaded })

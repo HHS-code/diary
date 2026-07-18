@@ -59,11 +59,14 @@ export async function resolveCanvasAssetReferences(canvasJSON) {
  * 캔버스의 논리 크기는 LOGICAL_CANVAS(1600×1000)로 고정이며,
  * options.displayScale(기본 1)에 따라 화면 표시 크기만 달라진다.
  * options.onLoaded는 loadFromJSON 복원 완료 직후 fabric Canvas를 인자로 1회 호출된다.
+ * options.logicalSize를 넘기면 캔버스의 논리 크기가 LOGICAL_CANVAS(1600×1000) 대신
+ * 해당 크기로 생성되고, 저장 콜백의 두 번째 인자도 이 크기로 전달된다(생략 시 LOGICAL_CANVAS).
+ * options.backgroundColor를 넘기면 캔버스 배경색이 해당 값으로 설정된다(생략 시 '#ffffff').
  * options는 마운트 시점 값만 사용한다 (이후 변경 무시).
  * @param {React.RefObject<HTMLCanvasElement>} canvasElementRef
  * @param {object | null} [initialCanvasJSON]
  * @param {((canvasJSON: object, canvasSize: { width: number, height: number }) => void) | null} [onSave]
- * @param {{ displayScale?: number, onLoaded?: (canvas: import('fabric').Canvas) => void }} [options]
+ * @param {{ displayScale?: number, onLoaded?: (canvas: import('fabric').Canvas) => void, logicalSize?: { width: number, height: number }, backgroundColor?: string }} [options]
  * @returns {React.RefObject<import('fabric').Canvas | null>}
  */
 export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, options) {
@@ -93,10 +96,11 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
       if (cancelled) return
 
       const displayScale = options?.displayScale ?? 1
+      const logicalSize = options?.logicalSize ?? LOGICAL_CANVAS
       fabricCanvas = new Canvas(el, {
-        width: LOGICAL_CANVAS.width * displayScale,
-        height: LOGICAL_CANVAS.height * displayScale,
-        backgroundColor: '#ffffff',
+        width: logicalSize.width * displayScale,
+        height: logicalSize.height * displayScale,
+        backgroundColor: options?.backgroundColor ?? '#ffffff',
       })
       // 오브젝트 좌표는 논리(1600×1000) 평면 그대로 두고 표시만 축소/확대.
       // zoom이 걸리면 fabric이 마우스 좌표를 논리 좌표로 자동 변환한다.
@@ -112,7 +116,7 @@ export function useFabricCanvas(canvasElementRef, initialCanvasJSON, onSave, opt
         clearTimeout(debounceTimer)
         debounceTimer = setTimeout(() => {
           if (onSaveRef.current) {
-            onSaveRef.current(fabricCanvas.toObject(EXTRA_SERIALIZED_PROPS), LOGICAL_CANVAS)
+            onSaveRef.current(fabricCanvas.toObject(EXTRA_SERIALIZED_PROPS), logicalSize)
           }
         }, DEBOUNCE_MS)
       }
