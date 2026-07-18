@@ -32,7 +32,7 @@
       "status": "completed",
       "started_at": "2026-07-18T15:58:33+0900",
       "summary": "공개 시그니처: createImageOrAnimatedGifObject({ blob, assetId, mimeType }) -> Promise<FabricImage | AnimatedGif> (src/fabric/placeImageOrGif.js) — 이게 GIF 판별/분기의 유일한 위치다. mimeType(없으면 blob.type)이 image/gif가 아니거나 decodeGifFrames 결과 frames.length===1이면 FabricImage.fromURL(objectURL) 정지 이미지를, frames.length>=2면 new AnimatedGif(frames[0], { assetId, frames, frameDelays })를 반환한다. 스케일 다운/중앙배치/canvas.add()는 안 함(호출부 책임). canvasAssetPlacement.js의 addImageAssetToCanvas와 ImageUploadButton.jsx의 addImageToCanvas가 둘 다 이 함수 하나만 호출하도록 바꿈. ImageUploadButton.jsx는 ADR-5대로 FileReader.readAsDataURL을 걷어내고 saveAsset({type:'image',...,blob:file})로 IndexedDB에 저장 후 반환된 id를 assetId로 써서 이 함수를 호출하는 방식으로 전환(기존처럼 input reset은 saveAsset을 await하지 않고 동기로 즉시 수행 — 같은 파일 재선택 허용 동작 유지). 신규/수정 테스트 파일: src/hooks/canvasAssetPlacement.test.js(GIF/정적GIF/PNG 3케이스 추가), src/components/ImageUploadButton/ImageUploadButton.test.jsx(신규, saveAsset 저장·스케일다운·GIF/PNG 분기 검증). npm run lint && npm run build && npm run test(144 passed) 전부 통과 확인함. 다음 step(gif-persistence)은 useFabricCanvas.js의 resolveObjectAssetReference에 AnimatedGif(type==='AnimatedGif') 통과 분기를 추가하고 저장/재로드 흐름을 검증하면 된다 — 이 step은 그 부분을 건드리지 않았다.",
-      "completed_at": "2026-07-18T16:15:00+0900"
+      "completed_at": "2026-07-18T16:06:06+0900"
     },
     {
       "step": 4,
