@@ -2,9 +2,24 @@ import 'fake-indexeddb/auto'
 // jsdom Blob과 Node structuredClone 간 비호환 우회(assetStorage.test.js와 동일 이유).
 import { Blob as NodeBlob } from 'node:buffer'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { Canvas } from 'fabric'
+import { Canvas, FabricImage } from 'fabric'
 import { addImageAssetToCanvas } from './canvasAssetPlacement'
 import { LOGICAL_CANVAS } from './useFabricCanvas'
+import { AnimatedGif } from '../fabric/AnimatedGif'
+
+// 2x2px 3프레임 GIF / 1프레임 정적 GIF(gifFrameDecoder.test.js와 동일 fixture).
+const ANIMATED_GIF_BASE64 =
+  'R0lGODlhAgACAPEAAP8AAAD/AAAA/////yH5BAQKAAAALAAAAAACAAIAAAIEBENxLAAh+QQICgAAACwBAAEAAQABAAACAgQLACH5BAAKAAAALAAAAAABAAEAAAICDAsAOw=='
+const STATIC_GIF_BASE64 = 'R0lGODlhAgACAPEAAP8AAAD/AAAA/////yH5BAAKAAAALAAAAAACAAIAAAIEBENxLAA7'
+
+function base64ToBlob(base64, type) {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return new NodeBlob([bytes], { type })
+}
 
 function createCanvas() {
   const canvasEl = document.createElement('canvas')
@@ -79,5 +94,41 @@ describe('addImageAssetToCanvas', () => {
     await addImageAssetToCanvas(canvas, asset)
 
     expect(canvas.getActiveObject()).toBe(canvas.getObjects()[0])
+  })
+
+  it('애니메이션 GIF(2프레임 이상)는 AnimatedGif 인스턴스로 캔버스에 추가된다', async () => {
+    const canvas = createCanvas()
+    const asset = { id: 'asset-gif', mimeType: 'image/gif', blob: base64ToBlob(ANIMATED_GIF_BASE64, 'image/gif') }
+
+    await addImageAssetToCanvas(canvas, asset)
+
+    const [added] = canvas.getObjects()
+    expect(added).toBeInstanceOf(AnimatedGif)
+    expect(added.assetId).toBe('asset-gif')
+    expect(added.frames.length).toBe(3)
+  })
+
+  it('정지 이미지(PNG)는 AnimatedGif가 아닌 FabricImage 인스턴스로 캔버스에 추가된다', async () => {
+    nextImageSize = { width: 50, height: 50 }
+    const canvas = createCanvas()
+    const asset = { id: 'asset-png', mimeType: 'image/png', blob: new FakeImageFile('cat.png', 'image/png') }
+
+    await addImageAssetToCanvas(canvas, asset)
+
+    const [added] = canvas.getObjects()
+    expect(added).toBeInstanceOf(FabricImage)
+    expect(added).not.toBeInstanceOf(AnimatedGif)
+  })
+
+  it('프레임 1개뿐인 정적 GIF는 AnimatedGif가 아닌 정지 이미지로 추가된다', async () => {
+    nextImageSize = { width: 2, height: 2 }
+    const canvas = createCanvas()
+    const asset = { id: 'asset-static-gif', mimeType: 'image/gif', blob: base64ToBlob(STATIC_GIF_BASE64, 'image/gif') }
+
+    await addImageAssetToCanvas(canvas, asset)
+
+    const [added] = canvas.getObjects()
+    expect(added).toBeInstanceOf(FabricImage)
+    expect(added).not.toBeInstanceOf(AnimatedGif)
   })
 })

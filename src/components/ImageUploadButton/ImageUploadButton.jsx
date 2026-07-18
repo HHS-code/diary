@@ -1,24 +1,26 @@
 import { useRef } from 'react'
-import { FabricImage } from 'fabric'
 import { MdAddPhotoAlternate } from 'react-icons/md'
 import { LOGICAL_CANVAS } from '../../hooks/useFabricCanvas'
+import { saveAsset } from '../../storage/assetStorage'
+import { createImageOrAnimatedGifObject } from '../../fabric/placeImageOrGif'
 
 const CANVAS_WIDTH = LOGICAL_CANVAS.width
 const CANVAS_HEIGHT = LOGICAL_CANVAS.height
 
 /**
  * 이미지 파일을 선택해 Fabric 캔버스에 추가하는 버튼.
- * 캔버스보다 큰 이미지는 캔버스 안에 들어오도록 스케일 다운 후 중앙에 배치한다.
+ * 파일을 IndexedDB(assetStorage)에 저장해 assetId를 부여하고, 캔버스보다 큰 이미지는
+ * 캔버스 안에 들어오도록 스케일 다운 후 중앙에 배치한다. GIF는 애니메이션으로 재생된다.
  * @param {{ fabricCanvasRef: React.RefObject<import('fabric').Canvas | null> }} props
  */
 export function ImageUploadButton({ fabricCanvasRef }) {
   const inputRef = useRef(null)
 
-  async function addImageToCanvas(dataUrl) {
+  async function addImageToCanvas(file, assetId) {
     const fc = fabricCanvasRef.current
     if (!fc) return
 
-    const img = await FabricImage.fromURL(dataUrl)
+    const img = await createImageOrAnimatedGifObject({ blob: file, assetId, mimeType: file.type })
     const scaleToFit = Math.min(CANVAS_WIDTH / img.width, CANVAS_HEIGHT / img.height, 1)
     img.scale(scaleToFit)
     img.set({
@@ -35,9 +37,9 @@ export function ImageUploadButton({ fabricCanvasRef }) {
     const file = event.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = (e) => addImageToCanvas(e.target.result)
-    reader.readAsDataURL(file)
+    saveAsset({ type: 'image', filename: file.name, mimeType: file.type, blob: file }).then((assetId) =>
+      addImageToCanvas(file, assetId),
+    )
 
     // 같은 파일을 다시 선택할 수 있도록 초기화
     event.target.value = ''
