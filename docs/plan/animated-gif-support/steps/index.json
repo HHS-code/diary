@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "gif-persistence",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-18T16:06:06+0900",
+      "summary": "resolveObjectAssetReference(src/hooks/useFabricCanvas.js)에 object.type==='AnimatedGif' 통과 분기 추가 — AnimatedGif.fromObject가 assetId로 직접 재조회·재디코딩하므로 여기서 채우는 src는 무의미하고, getAsset 중복 호출과 해제 안 되는 objectURL만 남기는 걸 확인해서 고쳤다. 렌더 루프 등록은 step2에서 이미 object:added 리스너로 배선돼 있었고(loadFromJSON도 내부에서 canvas.add()를 거쳐 object:added가 발생), 이 step은 그걸 실제 저장→재로드 통합 테스트로 고정만 했다 — 프로덕션 코드 추가 배선 불필요했음. toObject(EXTRA_SERIALIZED_PROPS) 직렬화 결과에 frames 키가 없음을 JSON.stringify로 직접 검증(ADR-3 최종 확인). 신규 테스트는 src/hooks/useFabricCanvas.test.js에 3개 추가(resolveCanvasAssetReferences의 AnimatedGif 통과 분기, 직렬화에 frames 미포함, 직렬화→새 useFabricCanvas 인스턴스 로드→AnimatedGif 복원+공유 렌더 루프 재생 확인) — 마지막 통합 테스트에서 React act() 콜백 안에 root.render와 비동기 onLoaded 대기를 같이 넣으면 useEffect의 passive effect가 아예 플러시되지 않아 영원히 멈추는 함정을 발견해, act(render) 완료 후 별도로 onLoaded Promise를 await하는 두 단계로 분리해 해결(기존 lifecycle 테스트와 동일 패턴). npm run lint && npm run build && npm run test(147 passed) 전부 통과. 이 phase의 마지막 step — 다음은 사람에게 최종 결과 설명.",
+      "completed_at": "2026-07-18T16:24:00+0900"
     }
   ],
   "created_at": "2026-07-18T15:32:53+0900"

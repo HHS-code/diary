@@ -19,11 +19,14 @@ export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'assetId', 'selectable', 
  * assetId를 가진 오브젝트에 대해 assetStorage에서 Blob을 조회해
  * objectURL을 만들고 src 필드를 채운 새 오브젝트를 반환한다.
  * assetId가 없거나 해당 id의 에셋을 찾을 수 없으면 원본을 그대로 반환한다.
+ * type이 'AnimatedGif'인 오브젝트는 건드리지 않고 통과시킨다 — AnimatedGif.fromObject가
+ * assetId로 직접 재조회·재디코딩해 프레임을 복원하므로, 여기서 채우는 src는 쓰이지 않고
+ * getAsset 중복 호출과 해제되지 않는 objectURL만 남긴다.
  * @param {object} object
  * @returns {Promise<object>}
  */
 async function resolveObjectAssetReference(object) {
-  if (!object.assetId) {
+  if (!object.assetId || object.type === 'AnimatedGif') {
     return object
   }
   const record = await getAsset(object.assetId)

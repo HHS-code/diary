@@ -5,8 +5,24 @@ import { createElement, useRef } from 'react'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resolveCanvasAssetReferences, useFabricCanvas } from './useFabricCanvas'
+import { Canvas } from 'fabric'
+import { EXTRA_SERIALIZED_PROPS, resolveCanvasAssetReferences, useFabricCanvas } from './useFabricCanvas'
+import { addImageAssetToCanvas } from './canvasAssetPlacement'
+import { AnimatedGif } from '../fabric/AnimatedGif'
 import { saveAsset } from '../storage/assetStorage'
+
+// 2x2px, 3프레임 GIF(base64 인라인) — gifFrameDecoder.test.js와 동일 fixture.
+const ANIMATED_GIF_BASE64 =
+  'R0lGODlhAgACAPEAAP8AAAD/AAAA/////yH5BAQKAAAALAAAAAACAAIAAAIEBENxLAAh+QQICgAAACwBAAEAAQABAAACAgQLACH5BAAKAAAALAAAAAABAAEAAAICDAsAOw=='
+
+function base64ToBlob(base64, type) {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return new Blob([bytes], { type })
+}
 
 function deleteAssetsDatabase() {
   return new Promise((resolve, reject) => {
@@ -57,6 +73,18 @@ describe('resolveCanvasAssetReferences', () => {
     const resolved = await resolveCanvasAssetReferences(canvasJSON)
 
     expect(resolved).toEqual(canvasJSON)
+  })
+
+  it('type이 AnimatedGif인 오브젝트는 assetId가 있어도 src를 채우지 않고 그대로 통과시킨다', async () => {
+    const blob = new Blob(['fake-gif-bytes'], { type: 'image/gif' })
+    const assetId = await saveAsset({ type: 'image', filename: 'anim.gif', mimeType: 'image/gif', blob })
+    const animatedGifObject = { type: 'AnimatedGif', assetId, frameDelays: [100], currentFrameIndex: 0 }
+    const canvasJSON = { objects: [animatedGifObject] }
+
+    const resolved = await resolveCanvasAssetReferences(canvasJSON)
+
+    expect(resolved.objects[0]).toBe(animatedGifObject)
+    expect(resolved.objects[0].src).toBeUndefined()
   })
 })
 
@@ -128,5 +156,90 @@ describe('useFabricCanvas의 공유 GIF 렌더 루프 생명주기', () => {
     // dispose된 캔버스를 렌더링하지 않아야 한다는 것을 직접 확인한다.
     pendingTickCallback(1000)
     expect(renderAllSpy).not.toHaveBeenCalled()
+  })
+})
+
+function TestHostWithLoad({ initialCanvasJSON, onReady, onLoaded }) {
+  const canvasElRef = useRef(null)
+  const fabricCanvasRef = useFabricCanvas(canvasElRef, initialCanvasJSON, null, { onLoaded })
+  onReady(fabricCanvasRef)
+  return createElement('canvas', { ref: canvasElRef })
+}
+
+describe('저장 후 재로드해도 애니메이션 GIF가 유지된다(gif-persistence)', () => {
+  let rafCallbacksById
+  let nextRafId
+
+  beforeEach(() => {
+    rafCallbacksById = new Map()
+    nextRafId = 1
+    vi.stubGlobal('requestAnimationFrame', vi.fn((cb) => {
+      const id = nextRafId++
+      rafCallbacksById.set(id, cb)
+      return id
+    }))
+    vi.stubGlobal('cancelAnimationFrame', vi.fn((id) => {
+      rafCallbacksById.delete(id)
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function runLatestScheduledTick(now) {
+    const latestId = Math.max(...rafCallbacksById.keys())
+    const callback = rafCallbacksById.get(latestId)
+    rafCallbacksById.delete(latestId)
+    callback(now)
+  }
+
+  it('AnimatedGif를 직렬화한 JSON에는 frames 키가 포함되지 않는다', async () => {
+    const blob = base64ToBlob(ANIMATED_GIF_BASE64, 'image/gif')
+    const assetId = await saveAsset({ type: 'image', filename: 'anim.gif', mimeType: 'image/gif', blob })
+    const sourceCanvas = new Canvas(document.createElement('canvas'))
+    await addImageAssetToCanvas(sourceCanvas, { id: assetId, blob, mimeType: 'image/gif' })
+
+    const serialized = sourceCanvas.toObject(EXTRA_SERIALIZED_PROPS)
+
+    expect(JSON.stringify(serialized)).not.toContain('"frames"')
+  })
+
+  it('직렬화된 캔버스를 새 useFabricCanvas 인스턴스에 로드하면 AnimatedGif로 복원되고 공유 렌더 루프에 등록되어 계속 재생된다', async () => {
+    const blob = base64ToBlob(ANIMATED_GIF_BASE64, 'image/gif')
+    const assetId = await saveAsset({ type: 'image', filename: 'anim.gif', mimeType: 'image/gif', blob })
+    const sourceCanvas = new Canvas(document.createElement('canvas'))
+    await addImageAssetToCanvas(sourceCanvas, { id: assetId, blob, mimeType: 'image/gif' })
+    const serialized = sourceCanvas.toObject(EXTRA_SERIALIZED_PROPS)
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    let fabricCanvasRef
+    let onLoadedResolve
+    const onLoadedPromise = new Promise((resolve) => { onLoadedResolve = resolve })
+
+    await act(async () => {
+      root.render(createElement(TestHostWithLoad, {
+        initialCanvasJSON: serialized,
+        onReady: (ref) => { fabricCanvasRef = ref },
+        onLoaded: onLoadedResolve,
+      }))
+    })
+    await onLoadedPromise
+
+    const [restored] = fabricCanvasRef.current.getObjects()
+    expect(restored).toBeInstanceOf(AnimatedGif)
+    expect(restored.assetId).toBe(assetId)
+    expect(restored.frames.length).toBeGreaterThanOrEqual(2)
+
+    const renderAllSpy = vi.spyOn(fabricCanvasRef.current, 'renderAll')
+    const frameIndexBeforeTick = restored.currentFrameIndex
+    runLatestScheduledTick(1000)
+
+    expect(restored.currentFrameIndex).not.toBe(frameIndexBeforeTick)
+    expect(renderAllSpy).toHaveBeenCalledTimes(1)
+
+    container.remove()
   })
 })
