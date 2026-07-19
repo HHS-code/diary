@@ -32,7 +32,7 @@
       "status": "completed",
       "started_at": "2026-07-19T12:24:54+0900",
       "summary": "useFabricCanvas.js의 resolveObjectAssetReference(28-40행) 가드에 `object.type === 'YoutubeCard'` 조건을 추가해 AnimatedGif와 동일하게 assetId 치환을 건너뛰도록 함. EXTRA_SERIALIZED_PROPS 배열은 손대지 않음 — YoutubeCard.customProperties=['videoId']가 toObject()에 이미 자동 반영됨을 테스트로 확인(canvas.toObject(EXTRA_SERIALIZED_PROPS) 결과에 videoId 포함). resolveCanvasAssetReferences에 type:'YoutubeCard'+assetId 오브젝트를 넣어도 원본 레퍼런스가 그대로 통과(src 미주입)함을 확인. loadFromJSON으로 YoutubeCard가 videoId 보존한 채 복원됨을 확인. 수동 Playwright 검증: 유튜브 URL 붙여넣기 → 카드 생성 → 새로고침 → localStorage(diary-app-data)에 type:'YoutubeCard', videoId:'dQw4w9WgXcQ'로 저장/복원되고 썸네일도 다시 뜸을 확인. 다음 step(youtube-card-playback)은 이 step을 건드릴 필요 없이 인라인 재생(iframe 오버레이)만 구현하면 됨. 산출 파일: src/hooks/useFabricCanvas.js(수정), src/hooks/useFabricCanvas.test.js(수정).",
-      "completed_at": "2026-07-19T12:30:35+0900"
+      "completed_at": "2026-07-19T12:31:24+0900"
     },
     {
       "step": 4,
