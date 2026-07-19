@@ -22,11 +22,14 @@ export const EXTRA_SERIALIZED_PROPS = ['isBackground', 'assetId', 'selectable', 
  * type이 'AnimatedGif'인 오브젝트는 건드리지 않고 통과시킨다 — AnimatedGif.fromObject가
  * assetId로 직접 재조회·재디코딩해 프레임을 복원하므로, 여기서 채우는 src는 쓰이지 않고
  * getAsset 중복 호출과 해제되지 않는 objectURL만 남긴다.
+ * type이 'YoutubeCard'인 오브젝트도 마찬가지로 건드리지 않는다 — YoutubeCard는 assetId가
+ * 아니라 videoId 기반이라 이 치환 로직 자체가 필요 없고, 여기서 잘못 채우면
+ * YoutubeCard.fromObject가 기대하는 원본 필드가 깨질 수 있다.
  * @param {object} object
  * @returns {Promise<object>}
  */
 async function resolveObjectAssetReference(object) {
-  if (!object.assetId || object.type === 'AnimatedGif') {
+  if (!object.assetId || object.type === 'AnimatedGif' || object.type === 'YoutubeCard') {
     return object
   }
   const record = await getAsset(object.assetId)

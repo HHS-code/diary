@@ -9,6 +9,7 @@ import { Canvas } from 'fabric'
 import { EXTRA_SERIALIZED_PROPS, resolveCanvasAssetReferences, useFabricCanvas } from './useFabricCanvas'
 import { addImageAssetToCanvas } from './canvasAssetPlacement'
 import { AnimatedGif } from '../fabric/AnimatedGif'
+import { YoutubeCard } from '../fabric/YoutubeCard'
 import { saveAsset } from '../storage/assetStorage'
 
 // 2x2px, 3프레임 GIF(base64 인라인) — gifFrameDecoder.test.js와 동일 fixture.
@@ -84,6 +85,18 @@ describe('resolveCanvasAssetReferences', () => {
     const resolved = await resolveCanvasAssetReferences(canvasJSON)
 
     expect(resolved.objects[0]).toBe(animatedGifObject)
+    expect(resolved.objects[0].src).toBeUndefined()
+  })
+
+  it('type이 YoutubeCard인 오브젝트는 assetId가 있어도 src를 채우지 않고 그대로 통과시킨다', async () => {
+    const blob = new Blob(['fake-thumbnail-bytes'], { type: 'image/png' })
+    const assetId = await saveAsset({ type: 'image', filename: 'thumb.png', mimeType: 'image/png', blob })
+    const youtubeCardObject = { type: 'YoutubeCard', assetId, videoId: 'dQw4w9WgXcQ' }
+    const canvasJSON = { objects: [youtubeCardObject] }
+
+    const resolved = await resolveCanvasAssetReferences(canvasJSON)
+
+    expect(resolved.objects[0]).toBe(youtubeCardObject)
     expect(resolved.objects[0].src).toBeUndefined()
   })
 })
@@ -359,6 +372,75 @@ describe('저장 후 재로드해도 애니메이션 GIF가 유지된다(gif-per
 
     expect(restored.currentFrameIndex).not.toBe(frameIndexBeforeTick)
     expect(renderAllSpy).toHaveBeenCalledTimes(1)
+
+    container.remove()
+  })
+})
+
+describe('저장 후 재로드해도 유튜브 카드가 유지된다(youtube-card-persistence)', () => {
+  const VIDEO_ID = 'dQw4w9WgXcQ'
+
+  // jsdom은 <img>.src를 설정해도 실제로 로드하지 않아 onload가 영영 안 온다.
+  // FabricImage.fromURL(YoutubeCard.create 내부에서 사용)이 기다리는 onload를
+  // 이 describe 안에서만 즉시 흉내낸다(YoutubeCard.test.js와 동일 우회).
+  beforeEach(() => {
+    const nativeDescriptor = Object.getOwnPropertyDescriptor(window.HTMLImageElement.prototype, 'src')
+    Object.defineProperty(window.HTMLImageElement.prototype, 'src', {
+      configurable: true,
+      get() {
+        return nativeDescriptor.get.call(this)
+      },
+      set(value) {
+        nativeDescriptor.set.call(this, value)
+        if (!value) return
+        Object.defineProperty(this, 'width', { value: 100, configurable: true })
+        Object.defineProperty(this, 'height', { value: 80, configurable: true })
+        Object.defineProperty(this, 'complete', { value: true, configurable: true })
+        setTimeout(() => this.onload && this.onload())
+      },
+    })
+    const ctxProto = Object.getPrototypeOf(document.createElement('canvas').getContext('2d'))
+    ctxProto.drawImage = function drawImage() {}
+  })
+
+  it('YoutubeCard를 캔버스에 추가하고 직렬화하면 videoId가 커스텀 속성으로 포함된다', async () => {
+    const sourceCanvas = new Canvas(document.createElement('canvas'))
+    const card = await YoutubeCard.create(VIDEO_ID)
+    sourceCanvas.add(card)
+
+    const serialized = sourceCanvas.toObject(EXTRA_SERIALIZED_PROPS)
+
+    expect(serialized.objects[0].type).toBe('YoutubeCard')
+    expect(serialized.objects[0].videoId).toBe(VIDEO_ID)
+  })
+
+  it('직렬화된 캔버스를 새 useFabricCanvas 인스턴스에 로드하면 동일한 videoId를 가진 YoutubeCard로 복원된다', async () => {
+    const sourceCanvas = new Canvas(document.createElement('canvas'))
+    const card = await YoutubeCard.create(VIDEO_ID, { left: 12, top: 34 })
+    sourceCanvas.add(card)
+    const serialized = sourceCanvas.toObject(EXTRA_SERIALIZED_PROPS)
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    let fabricCanvasRef
+    let onLoadedResolve
+    const onLoadedPromise = new Promise((resolve) => { onLoadedResolve = resolve })
+
+    await act(async () => {
+      root.render(createElement(TestHostWithLoad, {
+        initialCanvasJSON: serialized,
+        onReady: (ref) => { fabricCanvasRef = ref },
+        onLoaded: onLoadedResolve,
+      }))
+    })
+    await onLoadedPromise
+
+    const [restored] = fabricCanvasRef.current.getObjects()
+    expect(restored).toBeInstanceOf(YoutubeCard)
+    expect(restored.constructor.type).toBe('YoutubeCard')
+    expect(restored.videoId).toBe(VIDEO_ID)
+    expect(restored.left).toBe(12)
 
     container.remove()
   })
