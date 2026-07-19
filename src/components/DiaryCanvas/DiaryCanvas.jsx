@@ -7,6 +7,7 @@ import { useCanvasBackground } from '../../hooks/useCanvasBackground'
 import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { usePaintTools } from '../../hooks/usePaintTools'
 import { useCanvasHistory } from '../../hooks/useCanvasHistory'
+import { useYoutubeCardPlayback } from '../../hooks/useYoutubeCardPlayback'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
 import { addImageAssetToCanvas } from '../../hooks/canvasAssetPlacement'
 import { createYoutubeCardObject } from '../../fabric/placeYoutubeCard'
@@ -18,6 +19,7 @@ import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { TextMemoButton } from '../TextMemoButton/TextMemoButton'
 import { ExportImportControls } from '../ExportImportControls/ExportImportControls'
 import { ObjectToolbar } from '../ObjectToolbar/ObjectToolbar'
+import { YoutubeCardOverlay } from '../YoutubeCardOverlay/YoutubeCardOverlay'
 
 // 사이드바 패널 폭(240px) + 세로 스크롤바 여유
 const SIDEBAR_WIDTH = 258
@@ -111,6 +113,7 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
 
   useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage, registerAndPlaceYoutubeCard })
   useCanvasHistory(fabricCanvasRef)
+  const youtubePlayback = useYoutubeCardPlayback(fabricCanvasRef)
 
   return (
     <div style={{ display: 'flex', gap: `${LAYOUT_GAP}px`, height: '100%' }}>
@@ -160,6 +163,7 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
         <div style={{ display: 'inline-block', boxShadow: '2px 2px 4px rgba(0,0,0,.4)' }}>
           <canvas ref={canvasElRef} />
         </div>
+        <YoutubeCardOverlay {...youtubePlayback} />
       </div>
     </div>
   )

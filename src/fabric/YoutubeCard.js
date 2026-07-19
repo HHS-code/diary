@@ -38,7 +38,10 @@ export class YoutubeCard extends FabricImage {
    * @returns {Promise<YoutubeCard>}
    */
   static async create(videoId, options) {
-    return YoutubeCard.fromURL(buildThumbnailUrl(videoId), {}, { ...options, videoId })
+    // crossOrigin 없이 로드하면 캔버스가 "tainted" 상태가 되어 toDataURL()(PNG export,
+    // 갤러리 썸네일)이 SecurityError로 실패한다. img.youtube.com은 Access-Control-Allow-Origin: *
+    // 을 보내므로 anonymous 요청으로도 정상 로드된다(step4에서 실측 확인).
+    return YoutubeCard.fromURL(buildThumbnailUrl(videoId), { crossOrigin: 'anonymous' }, { ...options, videoId })
   }
 
   /**

@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "youtube-card-playback",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-19T12:31:24+0900",
+      "summary": "src/hooks/useYoutubeCardPlayback.js에 `useYoutubeCardPlayback(fabricCanvasRef) -> { videoId, left, top, width, height }` 구현 — 캔버스 mouse:down에서 target이 YoutubeCard면 재생 시작(hasControls=false, lockRotation/lockScalingX/lockScalingY=true 적용), target이 다른 오브젝트/빈 공간이면 재생 종료·원복. after:render마다 card.setCoords() 후 getBoundingRect()(scene-plane, zoom 미반영 — fabric 7 실측 확인)에 canvas.getZoom()을 곱하고 <canvas>.getBoundingClientRect()를 더해 화면 좌표 계산. src/components/YoutubeCardOverlay/YoutubeCardOverlay.jsx는 position:fixed iframe(videoId=null이면 언마운트)이고, DiaryCanvas.jsx의 CanvasWorkspace에 연결됨. 이 프로젝트에는 pan 기능이 없음을 실측 확인(zoom만 존재, architecture.md의 'zoom/pan' 표현 중 pan은 미구현). 다른 YoutubeCard 클릭 시 재생 대상 전환, 일반 오브젝트 클릭 시 종료로 구현(재량 결정, report 참고). **부수 발견 및 수정**: img.youtube.com 썸네일을 crossOrigin 없이 로드해 캔버스가 tainted 상태가 되어 PNG export(ExportImportControls)와 갤러리 썸네일(useDiaryThumbnails)의 toDataURL()이 SecurityError로 실패하는 사전 버그를 발견 — YoutubeCard.js의 fromURL 호출에 `{crossOrigin:'anonymous'}` 추가로 수정(img.youtube.com이 Access-Control-Allow-Origin:* 응답함을 curl로 확인). Playwright로 재생 중 PNG export 성공 및 썸네일이 찍힘을 확인. 산출 파일: src/hooks/useYoutubeCardPlayback.js, src/hooks/useYoutubeCardPlayback.test.js, src/components/YoutubeCardOverlay/YoutubeCardOverlay.jsx, src/components/DiaryCanvas/DiaryCanvas.jsx(수정), src/fabric/YoutubeCard.js(수정 — crossOrigin 버그픽스). 이것으로 youtube-embed phase의 모든 step 완료.",
+      "completed_at": "2026-07-19T13:20:00+0900"
     }
   ],
   "created_at": "2026-07-19T12:08:58+0900"
