@@ -53,81 +53,103 @@ function createCanvasWithCard() {
   })
 }
 
+/** card 중심(재생 버튼 위) 캔버스 scene 좌표를 반환한다. */
+function playButtonScenePoint(card) {
+  return card.getCenterPoint()
+}
+
+/** card 몸통이지만 재생 버튼 원 밖인 scene 좌표(카드 좌상단 모서리 근처)를 반환한다. */
+function cardBodyScenePoint(card) {
+  const bounding = card.getBoundingRect()
+  return { x: bounding.left + 5, y: bounding.top + 5 }
+}
+
+/** Fabric의 mouse:up 이벤트를 흉내낸다 — isClick은 실제 Fabric이 mousemove 발생 여부로 계산해주는 값. */
+function fireMouseUp(canvas, target, scenePoint, { isClick = true } = {}) {
+  canvas.fire('mouse:up', { target, scenePoint, isClick })
+}
+
 describe('useYoutubeCardPlayback', () => {
-  it('YoutubeCard를 클릭하면 그 카드의 videoId로 재생 상태가 세팅된다', async () => {
+  it('카드의 재생 버튼을 클릭하면 그 카드의 videoId로 재생 상태가 세팅된다', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const result = renderPlayback({ current: canvas })
 
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
 
     expect(result.value.videoId).toBe(VIDEO_ID)
   })
 
-  it('빈 캔버스 공간을 클릭하면 재생 상태가 해제된다', async () => {
+  it('카드 몸통(재생 버튼 밖)을 클릭해도 재생되지 않는다', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const result = renderPlayback({ current: canvas })
-    act(() => canvas.fire('mouse:down', { target: card }))
-    expect(result.value.videoId).toBe(VIDEO_ID)
 
-    act(() => canvas.fire('mouse:down', { target: null }))
+    act(() => fireMouseUp(canvas, card, cardBodyScenePoint(card)))
 
     expect(result.value.videoId).toBeNull()
   })
 
-  it('재생 중인 카드는 회전/크기조절이 잠기고, 재생 종료 시 원래 값으로 복원된다', async () => {
+  it('재생 버튼 위에서 시작했더라도 드래그(Fabric이 isClick=false로 판정)로 끝나면 재생되지 않는다', async () => {
     const { canvas, card } = await createCanvasWithCard()
-    renderPlayback({ current: canvas })
-    expect(card.hasControls).toBe(true)
-    expect(card.lockRotation).toBe(false)
+    const result = renderPlayback({ current: canvas })
 
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card), { isClick: false }))
 
-    expect(card.hasControls).toBe(false)
-    expect(card.lockRotation).toBe(true)
-    expect(card.lockScalingX).toBe(true)
-    expect(card.lockScalingY).toBe(true)
-
-    act(() => canvas.fire('mouse:down', { target: null }))
-
-    expect(card.hasControls).toBe(true)
-    expect(card.lockRotation).toBe(false)
-    expect(card.lockScalingX).toBe(false)
-    expect(card.lockScalingY).toBe(false)
+    expect(result.value.videoId).toBeNull()
   })
 
-  it('재생 중 YoutubeCard가 아닌 다른 오브젝트를 클릭하면 재생이 종료되고 잠금이 원복된다', async () => {
+  it('재생 중 빈 캔버스 공간을 클릭하면 재생 상태가 해제된다', async () => {
+    const { canvas, card } = await createCanvasWithCard()
+    const result = renderPlayback({ current: canvas })
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
+    expect(result.value.videoId).toBe(VIDEO_ID)
+
+    act(() => fireMouseUp(canvas, null, { x: 0, y: 0 }))
+
+    expect(result.value.videoId).toBeNull()
+  })
+
+  it('재생 중 다른 오브젝트를 클릭해도 재생이 종료되지 않는다(빈 공간 클릭만 종료 조건)', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const rect = new Rect({ left: 500, top: 500, width: 10, height: 10 })
     canvas.add(rect)
     const result = renderPlayback({ current: canvas })
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
     expect(result.value.videoId).toBe(VIDEO_ID)
 
-    act(() => canvas.fire('mouse:down', { target: rect }))
+    act(() => fireMouseUp(canvas, rect, rect.getCenterPoint()))
 
-    expect(result.value.videoId).toBeNull()
-    expect(card.hasControls).toBe(true)
+    expect(result.value.videoId).toBe(VIDEO_ID)
   })
 
-  it('재생 중 다른 YoutubeCard를 클릭하면 재생 대상이 그 카드로 전환된다', async () => {
+  it('재생 중 다른 YoutubeCard의 재생 버튼을 클릭하면 재생 대상이 그 카드로 전환된다', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const otherCard = await YoutubeCard.create('otherVideoId123')
     canvas.add(otherCard)
     const result = renderPlayback({ current: canvas })
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
     expect(result.value.videoId).toBe(VIDEO_ID)
 
-    act(() => canvas.fire('mouse:down', { target: otherCard }))
+    act(() => fireMouseUp(canvas, otherCard, playButtonScenePoint(otherCard)))
 
     expect(result.value.videoId).toBe('otherVideoId123')
+  })
+
+  it('카드는 재생 여부와 무관하게 항상 선택·이동 가능하다(hasControls 등을 잠그지 않는다)', async () => {
+    const { canvas, card } = await createCanvasWithCard()
+    renderPlayback({ current: canvas })
     expect(card.hasControls).toBe(true)
-    expect(otherCard.hasControls).toBe(false)
+    expect(card.lockMovementX).toBe(false)
+
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
+
+    expect(card.hasControls).toBe(true)
+    expect(card.lockMovementX).toBe(false)
   })
 
   it('캔버스 zoom이 바뀌면 재생 중 카드의 화면 크기/위치도 zoom 배율만큼 함께 바뀐다', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const result = renderPlayback({ current: canvas })
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
     const widthBeforeZoom = result.value.width
 
     act(() => {
@@ -141,7 +163,7 @@ describe('useYoutubeCardPlayback', () => {
   it('after:render 시점마다 재생 중 카드의 화면 좌표를 다시 계산한다', async () => {
     const { canvas, card } = await createCanvasWithCard()
     const result = renderPlayback({ current: canvas })
-    act(() => canvas.fire('mouse:down', { target: card }))
+    act(() => fireMouseUp(canvas, card, playButtonScenePoint(card)))
     const initialLeft = result.value.left
 
     act(() => {

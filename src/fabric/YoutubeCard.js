@@ -1,6 +1,6 @@
 import { classRegistry, FabricImage } from 'fabric'
 
-const PLAY_BUTTON_RADIUS_RATIO = 0.15
+export const PLAY_BUTTON_RADIUS_RATIO = 0.15
 const PLAY_BUTTON_CIRCLE_FILL = 'rgba(0, 0, 0, 0.6)'
 const PLAY_BUTTON_TRIANGLE_FILL = '#ffffff'
 
