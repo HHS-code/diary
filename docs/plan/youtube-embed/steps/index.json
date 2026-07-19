@@ -7,7 +7,8 @@
       "name": "youtube-url-detection",
       "status": "completed",
       "started_at": "2026-07-19T12:08:58+0900",
-      "summary": "extractYoutubeVideoId(text: string) -> string | null를 src/fabric/youtubeUrl.js에 구현. watch(youtube.com/m.youtube.com/http/https 변형, &t=30s 등 부가 쿼리 포함), youtu.be, shorts URL의 videoId를 정규식으로 추출. Fabric/DOM/React 의존 없는 순수 함수, 매치 실패·null·undefined·빈 문자열 입력엔 null 반환(예외 없음). 다음 step(YoutubeCard)은 이 함수의 반환값(videoId)을 그대로 썸네일 URL(`https://img.youtube.com/vi/{videoId}/hqdefault.jpg`) 조립에 사용하면 됨. 산출 파일: src/fabric/youtubeUrl.js, src/fabric/youtubeUrl.test.js."
+      "summary": "extractYoutubeVideoId(text: string) -> string | null를 src/fabric/youtubeUrl.js에 구현. watch(youtube.com/m.youtube.com/http/https 변형, &t=30s 등 부가 쿼리 포함), youtu.be, shorts URL의 videoId를 정규식으로 추출. Fabric/DOM/React 의존 없는 순수 함수, 매치 실패·null·undefined·빈 문자열 입력엔 null 반환(예외 없음). 다음 step(YoutubeCard)은 이 함수의 반환값(videoId)을 그대로 썸네일 URL(`https://img.youtube.com/vi/{videoId}/hqdefault.jpg`) 조립에 사용하면 됨. 산출 파일: src/fabric/youtubeUrl.js, src/fabric/youtubeUrl.test.js.",
+      "completed_at": "2026-07-19T12:12:20+0900"
     },
     {
       "step": 1,
