@@ -16,7 +16,7 @@
       "status": "completed",
       "started_at": "2026-07-19T12:12:21+0900",
       "summary": "src/fabric/YoutubeCard.js에 `class YoutubeCard extends FabricImage` 구현. static type='YoutubeCard', static customProperties=['videoId'] — fabric의 FabricObject.toObject()가 this.constructor.customProperties를 자동 병합하므로 EXTRA_SERIALIZED_PROPS(useFabricCanvas.js) 수정 불필요(AnimatedGif와 동일 메커니즘, architecture.md 합의사항 확인됨). 공개 API: `YoutubeCard.create(videoId, options?) -> Promise<YoutubeCard>`(썸네일 https://img.youtube.com/vi/{videoId}/hqdefault.jpg 로드, FabricImage.fromURL 상속 활용), `YoutubeCard.fromObject(object, options?) -> Promise<YoutubeCard>`(object.videoId로 썸네일 재조립). 재생 버튼(원+삼각형)은 _render 오버라이드로 썸네일 위에 직접 그림(별도 Group 없음). 16:9 유지: lockUniScaling=true. 인스턴스의 deprecated `.type` getter는 소문자('youtubecard')를 반환하니, 타입 확인은 `card.constructor.type`이나 `toObject().type`을 써야 함(fabric 공통 동작, AnimatedGif도 동일). 다음 step(youtube-card-placement)은 YoutubeCard.create(videoId)를 호출해 canvas.add()로 배치하면 됨. 산출 파일: src/fabric/YoutubeCard.js, src/fabric/YoutubeCard.test.js.",
-      "completed_at": "2026-07-19T12:20:00+0900"
+      "completed_at": "2026-07-19T12:18:19+0900"
     },
     {
       "step": 2,
