@@ -221,8 +221,12 @@ describe('StickerStudio', () => {
 
       await act(async () => {
         button.click()
-        await waitUntil(() => button.disabled === false)
       })
+      // button.click() 직후에는 상태가 'processing'으로 아직 반영되지 않은 순간이 있어
+      // (setBackgroundRemovalStatus가 React 배치 업데이트라 동기 클릭 시점엔 미반영),
+      // "disabled===false"만 보는 waitUntil이 그 찰나에 통과해버릴 수 있다(레이스 컨디션).
+      // removeBackgroundFromImage 호출 자체를 기다리는 게 실제로 원하는 완료 조건이다.
+      await waitUntil(() => removeBackgroundFromImage.mock.calls.length > 0 && button.disabled === false)
 
       expect(button.textContent).toBe('AI 배경제거')
       expect(removeBackgroundFromImage).toHaveBeenCalledTimes(1)

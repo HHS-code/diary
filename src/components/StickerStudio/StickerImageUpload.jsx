@@ -23,6 +23,8 @@ export function StickerImageUpload({ fabricCanvasRef }) {
     img.set({
       left: (fc.getWidth() - img.getScaledWidth()) / 2,
       top: (fc.getHeight() - img.getScaledHeight()) / 2,
+      // 스티커 스튜디오에서는 지우개로 업로드 이미지도 직접 지울 수 있다(그림 획과 동일).
+      erasable: true,
     })
 
     fc.add(img)

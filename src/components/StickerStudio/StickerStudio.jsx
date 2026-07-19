@@ -7,6 +7,7 @@ import { useCanvasKeyboardShortcuts } from '../../hooks/useCanvasKeyboardShortcu
 import { useStickerCropTool } from '../../hooks/useStickerCropTool'
 import { useAssetLibrary } from '../../hooks/useAssetLibrary'
 import { commitLassoCutout, previewLassoCutout } from '../../fabric/stickerCutout'
+import { addUnerasableBackground, findEraserPreviewBackground, setEraserPreviewBackgroundVisible } from '../../fabric/stickerEraserBackground'
 import { createOutlinedSticker } from '../../fabric/stickerOutline'
 import { eraseRegion, restoreRegion } from '../../fabric/stickerAiCorrection'
 import { removeBackgroundFromImage } from '../../ai/backgroundRemoval'
@@ -130,6 +131,67 @@ export function StickerStudio() {
   useCanvasHistory(fabricCanvasRef)
   useCanvasKeyboardShortcuts(fabricCanvasRef)
 
+  useEffect(() => {
+    function setup(canvas) {
+      addUnerasableBackground(canvas)
+    }
+    if (fabricCanvasRef.current) {
+      setup(fabricCanvasRef.current)
+      return undefined
+    }
+    const pollTimer = setInterval(() => {
+      if (!fabricCanvasRef.current) return
+      setup(fabricCanvasRef.current)
+      clearInterval(pollTimer)
+    }, CANVAS_READY_POLL_MS)
+    return () => clearInterval(pollTimer)
+  }, [fabricCanvasRef])
+
+  // 지우개로 드래그하는 동안에만 배경을 눈에 보이는 색으로 바꿔, "지워진 자리가 드러난다"는
+  // 실시간 미리보기가 실제로 보이게 한다(스티커 스튜디오는 배경이 투명이라 안 그러면 미리보기
+  // 자체가 눈에 안 띈다 — 2026-07-19 실측). 마우스를 떼거나 도구를 바꾸면 다시 투명으로 되돌린다.
+  // 배경은 크롭 적용·스티커 재편집 시 캔버스가 통째로 비워지고 새로 추가되므로, ref에
+  // 미리 저장해두지 않고 매번 캔버스에서 findEraserPreviewBackground로 다시 찾는다.
+  useEffect(() => {
+    if (paintTools.tool !== 'eraser') return undefined
+
+    function subscribeToCanvas(canvas) {
+      function showPreviewBackground() {
+        const background = findEraserPreviewBackground(canvas)
+        if (background) setEraserPreviewBackgroundVisible(background, true)
+      }
+      function hidePreviewBackground() {
+        const background = findEraserPreviewBackground(canvas)
+        if (background) setEraserPreviewBackgroundVisible(background, false)
+      }
+      canvas.on('mouse:down', showPreviewBackground)
+      canvas.on('mouse:up', hidePreviewBackground)
+      return () => {
+        canvas.off('mouse:down', showPreviewBackground)
+        canvas.off('mouse:up', hidePreviewBackground)
+        hidePreviewBackground()
+      }
+    }
+
+    if (fabricCanvasRef.current) {
+      return subscribeToCanvas(fabricCanvasRef.current)
+    }
+    return undefined
+  }, [fabricCanvasRef, paintTools.tool])
+
+  // 자르기 모드는 usePaintTools(연필/지우개 등)와 독립된 별도 상태라, 자르기 도중
+  // 그리기 도구를 선택하면 두 모드의 마우스 이벤트 리스너가 동시에 캔버스를 구독해
+  // 서로 간섭한다(예: 지우개로 드래그했는데 크롭 사각형이 함께 그려짐). 그리기 도구가
+  // select가 아닌 다른 도구로 바뀌면 자르기 모드를 자동으로 취소해 항상 하나만 켜지게 한다.
+  useEffect(() => {
+    if (paintTools.tool !== 'select' && cropTool.isCropping) {
+      cropTool.cancelCropping()
+    }
+    // cropTool.cancelCropping은 매 렌더마다 새로 만들어지는 함수라 의존 배열에 넣지 않는다
+    // (isCropping이 이미 이 effect의 실행 여부를 정확히 통제한다).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paintTools.tool])
+
   const [isOutlineEditorOpen, setIsOutlineEditorOpen] = useState(false)
   const [outlineThicknessPx, setOutlineThicknessPx] = useState(DEFAULT_OUTLINE_THICKNESS_PX)
   const [outlinePreviewCanvas, setOutlinePreviewCanvas] = useState(null)
@@ -215,7 +277,7 @@ export function StickerStudio() {
         setBackgroundRemovalProgressMessage(info?.message ?? '')
       })
       const resultImage = await FabricImage.fromURL(createAssetObjectURL(resultBlob))
-      resultImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId })
+      resultImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId, erasable: true })
 
       canvas.remove(targetImage)
       canvas.add(resultImage)
@@ -232,7 +294,7 @@ export function StickerStudio() {
   // 동일한 방식 — 원래 위치/assetId 유지).
   function applyCorrectionResult(canvas, targetImage, resultCanvasElement, left, top) {
     const correctedImage = new FabricImage(resultCanvasElement)
-    correctedImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId })
+    correctedImage.set({ originX: 'left', originY: 'top', left, top, assetId: targetImage.assetId, erasable: true })
     canvas.remove(targetImage)
     canvas.add(correctedImage)
     canvas.setActiveObject(correctedImage)
@@ -327,9 +389,11 @@ export function StickerStudio() {
 
     const img = await FabricImage.fromURL(createAssetObjectURL(record.blob))
     canvas.remove(...canvas.getObjects())
+    addUnerasableBackground(canvas)
     img.set({
       left: (canvas.getWidth() - img.width) / 2,
       top: (canvas.getHeight() - img.height) / 2,
+      erasable: true,
     })
     canvas.add(img)
     canvas.setActiveObject(img)
@@ -359,7 +423,14 @@ export function StickerStudio() {
               </button>
             </div>
           ) : (
-            <button type="button" style={cropButtonStyle} onClick={cropTool.startCropping}>
+            <button
+              type="button"
+              style={cropButtonStyle}
+              onClick={() => {
+                paintTools.setTool('select')
+                cropTool.startCropping()
+              }}
+            >
               자르기
             </button>
           )}

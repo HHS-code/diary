@@ -136,8 +136,10 @@ function applyToolToCanvas(canvas, tool, color, width) {
  * - 그린 획은 path:created 시점에 박제된다 — 그림판처럼 선택·이동 불가
  *   (selectable/evented false)이고, isFreeDrawing·erasable 태그로
  *   직렬화·지우개 대상 식별이 가능하다.
- * - 지우개(EraserBrush)는 erasable:true인 오브젝트(=그린 획)만 지운다.
- *   스티커/사진/텍스트는 erasable 미설정(기본 false)이라 영향받지 않는다.
+ * - 지우개(EraserBrush)는 erasable:true인 오브젝트만 지운다. 그린 획은 항상 erasable:true로
+ *   박제된다. 다이어리 캔버스의 스티커/사진/텍스트는 erasable 미설정(기본 false)이라 영향받지
+ *   않지만, 스티커 스튜디오는 업로드/크롭/AI 보정 결과 이미지에도 erasable:true를 설정해
+ *   지우개로 직접 지울 수 있다(StickerStudio.jsx, StickerImageUpload.jsx, useStickerCropTool.js).
  * - lasso(올가미)는 얇은 파란 점선 브러시로 그려지지만 그림 획이 아니라 선택 영역
  *   표시선이다. path:created 시 박제되지 않고 캔버스에서 즉시 제거되며, 좌표 정보는
  *   호출부(StickerStudio)가 별도로 구독해 stickerCutout.js로 전달한다.
