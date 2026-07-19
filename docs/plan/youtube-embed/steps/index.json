@@ -24,7 +24,7 @@
       "status": "completed",
       "started_at": "2026-07-19T12:18:19+0900",
       "summary": "src/fabric/placeYoutubeCard.js에 `createYoutubeCardObject(videoId) -> Promise<YoutubeCard>` 구현 — YoutubeCard.create(videoId) 호출 후 캔버스 논리 크기(LOGICAL_CANVAS, 1600×1000) 중앙에 배치할 left/top만 계산해 반환(canvas.add는 호출부 책임, assetLibrary 미경유). useCanvasKeyboardShortcuts.js의 handlePaste에 우선순위 3번째로 유튜브 URL 분기 추가: (1)네이티브 이미지 파일 → (2)클립보드 이미지 → (3)클립보드 텍스트가 extractYoutubeVideoId로 videoId 추출되면 registerAndPlaceYoutubeCard(videoId) 호출 → (4)기존 오브젝트 붙여넣기 폴백. 훅 옵션에 registerAndPlaceYoutubeCard: (videoId: string) => Promise<void> 추가(registerAndPlaceImage와 동일 자리). DiaryCanvas.jsx의 CanvasWorkspace에 registerAndPlaceYoutubeCard 정의(createYoutubeCardObject → canvas.add)하고 useCanvasKeyboardShortcuts 옵션에 연결. isEditingText 가드는 기존과 동일하게 유지, 우선순위 재정렬 없음. Playwright로 실제 붙여넣기 수동 확인 완료(썸네일+재생버튼 카드가 캔버스 중앙에 나타남). 다음 step(youtube-card-persistence)은 useFabricCanvas.js의 resolveCanvasAssetReferences에 YoutubeCard 예외 분기를 추가하면 됨(이 step은 손대지 않음). 산출 파일: src/fabric/placeYoutubeCard.js, src/fabric/placeYoutubeCard.test.js, src/hooks/useCanvasKeyboardShortcuts.js(수정), src/hooks/useCanvasKeyboardShortcuts.test.jsx(수정), src/components/DiaryCanvas/DiaryCanvas.jsx(수정).",
-      "completed_at": "2026-07-19T12:24:00+0900"
+      "completed_at": "2026-07-19T12:24:54+0900"
     },
     {
       "step": 3,
