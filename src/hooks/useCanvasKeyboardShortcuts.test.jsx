@@ -4,17 +4,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Canvas, Rect } from 'fabric'
 import { useCanvasKeyboardShortcuts } from './useCanvasKeyboardShortcuts'
 
-function TestHost({ fabricCanvasRef, registerAndPlaceImage }) {
-  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage })
+function TestHost({ fabricCanvasRef, registerAndPlaceImage, registerAndPlaceYoutubeCard }) {
+  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage, registerAndPlaceYoutubeCard })
   return null
 }
 
-function renderHost(fabricCanvasRef, registerAndPlaceImage) {
+function renderHost(fabricCanvasRef, registerAndPlaceImage, registerAndPlaceYoutubeCard) {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const root = createRoot(container)
   act(() => {
-    root.render(<TestHost fabricCanvasRef={fabricCanvasRef} registerAndPlaceImage={registerAndPlaceImage} />)
+    root.render(
+      <TestHost
+        fabricCanvasRef={fabricCanvasRef}
+        registerAndPlaceImage={registerAndPlaceImage}
+        registerAndPlaceYoutubeCard={registerAndPlaceYoutubeCard}
+      />,
+    )
   })
   return () => {
     act(() => root.unmount())
@@ -48,6 +54,10 @@ function dispatchPaste(clipboardData) {
 
 function makeEmptyClipboardData() {
   return { files: [], items: [] }
+}
+
+function makeTextClipboardData(text) {
+  return { files: [], items: [], getData: () => text }
 }
 
 describe('useCanvasKeyboardShortcuts', () => {
@@ -253,6 +263,84 @@ describe('useCanvasKeyboardShortcuts', () => {
 
     expect(registerAndPlaceImage).toHaveBeenCalledTimes(1)
     expect(registerAndPlaceImage.mock.calls[0][0]).toBe(imageFile)
+    expect(canvas.getObjects()).toHaveLength(1)
+  })
+
+  it('클립보드 텍스트가 유튜브 URL이면 Ctrl+V 시 registerAndPlaceYoutubeCard가 추출된 videoId로 호출된다', async () => {
+    stubClipboardRead(async () => [])
+    const registerAndPlaceYoutubeCard = vi.fn().mockResolvedValue(undefined)
+    cleanup = renderHost({ current: canvas }, undefined, registerAndPlaceYoutubeCard)
+
+    await act(async () => {
+      dispatchPaste(makeTextClipboardData('https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(registerAndPlaceYoutubeCard).toHaveBeenCalledTimes(1)
+    expect(registerAndPlaceYoutubeCard).toHaveBeenCalledWith('dQw4w9WgXcQ')
+    expect(canvas.getObjects()).toHaveLength(0)
+  })
+
+  it('네이티브 이미지 파일이 있으면 유튜브 URL 텍스트가 같이 있어도 이미지 붙여넣기가 우선된다', async () => {
+    const registerAndPlaceImage = vi.fn().mockResolvedValue('asset-id')
+    const registerAndPlaceYoutubeCard = vi.fn()
+    cleanup = renderHost({ current: canvas }, registerAndPlaceImage, registerAndPlaceYoutubeCard)
+
+    const imageFile = new File(['fake-image-bytes'], 'explorer-copy.png', { type: 'image/png' })
+    await act(async () => {
+      dispatchPaste({
+        files: [imageFile],
+        items: [],
+        getData: () => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      })
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(registerAndPlaceImage).toHaveBeenCalledTimes(1)
+    expect(registerAndPlaceYoutubeCard).not.toHaveBeenCalled()
+  })
+
+  it('클립보드 텍스트가 유튜브 URL이 아닌 일반 텍스트면 기존 오브젝트 붙여넣기로 폴백한다', async () => {
+    stubClipboardRead(async () => [])
+    const registerAndPlaceYoutubeCard = vi.fn()
+    const rect = new Rect({ left: 5, top: 5, width: 10, height: 10 })
+    canvas.add(rect)
+    canvas.setActiveObject(rect)
+    cleanup = renderHost({ current: canvas }, undefined, registerAndPlaceYoutubeCard)
+
+    await act(async () => {
+      dispatchKeydown({ key: 'c', ctrlKey: true })
+      await Promise.resolve()
+    })
+    await act(async () => {
+      dispatchPaste(makeTextClipboardData('그냥 텍스트입니다'))
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(registerAndPlaceYoutubeCard).not.toHaveBeenCalled()
+    expect(canvas.getObjects()).toHaveLength(2)
+  })
+
+  it('텍스트 편집 중(isEditing)이면 유튜브 URL을 붙여넣어도 아무 동작이 없다', async () => {
+    const registerAndPlaceYoutubeCard = vi.fn()
+    const rect = new Rect({ left: 0, top: 0, width: 10, height: 10 })
+    rect.isEditing = true
+    canvas.add(rect)
+    canvas.setActiveObject(rect)
+    cleanup = renderHost({ current: canvas }, undefined, registerAndPlaceYoutubeCard)
+
+    await act(async () => {
+      dispatchPaste(makeTextClipboardData('https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+      await Promise.resolve()
+    })
+
+    expect(registerAndPlaceYoutubeCard).not.toHaveBeenCalled()
     expect(canvas.getObjects()).toHaveLength(1)
   })
 })

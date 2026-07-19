@@ -9,6 +9,7 @@ import { usePaintTools } from '../../hooks/usePaintTools'
 import { useCanvasHistory } from '../../hooks/useCanvasHistory'
 import { fitCanvasObjects } from '../../hooks/canvasMigration'
 import { addImageAssetToCanvas } from '../../hooks/canvasAssetPlacement'
+import { createYoutubeCardObject } from '../../fabric/placeYoutubeCard'
 import { PaintToolbox } from '../PaintToolbox/PaintToolbox'
 import { StickerPalette } from '../StickerPalette/StickerPalette'
 import { AssetImportPanel } from '../AssetImportPanel/AssetImportPanel'
@@ -101,7 +102,14 @@ function CanvasWorkspace({ canvasJSON, canvasSize, onSave, selectedDate, onImpor
     await addImageAssetToCanvas(fc, asset)
   }
 
-  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage })
+  async function registerAndPlaceYoutubeCard(videoId) {
+    const fc = fabricCanvasRef.current
+    if (!fc) return
+    const card = await createYoutubeCardObject(videoId)
+    fc.add(card)
+  }
+
+  useCanvasKeyboardShortcuts(fabricCanvasRef, { registerAndPlaceImage, registerAndPlaceYoutubeCard })
   useCanvasHistory(fabricCanvasRef)
 
   return (
